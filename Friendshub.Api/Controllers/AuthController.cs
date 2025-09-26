@@ -126,7 +126,7 @@ namespace Friendshub.Api.Controllers
 
                 return Ok(new { message = "Logged out successfully." });
             }
-            catch (Exception exc)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Logout failed. Please try again");
 

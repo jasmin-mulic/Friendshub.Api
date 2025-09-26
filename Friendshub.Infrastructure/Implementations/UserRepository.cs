@@ -97,10 +97,15 @@ namespace Friendshub.Infrastructure.Implementations
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
             if (user == null)
                 return null;
+            var followersCount = await _context.Follows.CountAsync(x => x.FolloweeId == request.Id);
+            var followingCount = await _context.Follows.CountAsync(x => x.FollowerId == request.Id);
+
             var userProfileData = new ProfileDataDto
             {
                 DisplayUsername = user.Username,
                 ProfileImgUrl = "https://localhost:44326/" + user.ProfileImgUrl,
+                FollowersCount = followersCount,
+                FollowingCount = followingCount,
             };
             return userProfileData;
         }
