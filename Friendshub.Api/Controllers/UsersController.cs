@@ -1,4 +1,5 @@
 ﻿using Friendshub.Api.Extensions;
+using Friendshub.Application.DTO.Post;
 using Friendshub.Application.DTO.User;
 using Friendshub.Application.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -68,7 +69,8 @@ namespace Friendshub.Api.Controllers
                 return Unauthorized(exc);
             }
         }
-        [Authorize]
+            [Authorize]
+
             [HttpPost("follow-user")]
             public async Task<IActionResult> FollowUser(string foloweeId)
             {
@@ -88,6 +90,30 @@ namespace Friendshub.Api.Controllers
             {
                 return StatusCode(500, exc.Message);
             }
+        }
+        [Authorize]
+        [HttpPost("add-post")]
+        public async Task<IActionResult> AddPost(AddPostDto request)
+        {
+            try
+            {
+            var UserIdFromClaims = User.GetUserId();
+            if(UserIdFromClaims == Guid.Empty)
+                return Unauthorized("You are logged out.");
+
+                if (request == null)
+                    return BadRequest(new { message = "You have to add at least one image or post content."});
+
+                var newPost = await _unitOfWork.UserRepository.AddPost(request, UserIdFromClaims);
+                await _unitOfWork.ApplyChanges();
+                return Ok(new {message = "Post added successfully"});
+
+            }
+            catch (Exception exc)
+            {
+                throw new ApplicationException(exc.Message);
+            }
+
         }
     }
 }

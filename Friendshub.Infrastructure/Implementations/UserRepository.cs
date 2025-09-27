@@ -5,6 +5,7 @@ using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Friendshub.Infrastructure.Implementations
@@ -19,20 +20,48 @@ namespace Friendshub.Infrastructure.Implementations
             _env = env;
         }
 
-        public async Task<Post> AddPost(AddPostDto request)
+        public async Task<Post> AddPost(AddPostDto request, Guid UserId)
         {
-            if (request.Content == string.Empty && request.PostImagesUrls.Count == 0)
+            if (string.IsNullOrWhiteSpace(request.Content) && (request.PostImagesUrls == null || request.PostImagesUrls.Count == 0))
                 return null;
-            var newPost = new Post();
 
-            if(request.Content != null && request.Content != string.Empty)
-                newPost.Content = request.Content;
-            foreach(var image in request.PostImagesUrls)
+            var newPost = new Post
             {
+                Content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content,
+                UserId = UserId
+            };
 
+            if (request.PostImagesUrls != null && request.PostImagesUrls.Count > 0)
+            {
+                foreach (var file in request.PostImagesUrls)
+                {
+                    if (file.Length > 0)
+                    {
+                        // Kreiraj jedinstveni naziv fajla
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine("wwwroot/uploads/post/", fileName);
+                        var uploadsFolder = Path.Combine("wwwroot", "uploads", "post");
+                        if (!Directory.Exists(uploadsFolder))
+                            Directory.CreateDirectory(uploadsFolder);
+                        // Spasi fajl na server
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        // Dodaj u bazu samo putanju/URL
+                        newPost.PostsImages.Add(new PostImage
+                        {
+                            ImgUrl = "/uploads/post/" + fileName,
+                            Post = newPost
+                        });
+                    }
+                }
             }
-
+            _context.Posts.Add(newPost);
+            return newPost;
         }
+
 
         public async Task<string> ChangeProfilePicture(IFormFile file)
         {
@@ -108,6 +137,20 @@ namespace Friendshub.Infrastructure.Implementations
             return recommendations;
         }
 
+        public async Task<List<PostClientDto>> GetMyPosts(Guid userId)
+        {
+            var userPosts = await _context.Posts.Include(p => p.PostsImages).Where(x => x.UserId == userId)
+                                                .Select(x => new PostClientDto
+                                                {
+                                                    Content = x.Content,
+                                                    CreatedAt = x.PostedAt,
+                                                    PostImagesUrl = x.PostsImages.Select(x => x.ImgUrl).ToList(),
+                                                    PostId = x.Id
+                                                }).ToListAsync();
+
+            return userPosts;
+        }
+
         public async Task<ProfileDataDto> GetProfileData(User request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
@@ -120,7 +163,7 @@ namespace Friendshub.Infrastructure.Implementations
             var userProfileData = new ProfileDataDto
             {
                 DisplayUsername = user.Username,
-                ProfileImgUrl = "https://localhost:44326/" + user.ProfileImgUrl,
+                ProfileImgUrl = string.IsNullOrWhiteSpace(user.ProfileImgUrl) ? null : "https://localhost:44326/" + user.ProfileImgUrl,
                 FollowersCount = followersCount,
                 FollowingCount = followingCount,
                 PostCount = postCount
