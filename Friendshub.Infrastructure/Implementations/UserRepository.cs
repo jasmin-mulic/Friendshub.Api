@@ -99,6 +99,7 @@ namespace Friendshub.Infrastructure.Implementations
                 return null;
             var followersCount = await _context.Follows.CountAsync(x => x.FolloweeId == request.Id);
             var followingCount = await _context.Follows.CountAsync(x => x.FollowerId == request.Id);
+            var postCount = await _context.Posts.CountAsync(x => x.UserId == request.Id);
 
             var userProfileData = new ProfileDataDto
             {
@@ -106,7 +107,7 @@ namespace Friendshub.Infrastructure.Implementations
                 ProfileImgUrl = "https://localhost:44326/" + user.ProfileImgUrl,
                 FollowersCount = followersCount,
                 FollowingCount = followingCount,
-            };
+                PostCount = postCount,
             return userProfileData;
         }
     }
