@@ -1,4 +1,5 @@
-﻿using Friendshub.Application.DTO.User;
+﻿using Friendshub.Application.DTO.Post;
+using Friendshub.Application.DTO.User;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
@@ -16,6 +17,21 @@ namespace Friendshub.Infrastructure.Implementations
         {
             _context = context;
             _env = env;
+        }
+
+        public async Task<Post> AddPost(AddPostDto request)
+        {
+            if (request.Content == string.Empty && request.PostImagesUrls.Count == 0)
+                return null;
+            var newPost = new Post();
+
+            if(request.Content != null && request.Content != string.Empty)
+                newPost.Content = request.Content;
+            foreach(var image in request.PostImagesUrls)
+            {
+
+            }
+
         }
 
         public async Task<string> ChangeProfilePicture(IFormFile file)
@@ -107,7 +123,8 @@ namespace Friendshub.Infrastructure.Implementations
                 ProfileImgUrl = "https://localhost:44326/" + user.ProfileImgUrl,
                 FollowersCount = followersCount,
                 FollowingCount = followingCount,
-                PostCount = postCount,
+                PostCount = postCount
+            };
             return userProfileData;
         }
     }
