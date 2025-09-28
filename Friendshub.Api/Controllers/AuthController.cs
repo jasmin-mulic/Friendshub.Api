@@ -165,22 +165,5 @@ namespace Friendshub.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, exc.Message);
             }
         }
-        [Authorize]
-        [HttpGet("get-my-posts")]
-        public async Task<IActionResult> GetmyPosts()
-        {
-            try
-            {
-                var userIdFromClaims = User.GetUserId();
-                if (Guid.Empty == userIdFromClaims)
-                    return Unauthorized("You are logged out.");
-                var posts = await _unitOfWork.UserRepository.GetMyPosts(userIdFromClaims);
-                return Ok(posts);
-            }
-            catch (Exception exc)
-            {
-                throw new ApplicationException(exc.Message);
-            }
-        }
     }
 }

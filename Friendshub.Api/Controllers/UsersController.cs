@@ -113,7 +113,6 @@ namespace Friendshub.Api.Controllers
             {
                 throw new ApplicationException(exc.Message);
             }
-
         }
     }
 }

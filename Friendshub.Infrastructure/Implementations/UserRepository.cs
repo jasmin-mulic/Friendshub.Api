@@ -52,7 +52,7 @@ namespace Friendshub.Infrastructure.Implementations
                         // Dodaj u bazu samo putanju/URL
                         newPost.PostsImages.Add(new PostImage
                         {
-                            ImgUrl = "/uploads/post/" + fileName,
+                            ImgUrl = "https://localhost:44326/uploads/post/" + fileName,
                             Post = newPost
                         });
                     }
