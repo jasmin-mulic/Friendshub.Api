@@ -33,7 +33,7 @@ namespace Friendshub.Infrastructure.Data
 
                 modelBuilder.Entity<Follows>().HasKey(follows => new { follows.FollowerId, follows.FolloweeId });
 
-                modelBuilder.Entity<Follows>().HasOne(f => f.Follower).WithMany(x => x.Followings).HasForeignKey(f => f.FollowerId).OnDelete(DeleteBehavior.Restrict);
+                modelBuilder.Entity<Follows>().HasOne(f => f.Follower).WithMany(x => x.Followings).HasForeignKey(f => f.FollowerId).OnDelete(DeleteBehavior.Cascade);
                 modelBuilder.Entity<Follows>().HasOne(f => f.Followee).WithMany(u => u.Followers).HasForeignKey(f => f.FolloweeId).OnDelete(DeleteBehavior.Cascade);
 
         }

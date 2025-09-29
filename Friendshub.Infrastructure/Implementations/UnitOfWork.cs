@@ -26,7 +26,7 @@ namespace Friendshub.Infrastructure.Implementations
             TokenRepository = new TokenRepository(_context, _configuration);
             AuthRepository = new AuthRepository(_context, TokenRepository);
             UserRepository = new UserRepository(_context, _webHostEnvironment);
-            PostRepository = new PostRepository(_context)
+            PostRepository = new PostRepository(_context);
             
         }
         public IAuthRepository AuthRepository { get; }

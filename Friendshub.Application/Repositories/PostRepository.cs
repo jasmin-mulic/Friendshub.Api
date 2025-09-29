@@ -1,4 +1,5 @@
-﻿using Friendshub.Application.DTO.Post;
+﻿using Friendshub.Application.DTO;
+using Friendshub.Application.DTO.Post;
 using Friendshub.Application.DTO.User;
 using Friendshub.Domain.Models;
 using System;
@@ -12,7 +13,7 @@ namespace Friendshub.Application.Repositories
     public interface IPostRepository
     {
         Task<Post> AddPost(AddPostDto request, Guid UserId);
-        Task<List<PostClientDto>> GetMyPosts(Guid userId);
-        Task<PostClientDto> GetFeedPosts(Guid userId);
+        Task<PageResult<PostClientDto>>GetMyPosts(Guid userId);
+        Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId);
     }
 }

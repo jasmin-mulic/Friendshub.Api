@@ -1,14 +1,10 @@
-﻿using Friendshub.Application.DTO.Post;
+﻿using Friendshub.Application.DTO;
+using Friendshub.Application.DTO.Post;
 using Friendshub.Application.DTO.User;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Friendshub.Infrastructure.Implementations
 {
@@ -24,23 +20,74 @@ namespace Friendshub.Infrastructure.Implementations
             throw new NotImplementedException();
         }
 
-        public Task<PostClientDto> GetFeedPosts(Guid userId)
+        public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId)
         {
-            throw new NotImplementedException();
+            int pageNumber = 1;
+            int pageSize = 10;
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 10) pageSize = 10;
+            if (pageSize > 10) pageSize = 10;
+
+            var followingUsersIds = await _context.Follows.Where(x => x.FollowerId == userId)
+                                   .Select(x => x.FolloweeId).ToListAsync();
+
+            var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User)
+                        .Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId));
+            
+            var totalCount = querry.Count();
+
+            var posts = await querry.Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new PostClientDto
+                {
+                    Content = p.Content,
+                    Username = p.User.DisplayUsername,
+                    PostId = p.Id,
+                    PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl).ToList(),
+                    PostedAt = p.PostedAt,
+                    LikeCounter = p.LikeCounter,
+                }).ToListAsync();
+
+            var PageResult = new PageResult<PostClientDto>
+            {
+                Items = posts,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+            return PageResult;
         }
 
-        public async Task<List<PostClientDto>> GetMyPosts(Guid userId)
+        public async Task<PageResult<PostClientDto>> GetMyPosts(Guid userId)
         {
-            var userPosts = await _context.Posts.Include(p => p.PostsImages).Where(x => x.UserId == userId)
-                                                .Select(x => new PostClientDto
-                                                {
-                                                    Content = x.Content,
-                                                    CreatedAt = x.PostedAt,
-                                                    PostImagesUrl = x.PostsImages.Select(x => x.ImgUrl).ToList(),
-                                                    PostId = x.Id
-                                                }).ToListAsync();
+            int pageNumber = 1;
+            int pageSize = 10;
+            if(pageNumber < 1) pageNumber = 1;
+            if(pageSize < 10) pageSize = 10;
+            if(pageSize > 10) pageSize = 10;
 
-            return userPosts;
-        }
+            var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).Where(x => x.UserId == userId).OrderByDescending(x => x.PostedAt);
+            var totalCount = querry.Count();
+
+            var posts = await querry.Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new PostClientDto
+                {
+                    PostId = p.Id,
+                    Content = p.Content,
+                    PostedAt = p.PostedAt,
+                    Username = p.User.DisplayUsername,
+                    PostImagesUrl = p.PostsImages.Select(postimg => postimg.ImgUrl).ToList(),
+                    LikeCounter = p.LikeCounter,
+                }).ToListAsync();
+            var PageResult = new PageResult<PostClientDto>
+            {
+                Items = posts,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+            return PageResult;
+             }
     }
 }

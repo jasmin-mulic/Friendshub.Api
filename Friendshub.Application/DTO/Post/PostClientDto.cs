@@ -10,8 +10,11 @@ namespace Friendshub.Application.DTO.User
     {
         public Guid PostId { get; set; }
         public string Content { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime PostedAt { get; set; }
         public List<string> PostImagesUrl { get; set; } = new List<string>();
         public int LikeCounter { get; set; }
+        public string Username { get; set; }
+        public string ProfileImgUrl { get; set; }
+
     }
 }
