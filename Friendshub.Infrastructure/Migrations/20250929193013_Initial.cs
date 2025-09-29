@@ -64,8 +64,7 @@ namespace Friendshub.Infrastructure.Migrations
                         name: "FK_Follows_Users_FollowerId",
                         column: x => x.FollowerId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -76,8 +75,7 @@ namespace Friendshub.Infrastructure.Migrations
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PostedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LikeCounter = table.Column<int>(type: "int", nullable: false),
-                    User = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    LikeCounter = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

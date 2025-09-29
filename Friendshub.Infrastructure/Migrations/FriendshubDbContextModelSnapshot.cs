@@ -52,9 +52,6 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Property<DateTime>("PostedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("User")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -192,7 +189,7 @@ namespace Friendshub.Infrastructure.Migrations
                     b.HasOne("Friendshub.Domain.Models.User", "Follower")
                         .WithMany("Followings")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Followee");
@@ -202,11 +199,13 @@ namespace Friendshub.Infrastructure.Migrations
 
             modelBuilder.Entity("Friendshub.Domain.Models.Post", b =>
                 {
-                    b.HasOne("Friendshub.Domain.Models.User", null)
+                    b.HasOne("Friendshub.Domain.Models.User", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.PostImage", b =>

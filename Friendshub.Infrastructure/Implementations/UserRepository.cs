@@ -20,49 +20,6 @@ namespace Friendshub.Infrastructure.Implementations
             _env = env;
         }
 
-        public async Task<Post> AddPost(AddPostDto request, Guid UserId)
-        {
-            if (string.IsNullOrWhiteSpace(request.Content) && (request.PostImagesUrls == null || request.PostImagesUrls.Count == 0))
-                return null;
-
-            var newPost = new Post
-            {
-                Content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content,
-                UserId = UserId
-            };
-
-            if (request.PostImagesUrls != null && request.PostImagesUrls.Count > 0)
-            {
-                foreach (var file in request.PostImagesUrls)
-                {
-                    if (file.Length > 0)
-                    {
-                        // Kreiraj jedinstveni naziv fajla
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        var filePath = Path.Combine("wwwroot/uploads/post/", fileName);
-                        var uploadsFolder = Path.Combine("wwwroot", "uploads", "post");
-                        if (!Directory.Exists(uploadsFolder))
-                            Directory.CreateDirectory(uploadsFolder);
-                        // Spasi fajl na server
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        // Dodaj u bazu samo putanju/URL
-                        newPost.PostsImages.Add(new PostImage
-                        {
-                            ImgUrl = "https://localhost:44326/uploads/post/" + fileName,
-                            Post = newPost
-                        });
-                    }
-                }
-            }
-            _context.Posts.Add(newPost);
-            return newPost;
-        }
-
-
         public async Task<string> ChangeProfilePicture(IFormFile file)
         {
             if(file == null || file.Length == 0)

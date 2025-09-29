@@ -133,16 +133,11 @@ namespace Friendshub.Api.Controllers
 
             }
         }
-        [HttpGet("refresh-token")]
+        [HttpPost("refresh-token")]
         public async Task<IActionResult> GetNewAccessToken()
         {
             try
             {
-
-            var userIdFromClaims = User.GetUserId();
-
-            if (Guid.Empty == userIdFromClaims)
-                return Unauthorized();
 
             if(!Request.Cookies.TryGetValue("refreshToken", out var refreshTokenValue))
                 return Unauthorized("No refresh token found in cookies");
@@ -154,7 +149,7 @@ namespace Friendshub.Api.Controllers
             if (refreshToken.ExpiresOnUtc < DateTime.UtcNow)
                 return Unauthorized("Refresh token expired.");
 
-            var user = await _unitOfWork.UserRepository.GetById(userIdFromClaims);
+            var user = await _unitOfWork.UserRepository.GetById(refreshToken.UserId);
 
             var newAccessToken = await _unitOfWork.TokenRepository.CreateAccessToken(user);
             return Ok(newAccessToken);
