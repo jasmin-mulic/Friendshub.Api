@@ -16,18 +16,23 @@ namespace Friendshub.Infrastructure.Implementations
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private bool _disposed = false;
-        public UnitOfWork(FriendshubDbContext context, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+        public UnitOfWork(FriendshubDbContext context,
+                         IConfiguration configuration, 
+                         IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _configuration = configuration;
+            _webHostEnvironment = webHostEnvironment;
             TokenRepository = new TokenRepository(_context, _configuration);
             AuthRepository = new AuthRepository(_context, TokenRepository);
-            _webHostEnvironment = webHostEnvironment;
             UserRepository = new UserRepository(_context, _webHostEnvironment);
+            PostRepository = new PostRepository(_context)
+            
         }
         public IAuthRepository AuthRepository { get; }
         public ITokenRepository TokenRepository { get; }
         public IUserRepository UserRepository { get; }
+        public IPostRepository PostRepository { get; }
 
 
         public async Task<bool> ApplyChanges()

@@ -11,7 +11,5 @@ namespace Friendshub.Application.Repositories
         Task<string> ChangeProfilePicture(IFormFile file);
         Task <List<FollowRecommendation>> GetFollowRecommendationList(Guid id);
         void FollowUser(Guid folower, Guid Folowee);
-        Task<Post> AddPost(AddPostDto request, Guid UserId);
-        Task<List<PostClientDto>> GetMyPosts(Guid userId);
     }
 }

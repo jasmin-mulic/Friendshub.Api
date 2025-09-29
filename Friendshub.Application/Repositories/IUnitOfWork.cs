@@ -10,7 +10,8 @@ namespace Friendshub.Application.Repositories
     {
          IAuthRepository AuthRepository { get;}
          ITokenRepository TokenRepository { get;}
-        IUserRepository UserRepository { get;}
+         IUserRepository UserRepository { get;}
+         IPostRepository PostRepository { get;}
          Task<bool> ApplyChanges();
     }
 }

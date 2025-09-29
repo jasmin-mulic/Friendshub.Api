@@ -137,20 +137,6 @@ namespace Friendshub.Infrastructure.Implementations
             return recommendations;
         }
 
-        public async Task<List<PostClientDto>> GetMyPosts(Guid userId)
-        {
-            var userPosts = await _context.Posts.Include(p => p.PostsImages).Where(x => x.UserId == userId)
-                                                .Select(x => new PostClientDto
-                                                {
-                                                    Content = x.Content,
-                                                    CreatedAt = x.PostedAt,
-                                                    PostImagesUrl = x.PostsImages.Select(x => x.ImgUrl).ToList(),
-                                                    PostId = x.Id
-                                                }).ToListAsync();
-
-            return userPosts;
-        }
-
         public async Task<ProfileDataDto> GetProfileData(User request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
