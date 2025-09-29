@@ -5,8 +5,8 @@ using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Friendshub.Infrastructure.Implementations
 {
@@ -36,6 +36,14 @@ namespace Friendshub.Infrastructure.Implementations
                 await file.CopyToAsync(stream);
             }
             return $"/uploads/{fileName}";
+        }
+
+        public async Task DeleteUser(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            var follows = await _context.Follows.Where(x => x.FollowerId == id).ToListAsync();
+             _context.RemoveRange(follows);
+            _context.Users.Remove(user);
         }
 
         public void FollowUser(Guid folowerId, Guid foloweeId)

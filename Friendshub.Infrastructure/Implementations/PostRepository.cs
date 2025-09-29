@@ -82,7 +82,7 @@ namespace Friendshub.Infrastructure.Implementations
                     PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl).ToList(),
                     PostedAt = p.PostedAt,
                     LikeCounter = p.LikeCounter,
-                }).ToListAsync();
+                }).OrderByDescending(x => x.PostedAt).ToListAsync();
 
             var PageResult = new PageResult<PostClientDto>
             {

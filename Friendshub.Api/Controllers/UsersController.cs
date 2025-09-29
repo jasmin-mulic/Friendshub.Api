@@ -1,16 +1,13 @@
 ﻿using Friendshub.Api.Extensions;
-using Friendshub.Application.DTO.Post;
-using Friendshub.Application.DTO.User;
 using Friendshub.Application.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Friendshub.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -19,7 +16,6 @@ namespace Friendshub.Api.Controllers
             _unitOfWork = unitOfWork;
         }
         [HttpGet("me")]
-        [Authorize]
         public async Task<IActionResult> GetProfileDetails()
         {
             var userIdFromClaims = User.GetUserId();
@@ -31,7 +27,6 @@ namespace Friendshub.Api.Controllers
             return Ok(userData);
         }
         [HttpPost("change-profile-picture")]
-        [Authorize]
         public async Task<IActionResult> ChangeProfileImage(IFormFile formFile)
         {
             try
@@ -69,7 +64,6 @@ namespace Friendshub.Api.Controllers
                 return Unauthorized(exc);
             }
         }
-            [Authorize]
 
             [HttpPost("follow-user")]
             public async Task<IActionResult> FollowUser(string foloweeId)
@@ -91,5 +85,23 @@ namespace Friendshub.Api.Controllers
                 return StatusCode(500, exc.Message);
             }
         }
+        [HttpPost("delete-user")]
+        public async Task<IActionResult> DeleteUser()
+        {
+            try
+            {
+            var userIdFromClaims = User.GetUserId();
+            if(Guid.Empty == userIdFromClaims)
+                return Unauthorized("You are logged out.");
+            await _unitOfWork.UserRepository.DeleteUser(userIdFromClaims);
+            await _unitOfWork.ApplyChanges();
+            return Ok(new { message = "You deleted your account. See you soon :D" });
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
+
     }
 }
