@@ -76,5 +76,24 @@ namespace Friendshub.Api.Controllers
 
             }
         }
+        [HttpPost("delete-post")]
+        public async Task<IActionResult> DeletePost(Guid postId)
+        {
+            try
+            {
+                if (User.GetUserId() == Guid.Empty)
+                    return Unauthorized("You are logged out.");
+                var post = await _unitOfWork.PostRepository.GetPostById(postId);
+                if(post == null)
+                    return NotFound("Post not found.");
+                _unitOfWork.PostRepository.DeletePost(post);
+                await _unitOfWork.ApplyChanges();
+                return Ok(new { message = "Post deleted successfully." });
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
     }
 }

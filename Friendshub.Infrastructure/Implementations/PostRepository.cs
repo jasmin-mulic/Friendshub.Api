@@ -56,6 +56,10 @@ namespace Friendshub.Infrastructure.Implementations
             return newPost;
         }
 
+        public void DeletePost(Post post)
+        {
+            _context.Posts.Remove(post);    
+        }
         public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId)
         {
             int pageNumber = 1;
@@ -98,9 +102,9 @@ namespace Friendshub.Infrastructure.Implementations
         {
             int pageNumber = 1;
             int pageSize = 10;
-            if(pageNumber < 1) pageNumber = 1;
-            if(pageSize < 10) pageSize = 10;
-            if(pageSize > 10) pageSize = 10;
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 10) pageSize = 10;
+            if (pageSize > 10) pageSize = 10;
 
             var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).Where(x => x.UserId == userId).OrderByDescending(x => x.PostedAt);
             var totalCount = querry.Count();
@@ -124,6 +128,12 @@ namespace Friendshub.Infrastructure.Implementations
                 TotalCount = totalCount
             };
             return PageResult;
-             }
+        }
+
+        public async Task<Post> GetPostById(Guid postId)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(x => x.Id == postId);
+            return post;
+        }
     }
 }

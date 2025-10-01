@@ -15,5 +15,7 @@ namespace Friendshub.Application.Repositories
         Task<Post> AddPost(AddPostDto request, Guid UserId);
         Task<PageResult<PostClientDto>>GetMyPosts(Guid userId);
         Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId);
+        void DeletePost(Post post);
+        Task<Post> GetPostById(Guid postId);
     }
 }
