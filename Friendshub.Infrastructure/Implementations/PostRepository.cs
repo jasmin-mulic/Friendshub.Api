@@ -18,7 +18,7 @@ namespace Friendshub.Infrastructure.Implementations
 
         public async Task<Post> AddPost(AddPostDto request, Guid UserId)
         {
-            if (string.IsNullOrWhiteSpace(request.Content) && (request.PostImagesUrls == null || request.PostImagesUrls.Count == 0))
+            if (string.IsNullOrWhiteSpace(request.Content) && (request.ImagePaths == null || request.ImagePaths.Count == 0))
                 return null;
 
             var newPost = new Post
@@ -27,9 +27,9 @@ namespace Friendshub.Infrastructure.Implementations
                 UserId = UserId
             };
 
-            if (request.PostImagesUrls != null && request.PostImagesUrls.Count > 0)
+            if (request.ImagePaths != null && request.ImagePaths.Count > 0)
             {
-                foreach (var file in request.PostImagesUrls)
+                foreach (var file in request.ImagePaths)
                 {
                     if (file.Length > 0)
                     {

@@ -43,7 +43,7 @@ namespace Friendshub.Api.Controllers
                 if (UserIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out.");
 
-                if (request == null)
+                if (string.IsNullOrWhiteSpace(request.Content) && request.ImagePaths == null)
                     return BadRequest(new { message = "You have to add at least one image or post content." });
 
                 var newPost = await _unitOfWork.PostRepository.AddPost(request, UserIdFromClaims);
