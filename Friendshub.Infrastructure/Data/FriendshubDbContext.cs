@@ -21,6 +21,7 @@ namespace Friendshub.Infrastructure.Data
         public virtual DbSet<Post> Posts { get; set; }
         public virtual DbSet<PostImage> PostImages { get; set; }
         public virtual DbSet<Follows> Follows { get; set; }
+        public virtual DbSet<Like> Likes { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.RoleId, ur.UserId });
@@ -31,10 +32,14 @@ namespace Friendshub.Infrastructure.Data
             modelBuilder.Entity<PostImage>().HasOne(x => x.Post).WithMany(x => x.PostsImages).HasForeignKey(x => x.PostId).OnDelete(DeleteBehavior.Cascade);
 
 
-                modelBuilder.Entity<Follows>().HasKey(follows => new { follows.FollowerId, follows.FolloweeId });
+            modelBuilder.Entity<Follows>().HasKey(follows => new { follows.FollowerId, follows.FolloweeId });
 
-                modelBuilder.Entity<Follows>().HasOne(f => f.Follower).WithMany(x => x.Followings).HasForeignKey(f => f.FollowerId).OnDelete(DeleteBehavior.NoAction);
-                modelBuilder.Entity<Follows>().HasOne(f => f.Followee).WithMany(u => u.Followers).HasForeignKey(f => f.FolloweeId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Follows>().HasOne(f => f.Follower).WithMany(x => x.Followings).HasForeignKey(f => f.FollowerId).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Follows>().HasOne(f => f.Followee).WithMany(u => u.Followers).HasForeignKey(f => f.FolloweeId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Like>().HasKey(like => new { like.UserId, like.PostId });
+            modelBuilder.Entity<Like>().HasOne(l => l.Post).WithMany(p => p.Likes).HasForeignKey(l => l.PostId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Like>().HasOne(l => l.User).WithMany(x => x.Likes).HasForeignKey(l => l.UserId).OnDelete(DeleteBehavior.NoAction);
 
         }
 

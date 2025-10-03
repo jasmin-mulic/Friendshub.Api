@@ -76,17 +76,19 @@ namespace Friendshub.Infrastructure.Implementations
             
             var totalCount = querry.Count();
 
-            var posts = await querry.Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(p => new PostClientDto
+            var postEntities = await querry.Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize).ToListAsync();
+
+                var posts = postEntities.Select(p => new PostClientDto
                 {
                     Content = p.Content,
                     Username = p.User.DisplayUsername,
                     PostId = p.Id,
                     PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl).ToList(),
                     PostedAt = p.PostedAt,
-                    LikeCounter = p.LikeCounter,
-                }).OrderByDescending(x => x.PostedAt).ToListAsync();
+                    Likes = GetLikes(p.Id)
+
+                }).OrderByDescending(x => x.PostedAt).ToList();
 
             var PageResult = new PageResult<PostClientDto>
             {
@@ -96,6 +98,21 @@ namespace Friendshub.Infrastructure.Implementations
                 TotalCount = totalCount
             };
             return PageResult;
+        }
+
+        public  PostLikes GetLikes(Guid postId)
+        {
+            var likes = _context.Likes.Include(x => x.User).Where(l => l.PostId == postId).ToList();
+            var postLikes = new PostLikes()
+            {
+                Count = likes.Count,
+                Users = likes.Select(x => new UserBasicInfo
+                {
+                    ProfileImageUrl = x.User.ProfileImgUrl,
+                    Username = x.User.DisplayUsername
+                }).ToList(),
+            };
+            return postLikes;
         }
 
         public async Task<PageResult<PostClientDto>> GetMyPosts(Guid userId)
@@ -109,17 +126,20 @@ namespace Friendshub.Infrastructure.Implementations
             var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).Where(x => x.UserId == userId).OrderByDescending(x => x.PostedAt);
             var totalCount = querry.Count();
 
-            var posts = await querry.Skip((pageNumber - 1) * pageSize)
+            var postsEntities = await querry.Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(p => new PostClientDto
+                .ToListAsync();
+
+                var posts = postsEntities.Select(p => new PostClientDto
                 {
                     PostId = p.Id,
                     Content = p.Content,
                     PostedAt = p.PostedAt,
                     Username = p.User.DisplayUsername,
                     PostImagesUrl = p.PostsImages.Select(postimg => postimg.ImgUrl).ToList(),
-                    LikeCounter = p.LikeCounter,
-                }).ToListAsync();
+                    Likes = GetLikes(p.Id)
+                }).ToList();
+
             var PageResult = new PageResult<PostClientDto>
             {
                 Items = posts,
@@ -134,6 +154,17 @@ namespace Friendshub.Infrastructure.Implementations
         {
             var post = await _context.Posts.FirstOrDefaultAsync(x => x.Id == postId);
             return post;
+        }
+
+        public void LikePost(Guid userId, Guid postId)
+        {
+            var like = new Like()
+            {
+                UserId = userId,
+                PostId = postId,
+                LikedAt = DateTime.UtcNow
+            };
+            _context.Likes.Add(like);
         }
     }
 }

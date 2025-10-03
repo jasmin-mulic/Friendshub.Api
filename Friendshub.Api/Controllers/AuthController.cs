@@ -130,9 +130,9 @@ namespace Friendshub.Api.Controllers
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Logout failed. Please try again");
-
             }
         }
+        
         [HttpPost("refresh-token")]
         public async Task<IActionResult> GetNewAccessToken()
         {

@@ -43,6 +43,21 @@ namespace Friendshub.Api.Controllers
                 if (UserIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out.");
 
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+                if(request.ImagePaths.Count > 0)
+                {
+                foreach (var image in request.ImagePaths)
+                {
+                    var extension = Path.GetExtension(image.FileName.ToLowerInvariant());
+                    if (!allowedExtensions.Contains(extension))
+                        return BadRequest("Image format not supported!");
+
+                    if (image.Length * 1024 > 10)
+                        return BadRequest("Image is too big.");
+                }
+                }
+
                 if (string.IsNullOrWhiteSpace(request.Content) && request.ImagePaths == null)
                     return BadRequest(new { message = "You have to add at least one image or post content." });
 
@@ -89,6 +104,28 @@ namespace Friendshub.Api.Controllers
                 _unitOfWork.PostRepository.DeletePost(post);
                 await _unitOfWork.ApplyChanges();
                 return Ok(new { message = "Post deleted successfully." });
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
+        [HttpPost("like")]
+        public async Task<IActionResult> LikePost(Guid postId)
+        {
+            try
+            {
+                var userId = User.GetUserId();
+
+                 if (userId == Guid.Empty)
+                return Unauthorized("Session expired. Please log in.");
+
+                var post = await _unitOfWork.PostRepository.GetPostById(postId);
+                if (post == null)
+                    return BadRequest("Post is deleted.");
+                _unitOfWork.PostRepository.LikePost(userId, postId);
+                await _unitOfWork.ApplyChanges();
+                return Ok();
             }
             catch (Exception exc)
             {

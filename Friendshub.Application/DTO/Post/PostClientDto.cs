@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using Friendshub.Application.DTO.Post;
 namespace Friendshub.Application.DTO.User
 {
     public class PostClientDto
@@ -12,9 +7,8 @@ namespace Friendshub.Application.DTO.User
         public string Content { get; set; }
         public DateTime PostedAt { get; set; }
         public List<string> PostImagesUrl { get; set; } = new List<string>();
-        public int LikeCounter { get; set; }
         public string Username { get; set; }
         public string ProfileImgUrl { get; set; }
-
+        public PostLikes Likes { get; set; }
     }
 }

@@ -16,10 +16,11 @@ namespace Friendshub.Domain.Models
         public bool Active { get; set; } = true;
         public string ProfileImgUrl { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
-        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();    
-        public ICollection<Post> Posts { get; set;} = new List<Post>();
+        public List<UserRole> UserRoles { get; set; } = new();  
+        public List<Post> Posts { get; set;} = new();
         public List<Follows> Followers { get; set; } = new();
         public List<Follows> Followings { get; set; } = new();
+        public List<Like> Likes { get; set; } = new();
     }
 }
 
