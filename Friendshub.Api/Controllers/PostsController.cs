@@ -53,8 +53,9 @@ namespace Friendshub.Api.Controllers
                     if (!allowedExtensions.Contains(extension))
                         return BadRequest("Image format not supported!");
 
-                    if (image.Length * 1024 > 10)
-                        return BadRequest("Image is too big.");
+                        long maxSize = 10 * 1024 * 1024;
+                    if (image.Length > maxSize)
+                        return BadRequest("Image exceedes 10 MB!.");
                 }
                 }
 
@@ -123,9 +124,9 @@ namespace Friendshub.Api.Controllers
                 var post = await _unitOfWork.PostRepository.GetPostById(postId);
                 if (post == null)
                     return BadRequest("Post is deleted.");
-                _unitOfWork.PostRepository.LikePost(userId, postId);
+                var likeResponse = await _unitOfWork.PostRepository.LikePost(userId, postId);
                 await _unitOfWork.ApplyChanges();
-                return Ok();
+                return Ok(likeResponse);
             }
             catch (Exception exc)
             {

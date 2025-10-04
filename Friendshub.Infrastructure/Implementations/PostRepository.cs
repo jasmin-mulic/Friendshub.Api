@@ -108,6 +108,7 @@ namespace Friendshub.Infrastructure.Implementations
                 Count = likes.Count,
                 Users = likes.Select(x => new UserBasicInfo
                 {
+                    UserId = x.User.Id,
                     ProfileImageUrl = x.User.ProfileImgUrl,
                     Username = x.User.DisplayUsername
                 }).ToList(),
@@ -156,15 +157,28 @@ namespace Friendshub.Infrastructure.Implementations
             return post;
         }
 
-        public void LikePost(Guid userId, Guid postId)
+        public async Task<string> LikePost(Guid userId, Guid postId)
         {
-            var like = new Like()
+            string message = string.Empty;
+            var like = await _context.Likes.FirstOrDefaultAsync(x => x.UserId == userId && postId == x.PostId);
+            if (like == null)
             {
-                UserId = userId,
-                PostId = postId,
-                LikedAt = DateTime.UtcNow
-            };
-            _context.Likes.Add(like);
+                var newlike = new Like()
+                {
+                    UserId = userId,
+                    PostId = postId,
+                    LikedAt = DateTime.UtcNow
+                };
+                _context.Likes.Add(newlike);
+                message = "Post liked.";
+            }
+            else
+            {
+            message = "Post disliked.";
+                _context.Likes.Remove(like);
+            }
+            return message;
         }
+
     }
 }
