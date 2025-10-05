@@ -12,9 +12,9 @@ namespace Friendshub.Application.Repositories
 {
     public interface IPostRepository
     {
-        Task<Post> AddPost(AddPostDto request, Guid UserId);
-        Task<PageResult<PostClientDto>>GetMyPosts(Guid userId);
-        Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId);
+        Task<PostClientDto> AddPost(AddPostDto request, Guid UserId);
+        Task<PageResult<PostClientDto>>GetMyPosts(Guid userId, int page);
+        Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int page);
         void DeletePost(Post post);
         Task<Post> GetPostById(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);

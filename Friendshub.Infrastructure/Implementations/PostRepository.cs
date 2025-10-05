@@ -16,16 +16,16 @@ namespace Friendshub.Infrastructure.Implementations
             _context = context;
         }
 
-        public async Task<Post> AddPost(AddPostDto request, Guid UserId)
+        public async Task<PostClientDto> AddPost(AddPostDto request, Guid UserId)
         {
             if (string.IsNullOrWhiteSpace(request.Content) && (request.ImagePaths == null || request.ImagePaths.Count == 0))
                 return null;
-
             var newPost = new Post
             {
                 Content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content,
                 UserId = UserId
             };
+            
 
             if (request.ImagePaths != null && request.ImagePaths.Count > 0)
             {
@@ -51,18 +51,28 @@ namespace Friendshub.Infrastructure.Implementations
                         });
                     }
                 }
+            
             }
             _context.Posts.Add(newPost);
-            return newPost;
+
+            var postDto = new PostClientDto()
+            {
+                Content = newPost.Content,
+                Username = newPost.User.DisplayUsername,
+                PostId = newPost.Id,
+                PostImagesUrl = newPost.PostsImages.Select(x => x.ImgUrl).ToList(),
+                PostedAt = newPost.PostedAt,
+                Likes = GetLikes(newPost.Id)
+            };
+            return postDto;
         }
 
         public void DeletePost(Post post)
         {
             _context.Posts.Remove(post);    
         }
-        public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId)
+        public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int pageNumber = 1)
         {
-            int pageNumber = 1;
             int pageSize = 10;
             if (pageNumber < 1) pageNumber = 1;
             if (pageSize < 10) pageSize = 10;
@@ -76,7 +86,7 @@ namespace Friendshub.Infrastructure.Implementations
             
             var totalCount = querry.Count();
 
-            var postEntities = await querry.Skip((pageNumber - 1) * pageSize)
+            var postEntities = await querry.OrderByDescending(x => x.PostedAt).Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize).ToListAsync();
 
                 var posts = postEntities.Select(p => new PostClientDto
@@ -88,7 +98,7 @@ namespace Friendshub.Infrastructure.Implementations
                     PostedAt = p.PostedAt,
                     Likes = GetLikes(p.Id)
 
-                }).OrderByDescending(x => x.PostedAt).ToList();
+                }).ToList();
 
             var PageResult = new PageResult<PostClientDto>
             {
@@ -116,9 +126,8 @@ namespace Friendshub.Infrastructure.Implementations
             return postLikes;
         }
 
-        public async Task<PageResult<PostClientDto>> GetMyPosts(Guid userId)
+        public async Task<PageResult<PostClientDto>> GetMyPosts(Guid userId, int pageNumber = 1)
         {
-            int pageNumber = 1;
             int pageSize = 10;
             if (pageNumber < 1) pageNumber = 1;
             if (pageSize < 10) pageSize = 10;

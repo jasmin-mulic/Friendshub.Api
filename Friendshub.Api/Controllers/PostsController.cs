@@ -17,15 +17,15 @@ namespace Friendshub.Api.Controllers
             _unitOfWork = unitOfWork;
         }
         [Authorize]
-        [HttpGet("my-posts")]
-        public async Task<IActionResult> GetmyPosts()
+        [HttpGet("my-posts/page{page}")]
+        public async Task<IActionResult> GetmyPosts([FromRoute] int page)
         {
             try
             {
                 var userIdFromClaims = User.GetUserId();
                 if (Guid.Empty == userIdFromClaims)
                     return Unauthorized("You are logged out.");
-                var posts = await _unitOfWork.PostRepository.GetMyPosts(userIdFromClaims);
+                var posts = await _unitOfWork.PostRepository.GetMyPosts(userIdFromClaims, page);
                 return Ok(posts);
             }
             catch (Exception exc)
@@ -64,7 +64,7 @@ namespace Friendshub.Api.Controllers
 
                 var newPost = await _unitOfWork.PostRepository.AddPost(request, UserIdFromClaims);
                 await _unitOfWork.ApplyChanges();
-                return Ok(new { message = "Post added successfully" });
+                return Ok(newPost);
 
             }
             catch (Exception exc)
@@ -73,8 +73,8 @@ namespace Friendshub.Api.Controllers
             }
         }
         [Authorize]
-        [HttpGet("get-feed-posts")]
-        public async Task<IActionResult>GetFeedPosts()
+        [HttpGet("get-feed-posts/page/{page}")]
+        public async Task<IActionResult> GetFeedPosts([FromRoute] int page)
         {
             try
             {
@@ -82,7 +82,8 @@ namespace Friendshub.Api.Controllers
                 if (Guid.Empty == userIdFromClaims)
                     return Unauthorized("You are logged out.");
 
-                var feed = await _unitOfWork.PostRepository.GetFeedPosts(userIdFromClaims);
+                var feed = await _unitOfWork.PostRepository.GetFeedPosts(userIdFromClaims, page);
+                 
                 return Ok(feed);
                 
             }

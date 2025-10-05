@@ -1,4 +1,6 @@
-﻿namespace Friendshub.Domain.Models
+﻿using System.Security.Claims;
+
+namespace Friendshub.Domain.Models
 {
     public class Post
     {
@@ -11,4 +13,5 @@
         public virtual ICollection<PostImage> PostsImages { get; set; } = new List<PostImage>();
         public virtual ICollection<Like> Likes { get; set; } = new List<Like>();
     }
+
 }
