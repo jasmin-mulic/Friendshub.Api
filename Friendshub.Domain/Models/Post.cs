@@ -12,6 +12,7 @@ namespace Friendshub.Domain.Models
         public User User { get; set; }
         public virtual ICollection<PostImage> PostsImages { get; set; } = new List<PostImage>();
         public virtual ICollection<Like> Likes { get; set; } = new List<Like>();
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 
 }

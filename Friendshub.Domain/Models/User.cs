@@ -21,6 +21,7 @@ namespace Friendshub.Domain.Models
         public List<Follows> Followers { get; set; } = new();
         public List<Follows> Followings { get; set; } = new();
         public List<Like> Likes { get; set; } = new();
+        public List<Comment> Comments { get; set; }= new();
     }
 }
 

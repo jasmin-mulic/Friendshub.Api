@@ -67,6 +67,21 @@ namespace Friendshub.Infrastructure.Implementations
             return postDto;
         }
 
+        public async Task<Comment> CommentPost(Guid userId, Guid PostId, AddCommentDto comment)
+        { 
+            var post = await GetPostById(PostId);
+            var newComment = new Comment
+            {
+                UserId = userId,
+                PostId = post.Id,
+                CommentedAt = DateTime.UtcNow,
+                Content = comment.Content,
+                ImgUrl = comment.CommentImageUrl,
+            };
+            _context.Comments.Add(newComment);
+            return newComment;
+        }
+
         public void DeletePost(Post post)
         {
             _context.Posts.Remove(post);    
