@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Friendshub.Infrastructure.Migrations
 {
     [DbContext(typeof(FriendshubDbContext))]
-    [Migration("20251006194941_initial")]
-    partial class initial
+    [Migration("20251006205011_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,24 +70,6 @@ namespace Friendshub.Infrastructure.Migrations
                     b.ToTable("Follows");
                 });
 
-            modelBuilder.Entity("Friendshub.Domain.Models.Like", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("LikedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("UserId", "PostId");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("Likes");
-                });
-
             modelBuilder.Entity("Friendshub.Domain.Models.Post", b =>
                 {
                     b.Property<Guid>("Id")
@@ -96,9 +78,6 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("LikeCounter")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("PostedAt")
                         .HasColumnType("datetime2");
@@ -130,6 +109,24 @@ namespace Friendshub.Infrastructure.Migrations
                     b.HasIndex("PostId");
 
                     b.ToTable("PostImages");
+                });
+
+            modelBuilder.Entity("Friendshub.Domain.Models.PostLike", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("LikedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId", "PostId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.RefreshToken", b =>
@@ -267,25 +264,6 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Navigation("Follower");
                 });
 
-            modelBuilder.Entity("Friendshub.Domain.Models.Like", b =>
-                {
-                    b.HasOne("Friendshub.Domain.Models.Post", "Post")
-                        .WithMany("Likes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Friendshub.Domain.Models.User", "User")
-                        .WithMany("Likes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Friendshub.Domain.Models.Post", b =>
                 {
                     b.HasOne("Friendshub.Domain.Models.User", "User")
@@ -306,6 +284,25 @@ namespace Friendshub.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Friendshub.Domain.Models.PostLike", b =>
+                {
+                    b.HasOne("Friendshub.Domain.Models.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Friendshub.Domain.Models.User", "User")
+                        .WithMany("Likes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.RefreshToken", b =>

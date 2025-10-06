@@ -137,7 +137,7 @@ namespace Friendshub.Api.Controllers
             }
         }
         [HttpPost("add-comment/{postId}")]
-        public async Task<IActionResult> AddComment([FromRoute] Guid postId, AddCommentDto request)
+        public async Task<IActionResult> AddComment([FromRoute] Guid postId, [FromBody]AddCommentDto request)
         {
             try
             {
@@ -150,9 +150,10 @@ namespace Friendshub.Api.Controllers
                 if(post == null)
                     return NotFound("Post is deleted");
 
-                var newComment = await _unitOfWork.PostRepository.CommentPost(userIdFromClaIms, postId, request);
+                var newComment = await _unitOfWork.PostRepository.CommentPost(userIdFromClaIms, post, request);
                 if (newComment == null)
                     return BadRequest("Error adding post.");
+                await _unitOfWork.ApplyChanges();
                 return Ok(newComment);  
                 
             }

@@ -8,7 +8,6 @@ namespace Friendshub.Application.DTO
 {
     public class AddCommentDto
     {
-        public Guid PostId { get; set; }
         public string Content { get; set; }
         public string CommentImageUrl { get; set; }
     }

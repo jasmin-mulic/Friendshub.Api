@@ -69,16 +69,15 @@ namespace Friendshub.Infrastructure.Implementations
             return postDto;
         }
 
-        public async Task<Comment> CommentPost(Guid userId, Guid PostId, AddCommentDto comment)
+        public async Task<Comment> CommentPost(Guid userId, Post post, AddCommentDto comment)
         { 
-            var post = await GetPostById(PostId);
             var newComment = new Comment
             {
-                UserId = userId,
-                PostId = post.Id,
+                Id = Guid.NewGuid(),
+                Post = post,
                 CommentedAt = DateTime.UtcNow,
                 Content = comment.Content,
-                CommentImageUrl = comment.CommentImageUrl,
+                CommentImageUrl = comment?.CommentImageUrl,
             };
             _context.Comments.Add(newComment);
             return newComment;
@@ -190,7 +189,7 @@ namespace Friendshub.Infrastructure.Implementations
             var like = await _context.Likes.FirstOrDefaultAsync(x => x.UserId == userId && postId == x.PostId);
             if (like == null)
             {
-                var newlike = new Like()
+                var newlike = new PostLike()
                 {
                     UserId = userId,
                     PostId = postId,

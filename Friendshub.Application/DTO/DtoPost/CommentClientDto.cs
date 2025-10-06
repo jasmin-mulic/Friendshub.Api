@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Friendshub.Application.DTO.DtoPost
+﻿namespace Friendshub.Application.DTO.DtoPost
 {
     public class CommentClientDto
     {
@@ -12,6 +6,6 @@ namespace Friendshub.Application.DTO.DtoPost
         public string Content { get; set; }
         public string UserProfileImageDto { get; set; }
         public string Username { get; set; }
-        public DateTime CommentedAt { get; set; }
+        public DateTime CommentedAt { get; set; } = DateTime.UtcNow;
     }
 }
