@@ -1,5 +1,6 @@
 ﻿using Friendshub.Api.Extensions;
-using Friendshub.Application.DTO.Post;
+using Friendshub.Application.DTO;
+using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -43,6 +44,7 @@ namespace Friendshub.Api.Controllers
                 if (UserIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out.");
 
+                var user = await _unitOfWork.UserRepository.GetById(UserIdFromClaims);
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 
                 if(request.ImagePaths.Count > 0)
@@ -62,7 +64,7 @@ namespace Friendshub.Api.Controllers
                 if (string.IsNullOrWhiteSpace(request.Content) && request.ImagePaths == null)
                     return BadRequest(new { message = "You have to add at least one image or post content." });
 
-                var newPost = await _unitOfWork.PostRepository.AddPost(request, UserIdFromClaims);
+                var newPost = await _unitOfWork.PostRepository.AddPost(request, user);
                 await _unitOfWork.ApplyChanges();
                 return Ok(newPost);
 
@@ -128,6 +130,31 @@ namespace Friendshub.Api.Controllers
                 var likeResponse = await _unitOfWork.PostRepository.LikePost(userId, postId);
                 await _unitOfWork.ApplyChanges();
                 return Ok(likeResponse);
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
+        [HttpPost("add-comment/{postId}")]
+        public async Task<IActionResult> AddComment([FromRoute] Guid postId, AddCommentDto request)
+        {
+            try
+            {
+                var userIdFromClaIms = User.GetUserId();
+                if (userIdFromClaIms == Guid.Empty)
+                    return Unauthorized();
+
+                var post = await _unitOfWork.PostRepository.GetPostById(postId);
+
+                if(post == null)
+                    return NotFound("Post is deleted");
+
+                var newComment = await _unitOfWork.PostRepository.CommentPost(userIdFromClaIms, postId, request);
+                if (newComment == null)
+                    return BadRequest("Error adding post.");
+                return Ok(newComment);  
+                
             }
             catch (Exception exc)
             {

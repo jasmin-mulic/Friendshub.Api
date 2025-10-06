@@ -1,4 +1,4 @@
-﻿using Friendshub.Application.DTO;
+﻿using Friendshub.Application.DTO.Auth;
 namespace Friendshub.Application.Results
 {
     public class RegisterResult

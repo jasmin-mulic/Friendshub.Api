@@ -45,7 +45,7 @@ namespace Friendshub.Api.Controllers
                     return Unauthorized("Wrong credentials");
 
                 var accessToken = response.AccessToken;
-                var refreshToken = await _unitOfWork.TokenRepository.GetUserRefreshToken(response.User);
+                var refreshToken = await _unitOfWork.TokenRepository.GetUserRefreshToken(response.User.Id);
 
                 if (refreshToken == null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
                 {

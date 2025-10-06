@@ -24,11 +24,12 @@ namespace Friendshub.Infrastructure.Migrations
 
             modelBuilder.Entity("Friendshub.Domain.Models.Comment", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CommentImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CommentedAt")
                         .HasColumnType("datetime2");
@@ -36,15 +37,17 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("PostId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ImgUrl")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserId", "PostId");
+                    b.HasKey("Id");
 
                     b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Comments");
                 });

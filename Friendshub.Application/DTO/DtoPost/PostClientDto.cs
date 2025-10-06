@@ -1,5 +1,6 @@
-﻿using Friendshub.Application.DTO.Post;
-namespace Friendshub.Application.DTO.User
+﻿using Friendshub.Domain.Models;
+
+namespace Friendshub.Application.DTO.DtoPost
 {
     public class PostClientDto
     {
@@ -10,5 +11,6 @@ namespace Friendshub.Application.DTO.User
         public string Username { get; set; }
         public string ProfileImgUrl { get; set; }
         public PostLikes Likes { get; set; }
+        public List<CommentClientDto> Comments { get; set; } = new List<CommentClientDto>();
     }
 }

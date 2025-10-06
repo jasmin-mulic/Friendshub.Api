@@ -10,9 +10,6 @@ namespace Friendshub.Application.DTO
     {
         public Guid PostId { get; set; }
         public string Content { get; set; }
-        public DateOnly CommentedAt { get; set; }
-        public string Username { get; set; }
-        public string ProfileImgUrl { get; set; }
         public string CommentImageUrl { get; set; }
     }
 }

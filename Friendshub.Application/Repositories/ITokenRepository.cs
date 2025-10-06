@@ -11,7 +11,7 @@ namespace Friendshub.Application.Repositories
     {
         Task<string> CreateAccessToken(User user);
         string CreateRefreshToken();
-        Task<RefreshToken> GetUserRefreshToken(User user);
+        Task<RefreshToken> GetUserRefreshToken(Guid userId);
         Task<RefreshToken> AddRefreshToken(Guid userId);
         Task<RefreshToken> GetRefreshTokenByValue(string value);
         void DeleteRefreshToken(Guid UserId);

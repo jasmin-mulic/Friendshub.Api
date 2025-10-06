@@ -1,5 +1,5 @@
-﻿using Friendshub.Application.DTO.User;
-namespace Friendshub.Application.DTO.Post
+﻿using Friendshub.Application.DTO.UserDto;
+namespace Friendshub.Application.DTO.DtoPost
 {
     public class PostLikes
     {

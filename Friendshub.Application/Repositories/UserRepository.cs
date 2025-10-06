@@ -1,5 +1,5 @@
-﻿using Friendshub.Application.DTO.Post;
-using Friendshub.Application.DTO.User;
+﻿
+using Friendshub.Application.DTO.UserDto;
 using Friendshub.Domain.Models;
 using Microsoft.AspNetCore.Http;
 namespace Friendshub.Application.Repositories

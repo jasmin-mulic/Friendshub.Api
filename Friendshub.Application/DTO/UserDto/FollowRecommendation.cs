@@ -1,4 +1,4 @@
-﻿namespace Friendshub.Application.DTO.User
+﻿namespace Friendshub.Application.DTO.UserDto
 {
     public class FollowRecommendation
     {

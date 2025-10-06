@@ -89,9 +89,9 @@ namespace Friendshub.Infrastructure.Implementations
 
         }
 
-        public async Task<RefreshToken> GetUserRefreshToken(User user)
+        public async Task<RefreshToken> GetUserRefreshToken(Guid userId)
         {
-            var token = await _context.RefreshTokens.FirstOrDefaultAsync(x =>  x.UserId == user.Id);
+            var token = await _context.RefreshTokens.FirstOrDefaultAsync(x =>  x.UserId == userId);
             return token;
         }
     }

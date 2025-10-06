@@ -1,6 +1,6 @@
 ﻿using Friendshub.Application.DTO;
-using Friendshub.Application.DTO.Post;
-using Friendshub.Application.DTO.User;
+using Friendshub.Application.DTO.DtoPost;
+using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
@@ -16,14 +16,16 @@ namespace Friendshub.Infrastructure.Implementations
             _context = context;
         }
 
-        public async Task<PostClientDto> AddPost(AddPostDto request, Guid UserId)
+        public async Task<PostClientDto> AddPost(AddPostDto request, User user)
         {
             if (string.IsNullOrWhiteSpace(request.Content) && (request.ImagePaths == null || request.ImagePaths.Count == 0))
                 return null;
             var newPost = new Post
             {
+                Id = Guid.NewGuid(),
                 Content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content,
-                UserId = UserId
+                UserId = user.Id,
+                User = user,
             };
             
 
@@ -62,7 +64,7 @@ namespace Friendshub.Infrastructure.Implementations
                 PostId = newPost.Id,
                 PostImagesUrl = newPost.PostsImages.Select(x => x.ImgUrl).ToList(),
                 PostedAt = newPost.PostedAt,
-                Likes = GetLikes(newPost.Id)
+                
             };
             return postDto;
         }
@@ -76,7 +78,7 @@ namespace Friendshub.Infrastructure.Implementations
                 PostId = post.Id,
                 CommentedAt = DateTime.UtcNow,
                 Content = comment.Content,
-                ImgUrl = comment.CommentImageUrl,
+                CommentImageUrl = comment.CommentImageUrl,
             };
             _context.Comments.Add(newComment);
             return newComment;
@@ -96,8 +98,8 @@ namespace Friendshub.Infrastructure.Implementations
             var followingUsersIds = await _context.Follows.Where(x => x.FollowerId == userId)
                                    .Select(x => x.FolloweeId).ToListAsync();
 
-            var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User)
-                        .Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId));
+            var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).
+                        Include(p => p.Comments).Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId));
             
             var totalCount = querry.Count();
 
@@ -111,7 +113,8 @@ namespace Friendshub.Infrastructure.Implementations
                     PostId = p.Id,
                     PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl).ToList(),
                     PostedAt = p.PostedAt,
-                    Likes = GetLikes(p.Id)
+                    Likes = GetLikes(p.Id),
+                    
 
                 }).ToList();
 

@@ -29,8 +29,8 @@ namespace Friendshub.Infrastructure.Implementations
                 return result;
             }
             result.Success = true;
-            result.AccessToken = await _tokenRepository.CreateAccessToken(user);
             result.User = user;
+            result.AccessToken = await _tokenRepository.CreateAccessToken(user);
             return result;
         }
         public async Task<RegisterResult> RegisterAsync(RegisterUserDto request)

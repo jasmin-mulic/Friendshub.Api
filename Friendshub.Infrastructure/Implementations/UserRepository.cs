@@ -1,12 +1,10 @@
-﻿using Friendshub.Application.DTO.Post;
-using Friendshub.Application.DTO.User;
+﻿using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace Friendshub.Infrastructure.Implementations
 {
