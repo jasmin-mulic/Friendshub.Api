@@ -5,6 +5,7 @@ using Friendshub.Application.Extensions;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Friendshub.Infrastructure.Data.Implementations
@@ -71,32 +72,41 @@ namespace Friendshub.Infrastructure.Data.Implementations
             return postDto;
         }
 
-        public async Task<Comment> CommentPost(Guid userId, Post post, AddCommentDto comment)
+        public async Task<Comment> CommentPost(Guid userId, Post post, string content, IFormFile image)
         {
-            if (string.IsNullOrWhiteSpace(comment.Content) && comment.Image.Length == 0)
+            if (string.IsNullOrWhiteSpace(content) && (image == null || image.Length == 0))
                 throw new ApplicationException("You have to add comment or a picture.");
-
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(comment.Image.Name);
-            var filePath = Path.Combine("wwwroot/uploads/comments/", fileName);
-            var uploadFolder = "wwwroot/uploads/comments/";
-
-            if (!Directory.Exists(uploadFolder))
-                Directory.CreateDirectory(uploadFolder);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-                await comment.Image.CopyToAsync(stream);
 
             var newComment = new Comment
             {
                 Id = Guid.NewGuid(),
                 PostId = post.Id,
                 CommentedAt = DateTime.UtcNow,
-                Content = comment.Content,
-                CommentImageUrl = "/comments/" + fileName,
+                Content = content,
             };
-           await _context.Comments.AddAsync(newComment);
+
+            if (image != null && image.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                var uploadFolder = Path.Combine("wwwroot", "uploads", "comments");
+
+                if (!Directory.Exists(uploadFolder))
+                    Directory.CreateDirectory(uploadFolder);
+
+                var filePath = Path.Combine(uploadFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                    await image.CopyToAsync(stream);
+
+                newComment.CommentImageUrl = "/uploads/comments/" + fileName;
+            }
+
+            await _context.Comments.AddAsync(newComment);
+            await _context.SaveChangesAsync(); // <- ovo je ključno
+
             return newComment;
         }
+
 
         public void DeletePost(Post post)
         {
@@ -133,7 +143,8 @@ namespace Friendshub.Infrastructure.Data.Implementations
                         CommentedAt = c.CommentedAt,
                         CommentId = c.Id,
                         Content = c.Content,
-                        UserProfileImageDto = p.User.ProfileImgUrl,
+                        UserProfileImageUrl = p.User.ProfileImgUrl,
+                        CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
                         Username = p.User.DisplayUsername,
                     }).ToList()
                 }).ToList();
