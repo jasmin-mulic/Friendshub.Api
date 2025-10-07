@@ -73,11 +73,11 @@ namespace Friendshub.Infrastructure.Implementations
         { 
             var newComment = new Comment
             {
-                Id = Guid.NewGuid(),
-                Post = post,
+                PostId = post.Id,
+                UserId = userId,
                 CommentedAt = DateTime.UtcNow,
                 Content = comment.Content,
-                CommentImageUrl = comment?.CommentImageUrl,
+                CommentImageUrl = comment.CommentImageUrl,
             };
             _context.Comments.Add(newComment);
             return newComment;
