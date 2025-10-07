@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,6 @@ namespace Friendshub.Application.DTO
     public class AddCommentDto
     {
         public string Content { get; set; }
-        public string CommentImageUrl { get; set; }
+        public IFormFile Image { get; set; }
     }
 }

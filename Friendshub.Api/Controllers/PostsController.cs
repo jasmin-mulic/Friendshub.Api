@@ -102,8 +102,11 @@ namespace Friendshub.Api.Controllers
             {
                 if (User.GetUserId() == Guid.Empty)
                     return Unauthorized("You are logged out.");
+
                 var post = await _unitOfWork.PostRepository.GetPostById(postId);
+
                 if(post == null)
+
                     return NotFound("Post not found.");
                 _unitOfWork.PostRepository.DeletePost(post);
                 await _unitOfWork.ApplyChanges();
@@ -127,7 +130,9 @@ namespace Friendshub.Api.Controllers
                 var post = await _unitOfWork.PostRepository.GetPostById(postId);
                 if (post == null)
                     return BadRequest("Post is deleted.");
+
                 var likeResponse = await _unitOfWork.PostRepository.LikePost(userId, postId);
+
                 await _unitOfWork.ApplyChanges();
                 return Ok(likeResponse);
             }

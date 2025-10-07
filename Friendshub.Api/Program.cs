@@ -1,6 +1,6 @@
 using Friendshub.Application.Repositories;
 using Friendshub.Infrastructure.Data;
-using Friendshub.Infrastructure.Implementations;
+using Friendshub.Infrastructure.Data.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

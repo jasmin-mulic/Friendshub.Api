@@ -1,4 +1,5 @@
 ﻿using Friendshub.Application.DTO.UserDto;
+using Friendshub.Application.Extensions;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace Friendshub.Infrastructure.Implementations
+namespace Friendshub.Infrastructure.Data.Implementations
 {
     public class UserRepository : IUserRepository
     {
@@ -22,7 +23,8 @@ namespace Friendshub.Infrastructure.Implementations
         {
             if(file == null || file.Length == 0)
                 throw new ArgumentNullException("Invalid file.");
-            var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
+            var uploadPath = Path.Combine(_env.WebRootPath, "uploads/profileImages");
             if(!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
 
@@ -33,16 +35,14 @@ namespace Friendshub.Infrastructure.Implementations
             {
                 await file.CopyToAsync(stream);
             }
-            return $"/uploads/{fileName}";
+            return $"/uploads/profileImages/{fileName}";
         }
 
         public async Task DeleteUser(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
             var follows = await _context.Follows.Where(x => x.FollowerId == id).ToListAsync();
-            var comments = await _context.Comments.Where(x => x.UserId == user.Id).ToListAsync();
              _context.RemoveRange(follows);
-            _context.RemoveRange(comments);
             _context.Users.Remove(user);
         }
 
@@ -81,7 +81,7 @@ namespace Friendshub.Infrastructure.Implementations
                     {
                         Id = u.Id,
                         Username = u.DisplayUsername,
-                        ProfileImageUrl = u.ProfileImgUrl
+                        ProfileImageUrl = u.ProfileImgUrl.ToFullImageUrl(),
                     })
                     .ToListAsync();
             }
@@ -95,7 +95,7 @@ namespace Friendshub.Infrastructure.Implementations
                 {
                     Id = u.Id,
                     Username = u.DisplayUsername,
-                    ProfileImageUrl = u.ProfileImgUrl
+                    ProfileImageUrl = u.ProfileImgUrl.ToFullImageUrl(),
                 })
                 .ToListAsync();
 
@@ -114,7 +114,7 @@ namespace Friendshub.Infrastructure.Implementations
             var userProfileData = new ProfileDataDto
             {
                 DisplayUsername = user.Username,
-                ProfileImgUrl = string.IsNullOrWhiteSpace(user.ProfileImgUrl) ? null : "https://localhost:44326/" + user.ProfileImgUrl,
+                ProfileImgUrl = string.IsNullOrWhiteSpace(user.ProfileImgUrl) ? null : user.ProfileImgUrl.ToFullImageUrl(),
                 FollowersCount = followersCount,
                 FollowingCount = followingCount,
                 PostCount = postCount
