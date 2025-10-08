@@ -22,12 +22,12 @@ namespace Friendshub.Infrastructure.Data.Implementations
         {
             if (string.IsNullOrWhiteSpace(request.Content) && (request.ImagePaths == null || request.ImagePaths.Count == 0))
                 return null;
+
             var newPost = new Post
             {
                 Id = Guid.NewGuid(),
                 Content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content,
                 UserId = user.Id,
-                User = user,
             };
             
 
@@ -195,7 +195,7 @@ namespace Friendshub.Infrastructure.Data.Implementations
                     Content = p.Content,
                     PostedAt = p.PostedAt,
                     Username = p.User.DisplayUsername,
-                    PostImagesUrl = p.PostsImages.Select(postimg => postimg.ImgUrl).ToList(),
+                    PostImagesUrl = p.PostsImages.Select(postImg => postImg.ImgUrl.ToFullImageUrl()).ToList(),
                     Likes = GetLikes(p.Id)
                 }).ToList();
 

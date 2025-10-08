@@ -18,7 +18,7 @@ namespace Friendshub.Api.Controllers
             _unitOfWork = unitOfWork;
         }
         [Authorize]
-        [HttpGet("my-posts/page{page}")]
+        [HttpGet("my-posts/page/{page}")]
         public async Task<IActionResult> GetmyPosts([FromRoute] int page)
         {
             try
@@ -74,7 +74,6 @@ namespace Friendshub.Api.Controllers
                 throw new ApplicationException(exc.Message);
             }
         }
-        [Authorize]
         [HttpGet("get-feed-posts/page/{page}")]
         public async Task<IActionResult> GetFeedPosts([FromRoute] int page)
         {
@@ -142,7 +141,7 @@ namespace Friendshub.Api.Controllers
             }
         }
         [HttpPost("add-comment/{postId}")]
-        public async Task<IActionResult> AddComment([FromRoute] Guid postId, string content, IFormFile image)
+        public async Task<IActionResult> AddComment([FromRoute] Guid postId, [FromBody]string content, IFormFile image)
         {
             try
             {
