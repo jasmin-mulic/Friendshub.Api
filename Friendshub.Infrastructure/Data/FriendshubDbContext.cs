@@ -40,7 +40,7 @@ namespace Friendshub.Infrastructure.Data
 
             modelBuilder.Entity<PostLike>().HasKey(like => new { like.UserId, like.PostId });
             modelBuilder.Entity<PostLike>().HasOne(l => l.Post).WithMany(p => p.Likes).HasForeignKey(l => l.PostId).OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<PostLike>().HasOne(l => l.User).WithMany(x => x.Likes).HasForeignKey(l => l.UserId).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<PostLike>().HasOne(l => l.User).WithMany(x => x.PostLikes).HasForeignKey(l => l.UserId).OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Comment>().HasOne(c => c.Post).WithMany(p => p.Comments).HasForeignKey(c => c.PostId).OnDelete(DeleteBehavior.Cascade);
 

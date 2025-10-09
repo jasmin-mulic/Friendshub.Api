@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace Friendshub.Infrastructure.Data.Implementations
+namespace Friendshub.Infrastructure.Implementations
 {
     public class UserRepository : IUserRepository
     {

@@ -5,6 +5,7 @@ namespace Friendshub.Application.DTO.DtoPost
     public class PostClientDto
     {
         public Guid PostId { get; set; }
+        public Guid UserId { get; set; }
         public string Content { get; set; }
         public DateTime PostedAt { get; set; }
         public List<string> PostImagesUrl { get; set; } = new List<string>();

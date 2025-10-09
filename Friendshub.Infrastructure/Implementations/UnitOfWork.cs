@@ -1,7 +1,9 @@
 ﻿using Friendshub.Application.Repositories;
+using Friendshub.Infrastructure.Data;
+using Friendshub.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-namespace Friendshub.Infrastructure.Data.Implementations
+namespace Friendshub.Infrastructure.Implementations
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {

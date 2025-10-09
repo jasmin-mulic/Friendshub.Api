@@ -6,7 +6,7 @@ using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Friendshub.Infrastructure.Data.Implementations
+namespace Friendshub.Infrastructure.Implementations
 {
     public class AuthRepository : IAuthRepository
     {

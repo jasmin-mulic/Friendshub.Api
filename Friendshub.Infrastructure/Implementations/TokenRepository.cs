@@ -13,7 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Friendshub.Infrastructure.Data.Implementations
+namespace Friendshub.Infrastructure.Implementations
 {
     public class TokenRepository : ITokenRepository
     {

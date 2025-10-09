@@ -1,14 +1,14 @@
 ﻿using Friendshub.Application.DTO;
 using Friendshub.Application.DTO.DtoPost;
+using Friendshub.Application.DTO.PostDto;
 using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Extensions;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace Friendshub.Infrastructure.Data.Implementations
+namespace Friendshub.Infrastructure.Implementations
 {
     public class PostRepository : IPostRepository
     {
@@ -72,9 +72,9 @@ namespace Friendshub.Infrastructure.Data.Implementations
             return postDto;
         }
 
-        public async Task<Comment> CommentPost(Guid userId, Post post, string content, IFormFile image)
+        public async Task<Comment> CommentPost(Guid userId, Post post, AddCommentDto comment)
         {
-            if (string.IsNullOrWhiteSpace(content) && (image == null || image.Length == 0))
+            if (string.IsNullOrWhiteSpace(comment.Content) && (comment.Image == null || comment.Image.Length == 0))
                 throw new ApplicationException("You have to add comment or a picture.");
 
             var newComment = new Comment
@@ -82,12 +82,12 @@ namespace Friendshub.Infrastructure.Data.Implementations
                 Id = Guid.NewGuid(),
                 PostId = post.Id,
                 CommentedAt = DateTime.UtcNow,
-                Content = content,
+                Content = comment.Content,
             };
 
-            if (image != null && image.Length > 0)
+            if (comment.Image != null && comment.Image.Length > 0)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(comment.Image.FileName);
                 var uploadFolder = Path.Combine("wwwroot", "uploads", "comments");
 
                 if (!Directory.Exists(uploadFolder))
@@ -96,14 +96,12 @@ namespace Friendshub.Infrastructure.Data.Implementations
                 var filePath = Path.Combine(uploadFolder, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
-                    await image.CopyToAsync(stream);
+                    await comment.Image.CopyToAsync(stream);
 
                 newComment.CommentImageUrl = "/uploads/comments/" + fileName;
             }
 
             await _context.Comments.AddAsync(newComment);
-            await _context.SaveChangesAsync(); // <- ovo je ključno
-
             return newComment;
         }
 
@@ -132,6 +130,7 @@ namespace Friendshub.Infrastructure.Data.Implementations
 
                 var posts = postEntities.Select(p => new PostClientDto
                 {
+                    UserId = p.UserId,
                     Content = p.Content,
                     Username = p.User.DisplayUsername,
                     PostId = p.Id,
@@ -182,7 +181,7 @@ namespace Friendshub.Infrastructure.Data.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
 
-            var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).Where(x => x.UserId == userId).OrderByDescending(x => x.PostedAt);
+            var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).Include(p => p.Comments).Where(x => x.UserId == userId).OrderByDescending(x => x.PostedAt);
             var totalCount = querry.Count();
 
             var postsEntities = await querry.Skip((pageNumber - 1) * pageSize)
@@ -193,10 +192,19 @@ namespace Friendshub.Infrastructure.Data.Implementations
                 {
                     PostId = p.Id,
                     Content = p.Content,
+                    UserId = p.UserId,
                     PostedAt = p.PostedAt,
                     Username = p.User.DisplayUsername,
                     PostImagesUrl = p.PostsImages.Select(postImg => postImg.ImgUrl.ToFullImageUrl()).ToList(),
-                    Likes = GetLikes(p.Id)
+                    Likes = GetLikes(p.Id),
+                    Comments = p.Comments.Select(c => new CommentClientDto
+                    {
+                        CommentedAt = c.CommentedAt,
+                        CommentId = c.Id,
+                        Username = c.Post.User.DisplayUsername,
+                        CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
+                        UserProfileImageUrl = c.Post.User.ProfileImgUrl,
+                    }).ToList()
                 }).ToList();
 
             var PageResult = new PageResult<PostClientDto>

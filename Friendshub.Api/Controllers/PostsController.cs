@@ -1,6 +1,7 @@
 ﻿using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO;
 using Friendshub.Application.DTO.DtoPost;
+using Friendshub.Application.DTO.PostDto;
 using Friendshub.Application.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -94,7 +95,7 @@ namespace Friendshub.Api.Controllers
 
             }
         }
-        [HttpPost("delete-post")]
+        [HttpDelete("delete-post")]
         public async Task<IActionResult> DeletePost(Guid postId)
         {
             try
@@ -140,8 +141,9 @@ namespace Friendshub.Api.Controllers
                 return BadRequest(exc.Message);
             }
         }
+        
         [HttpPost("add-comment/{postId}")]
-        public async Task<IActionResult> AddComment([FromRoute] Guid postId, [FromBody]string content, IFormFile image)
+        public async Task<IActionResult> AddComment([FromRoute] Guid postId, [FromForm]AddCommentDto comment)
         {
             try
             {
@@ -154,7 +156,7 @@ namespace Friendshub.Api.Controllers
                 if(post == null)
                     return NotFound("Post is deleted");
 
-                var newComment = await _unitOfWork.PostRepository.CommentPost(userIdFromClaIms, post, content, image);
+                var newComment = await _unitOfWork.PostRepository.CommentPost(userIdFromClaIms, post, comment);
                 if (newComment == null)
                     return BadRequest("Error adding post.");
                 await _unitOfWork.ApplyChanges();
