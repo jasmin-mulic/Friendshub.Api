@@ -29,7 +29,6 @@ namespace Friendshub.Infrastructure.Implementations
                 Content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content,
                 UserId = user.Id,
             };
-            
 
             if (request.ImagePaths != null && request.ImagePaths.Count > 0)
             {
@@ -38,39 +37,49 @@ namespace Friendshub.Infrastructure.Implementations
                     if (file.Length > 0)
                     {
                         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        var uploadsFolder = "wwwroot/uploads/posts/";
-                        var filePath = Path.Combine(uploadsFolder, fileName);
 
+                        // Folder unutar wwwroot
+                        var uploadsFolder = Path.Combine("wwwroot", "uploads", "posts");
+
+                        // Kreiranje foldera ako ne postoji
                         if (!Directory.Exists(uploadsFolder))
                             Directory.CreateDirectory(uploadsFolder);
 
-                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        // Putanja za spremanje na disk
+                        var physicalPath = Path.Combine(uploadsFolder, fileName);
+
+                        using (var stream = new FileStream(physicalPath, FileMode.Create))
                         {
                             await file.CopyToAsync(stream);
                         }
 
+                        // U bazi čuvamo relativnu putanju
+                        var relativePath = Path.Combine("uploads", "posts", fileName).Replace("\\", "/");
+
                         newPost.PostsImages.Add(new PostImage
                         {
-                            ImgUrl = "/uploads/posts/" + fileName,
+                            ImgUrl = relativePath,
                             Post = newPost
                         });
                     }
                 }
-            
             }
-            _context.Posts.Add(newPost);
 
-            var postDto = new PostClientDto()
+            _context.Posts.Add(newPost);
+            await _context.SaveChangesAsync(); // ne zaboravi sačuvati
+
+            var postDto = new PostClientDto
             {
                 Content = newPost.Content,
                 Username = newPost.User.DisplayUsername,
                 PostId = newPost.Id,
-                PostImagesUrl = newPost.PostsImages.Select(x => "/posts/" +  x.ImgUrl).ToList(),
+                PostImagesUrl = newPost.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
                 PostedAt = newPost.PostedAt,
-                
             };
+
             return postDto;
         }
+
 
         public async Task<Comment> CommentPost(Guid userId, Post post, AddCommentDto comment)
         {
@@ -108,6 +117,9 @@ namespace Friendshub.Infrastructure.Implementations
 
         public void DeletePost(Post post)
         {
+            var comments = _context.Comments.Where(x => x.PostId == post.Id).ToList();
+            if(comments.Count > 0) 
+                _context.Comments.RemoveRange(comments);
             _context.Posts.Remove(post);    
         }
         public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int pageNumber = 1)
@@ -145,7 +157,7 @@ namespace Friendshub.Infrastructure.Implementations
                         UserProfileImageUrl = p.User.ProfileImgUrl,
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
                         Username = p.User.DisplayUsername,
-                    }).ToList()
+                    }).OrderByDescending(x =>x.CommentedAt).ToList()
                 }).ToList();
 
             var PageResult = new PageResult<PostClientDto>
@@ -200,11 +212,12 @@ namespace Friendshub.Infrastructure.Implementations
                     Comments = p.Comments.Select(c => new CommentClientDto
                     {
                         CommentedAt = c.CommentedAt,
+                        Content = c.Content,
                         CommentId = c.Id,
                         Username = c.Post.User.DisplayUsername,
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
                         UserProfileImageUrl = c.Post.User.ProfileImgUrl,
-                    }).ToList()
+                    }).OrderByDescending(x => x.CommentedAt).ToList()
                 }).ToList();
 
             var PageResult = new PageResult<PostClientDto>

@@ -15,6 +15,7 @@
         public List<Follows> Followers { get; set; } = new();
         public List<Follows> Followings { get; set; } = new();
         public List<PostLike> PostLikes { get; set; } = new();
+        public List<CommentLike> CommentLikes { get; set; } = new();
     }
 }
 

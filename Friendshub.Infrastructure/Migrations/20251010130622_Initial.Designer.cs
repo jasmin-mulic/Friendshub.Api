@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Friendshub.Infrastructure.Migrations
 {
     [DbContext(typeof(FriendshubDbContext))]
-    [Migration("20251007130158_Initial")]
+    [Migration("20251010130622_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -48,6 +48,24 @@ namespace Friendshub.Infrastructure.Migrations
                     b.HasIndex("PostId");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("Friendshub.Domain.Models.CommentLike", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("LikedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId", "CommentId");
+
+                    b.HasIndex("CommentId");
+
+                    b.ToTable("CommentsLikes");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Follows", b =>
@@ -232,6 +250,25 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("Friendshub.Domain.Models.CommentLike", b =>
+                {
+                    b.HasOne("Friendshub.Domain.Models.Comment", "Comment")
+                        .WithMany("CommentLikes")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Friendshub.Domain.Models.User", "User")
+                        .WithMany("CommentLikes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Friendshub.Domain.Models.Follows", b =>
                 {
                     b.HasOne("Friendshub.Domain.Models.User", "Followee")
@@ -282,7 +319,7 @@ namespace Friendshub.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Friendshub.Domain.Models.User", "User")
-                        .WithMany("Likes")
+                        .WithMany("PostLikes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -322,6 +359,11 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Friendshub.Domain.Models.Comment", b =>
+                {
+                    b.Navigation("CommentLikes");
+                });
+
             modelBuilder.Entity("Friendshub.Domain.Models.Post", b =>
                 {
                     b.Navigation("Comments");
@@ -338,11 +380,13 @@ namespace Friendshub.Infrastructure.Migrations
 
             modelBuilder.Entity("Friendshub.Domain.Models.User", b =>
                 {
+                    b.Navigation("CommentLikes");
+
                     b.Navigation("Followers");
 
                     b.Navigation("Followings");
 
-                    b.Navigation("Likes");
+                    b.Navigation("PostLikes");
 
                     b.Navigation("Posts");
 

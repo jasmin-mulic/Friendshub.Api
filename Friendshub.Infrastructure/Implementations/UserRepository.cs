@@ -42,7 +42,7 @@ namespace Friendshub.Infrastructure.Implementations
         {
             var user = await _context.Users.FindAsync(id);
             var follows = await _context.Follows.Where(x => x.FollowerId == id).ToListAsync();
-             _context.RemoveRange(follows);
+             _context.Follows.RemoveRange(follows);
             _context.Users.Remove(user);
         }
 

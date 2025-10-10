@@ -10,10 +10,6 @@ namespace Friendshub.Domain.Models
         public string CommentImageUrl { get; set; } = string.Empty;
         public Post Post { get; set; }
         public DateTime CommentedAt { get; set; } = DateTime.UtcNow;
-
-
-
-
-
+        public List<CommentLike> CommentLikes { get; set; } = new();
     }
 }
