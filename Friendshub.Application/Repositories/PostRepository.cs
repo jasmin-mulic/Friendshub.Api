@@ -20,6 +20,7 @@ namespace Friendshub.Application.Repositories
         Task<Post> GetPostById(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);
         PostLikes GetLikes(Guid postId);
-        Task<Comment> CommentPost (Guid userId, Post post, AddCommentDto comment);
+        Task<CommentClientDto> CommentPost (Guid userId, Post post, AddCommentDto comment);
+        Task<string> LikeComment(Guid UserId, Guid CommentId);
     }
 }

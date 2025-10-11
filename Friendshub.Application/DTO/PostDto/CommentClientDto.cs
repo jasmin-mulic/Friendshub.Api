@@ -1,4 +1,6 @@
-﻿namespace Friendshub.Application.DTO.DtoPost
+﻿using Friendshub.Domain.Models;
+
+namespace Friendshub.Application.DTO.DtoPost
 {
     public class CommentClientDto
     {
@@ -8,5 +10,7 @@
         public string Username { get; set; }
         public DateTime CommentedAt { get; set; } = DateTime.UtcNow;
         public string CommentImageUrl { get; set; }
+        public List<CommentLike> CommentLikes { get; set; } = new();
+
     }
 }

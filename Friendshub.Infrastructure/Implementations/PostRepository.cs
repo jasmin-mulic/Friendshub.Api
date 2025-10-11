@@ -81,10 +81,12 @@ namespace Friendshub.Infrastructure.Implementations
         }
 
 
-        public async Task<Comment> CommentPost(Guid userId, Post post, AddCommentDto comment)
+        public async Task<CommentClientDto> CommentPost(Guid userId, Post post, AddCommentDto comment)
         {
             if (string.IsNullOrWhiteSpace(comment.Content) && (comment.Image == null || comment.Image.Length == 0))
                 throw new ApplicationException("You have to add comment or a picture.");
+
+            var user = await _context.Users.FirstOrDefaultAsync(x =>x.Id == userId);
 
             var newComment = new Comment
             {
@@ -109,9 +111,17 @@ namespace Friendshub.Infrastructure.Implementations
 
                 newComment.CommentImageUrl = "/uploads/comments/" + fileName;
             }
-
+            var commentDto = new CommentClientDto()
+            {
+                Username = user.Username,
+                UserProfileImageUrl = newComment.CommentImageUrl,
+                CommentedAt = newComment.CommentedAt,
+                Content = newComment.Content,
+                CommentId = newComment.Id,
+                CommentImageUrl = newComment.CommentImageUrl.ToFullImageUrl(),
+            };
             await _context.Comments.AddAsync(newComment);
-            return newComment;
+            return commentDto;
         }
 
 
@@ -133,7 +143,7 @@ namespace Friendshub.Infrastructure.Implementations
                                    .Select(x => x.FolloweeId).ToListAsync();
 
             var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).
-                        Include(p => p.Comments).Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId));
+                        Include(p => p.Comments).ThenInclude(c => c.CommentLikes).Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId));
             
             var totalCount = querry.Count();
 
@@ -147,7 +157,9 @@ namespace Friendshub.Infrastructure.Implementations
                     Username = p.User.DisplayUsername,
                     PostId = p.Id,
                     PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
+                    ProfileImgUrl = p.User.ProfileImgUrl.ToFullImageUrl(),
                     PostedAt = p.PostedAt,
+                    
                     Likes = GetLikes(p.Id),
                     Comments = _context.Comments.Where(x => x.PostId == p.Id).Select(c => new CommentClientDto
                     {
@@ -157,7 +169,10 @@ namespace Friendshub.Infrastructure.Implementations
                         UserProfileImageUrl = p.User.ProfileImgUrl,
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
                         Username = p.User.DisplayUsername,
-                    }).OrderByDescending(x =>x.CommentedAt).ToList()
+                        CommentLikes = c.CommentLikes,
+                    }).OrderByDescending(x =>x.CommentedAt).ToList(),
+                    
+                    
                 }).ToList();
 
             var PageResult = new PageResult<PostClientDto>
@@ -236,6 +251,23 @@ namespace Friendshub.Infrastructure.Implementations
             return post;
         }
 
+        public async Task<string> LikeComment(Guid userId, Guid CommentId)
+        {
+            string responseMessage = string.Empty;
+            var isLiked = await _context.CommentsLikes.FirstOrDefaultAsync(x => x.UserId == userId);
+            if (isLiked != null)
+                responseMessage = "Post disliked.";
+
+            var newLike = new CommentLike
+            {
+                UserId = userId,
+                CommentId = CommentId,
+                LikedAt = DateTime.Now,
+            };
+            responseMessage = "Post Liked";
+            await _context.CommentsLikes.AddAsync(newLike);
+            return responseMessage;
+        }
         public async Task<string> LikePost(Guid userId, Guid postId)
         {
             string message = string.Empty;
