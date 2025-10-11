@@ -172,7 +172,7 @@ namespace Friendshub.Infrastructure.Implementations
                         CommentedAt = c.CommentedAt,
                         CommentId = c.Id,
                         Content = c.Content,
-                        UserProfileImageUrl = p.User.ProfileImgUrl,
+                        UserProfileImageUrl = p.User.ProfileImgUrl.ToFullImageUrl(),
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
                         Username = p.User.DisplayUsername,
                         CommentLikes = c.CommentLikes.Where(x => x.UserId == userId).Select(like => new UserBasicInfo
@@ -233,6 +233,7 @@ namespace Friendshub.Infrastructure.Implementations
                     UserId = p.UserId,
                     PostedAt = p.PostedAt,
                     Username = p.User.DisplayUsername,
+                    ProfileImgUrl = p.User.ProfileImgUrl.ToFullImageUrl(),
                     PostImagesUrl = p.PostsImages.Select(postImg => postImg.ImgUrl.ToFullImageUrl()).ToList(),
                     Likes = GetLikes(p.Id),
                     Comments = p.Comments.Select(c => new CommentClientDto
