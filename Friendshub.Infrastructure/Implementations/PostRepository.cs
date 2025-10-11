@@ -132,6 +132,12 @@ namespace Friendshub.Infrastructure.Implementations
                 _context.Comments.RemoveRange(comments);
             _context.Posts.Remove(post);    
         }
+
+        public async Task<Comment> GetCommentById(Guid commentId)
+        {
+            return await _context.Comments.FirstOrDefaultAsync(c =>  c.Id == commentId);
+        }
+
         public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int pageNumber = 1)
         {
             int pageSize = 10;
@@ -169,7 +175,12 @@ namespace Friendshub.Infrastructure.Implementations
                         UserProfileImageUrl = p.User.ProfileImgUrl,
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
                         Username = p.User.DisplayUsername,
-                        CommentLikes = c.CommentLikes,
+                        CommentLikes = c.CommentLikes.Where(x => x.UserId == userId).Select(like => new UserBasicInfo
+                        {
+                            ProfileImageUrl = like.User.ProfileImgUrl.ToFullImageUrl(),
+                            Username = like.User.DisplayUsername,
+                            UserId = like.UserId,
+                        }).ToList(),
                     }).OrderByDescending(x =>x.CommentedAt).ToList(),
                     
                     
@@ -254,9 +265,15 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<string> LikeComment(Guid userId, Guid CommentId)
         {
             string responseMessage = string.Empty;
-            var isLiked = await _context.CommentsLikes.FirstOrDefaultAsync(x => x.UserId == userId);
-            if (isLiked != null)
-                responseMessage = "Post disliked.";
+            var like = await _context.CommentsLikes.FirstOrDefaultAsync(x => x.UserId == userId);
+            if (like != null)
+            {
+                responseMessage = "Comment disliked";
+            _context.CommentsLikes.Remove(like);
+            return responseMessage;
+
+            }
+
 
             var newLike = new CommentLike
             {
@@ -264,7 +281,7 @@ namespace Friendshub.Infrastructure.Implementations
                 CommentId = CommentId,
                 LikedAt = DateTime.Now,
             };
-            responseMessage = "Post Liked";
+            responseMessage = "Comment liked";
             await _context.CommentsLikes.AddAsync(newLike);
             return responseMessage;
         }
@@ -290,6 +307,7 @@ namespace Friendshub.Infrastructure.Implementations
             }
             return message;
         }
+
 
     }
 }

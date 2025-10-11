@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Friendshub.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PostsController : ControllerBase
@@ -18,7 +19,6 @@ namespace Friendshub.Api.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-        [Authorize]
         [HttpGet("my-posts/page/{page}")]
         public async Task<IActionResult> GetmyPosts([FromRoute] int page)
         {
@@ -35,7 +35,6 @@ namespace Friendshub.Api.Controllers
                 throw new ApplicationException(exc.Message);
             }
         }
-        [Authorize]
         [HttpPost("add-post")]
         public async Task<IActionResult> AddPost(AddPostDto request)
         {
@@ -166,6 +165,28 @@ namespace Friendshub.Api.Controllers
             catch (Exception exc)
             {
                 return BadRequest(exc.Message);
+            }
+        }
+        [HttpPost("like-comment/{CommentId}")]
+        public async Task<IActionResult> LikeComment([FromRoute] Guid CommentId)
+        {
+            try
+            {
+                var userIdFromClaims = User.GetUserId();
+                if (userIdFromClaims == Guid.Empty)
+                    return Unauthorized("You are logged out");
+               
+                var comment = await _unitOfWork.PostRepository.GetCommentById(CommentId);
+                if (comment == null)
+                    return BadRequest("Comment is deleted.");
+
+                var likeCommentResponse = await _unitOfWork.PostRepository.LikeComment(userIdFromClaims, CommentId);
+                await _unitOfWork.ApplyChanges();
+                return Ok(new { Message = likeCommentResponse });
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc);
             }
         }
     }
