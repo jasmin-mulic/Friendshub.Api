@@ -15,6 +15,7 @@ namespace Friendshub.Api.Controllers
         {
             _unitOfWork = unitOfWork;
         }
+
         [HttpGet("me")]
         public async Task<IActionResult> GetProfileDetails()
         {
@@ -26,6 +27,7 @@ namespace Friendshub.Api.Controllers
             var userData = await _unitOfWork.UserRepository.GetProfileData(user);
             return Ok(userData);
         }
+
         [HttpPost("change-profile-picture")]
         public async Task<IActionResult> ChangeProfileImage(IFormFile formFile)
         {
@@ -46,6 +48,7 @@ namespace Friendshub.Api.Controllers
                 throw;
             }
         }
+
         [HttpGet("follow-recommendations")]
         public async Task<IActionResult> GetFriendRecommendation()
         {
@@ -65,8 +68,8 @@ namespace Friendshub.Api.Controllers
             }
         }
 
-            [HttpPost("follow-user")]
-            public async Task<IActionResult> FollowUser(string foloweeId)
+       [HttpPost("follow-user")]
+       public async Task<IActionResult> FollowUser(string foloweeId)
             {
             try
             {
@@ -76,16 +79,16 @@ namespace Friendshub.Api.Controllers
                     return Unauthorized();
 
                 var foloweeToGuid = Guid.Parse(foloweeId);
-                _unitOfWork.UserRepository.FollowUser(userIdFromClaims, foloweeToGuid);
+               var followMessage =  _unitOfWork.UserRepository.FollowUser(userIdFromClaims, foloweeToGuid);//vraca followed ili unfollowed
                 await _unitOfWork.ApplyChanges();
-                return Ok();
+                return Ok(new {message = followMessage});
             }
             catch (Exception exc)
             {
                 return StatusCode(500, exc.Message);
             }
         }
-        [HttpPost("delete-user")]
+       [HttpPost("delete-user")]
         public async Task<IActionResult> DeleteUser()
         {
             try
@@ -103,5 +106,22 @@ namespace Friendshub.Api.Controllers
             }
         }
 
+        [HttpGet("followers")]
+
+        public async Task<IActionResult> GetFollowersList()
+        {
+            try
+            {
+                var userIdFromClaims = User.GetUserId();
+                if (Guid.Empty == userIdFromClaims)
+                    return Unauthorized("You are logged out.");
+                var followerList = await _unitOfWork.UserRepository.GetFollowers(userIdFromClaims);
+                return Ok(new { followers = followerList });
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
     }
 }

@@ -219,7 +219,11 @@ namespace Friendshub.Infrastructure.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
 
-            var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).Include(p => p.Comments).Where(x => x.UserId == userId).OrderByDescending(x => x.PostedAt);
+            var querry = _context.Posts.Include(p => p.PostsImages)
+                                        .Include(p => p.User)
+                                        .Include(p => p.Comments)
+                                        .ThenInclude(c => c.CommentLikes)
+                                        .Where(x => x.UserId == userId).OrderByDescending(x => x.PostedAt);
             var totalCount = querry.Count();
 
             var postsEntities = await querry.Skip((pageNumber - 1) * pageSize)
@@ -238,12 +242,19 @@ namespace Friendshub.Infrastructure.Implementations
                     Likes = GetLikes(p.Id),
                     Comments = p.Comments.Select(c => new CommentClientDto
                     {
+                        
                         CommentedAt = c.CommentedAt,
                         Content = c.Content,
                         CommentId = c.Id,
                         Username = c.Post.User.DisplayUsername,
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
                         UserProfileImageUrl = c.Post.User.ProfileImgUrl,
+                        CommentLikes = c.CommentLikes.Select(c => new UserBasicInfo
+                        {
+                            UserId = c.UserId,
+                            ProfileImageUrl = c.User.ProfileImgUrl.ToFullImageUrl(),
+                            Username = c.User.Username,
+                        }).ToList(),
                     }).OrderByDescending(x => x.CommentedAt).ToList()
                 }).ToList();
 

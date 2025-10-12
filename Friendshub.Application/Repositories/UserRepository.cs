@@ -10,7 +10,8 @@ namespace Friendshub.Application.Repositories
         Task<User> GetById(Guid id);
         Task<string> ChangeProfilePicture(IFormFile file);
         Task <List<FollowRecommendation>> GetFollowRecommendationList(Guid id);
-        void FollowUser(Guid folower, Guid Folowee);
+        Task<string> FollowUser(Guid folower, Guid Folowee);
         Task  DeleteUser(Guid id);
+        Task<List<UserBasicInfo>> GetFollowers(Guid userId);
     }
 }

@@ -46,20 +46,46 @@ namespace Friendshub.Infrastructure.Implementations
             _context.Users.Remove(user);
         }
 
-        public void FollowUser(Guid folowerId, Guid foloweeId)
+        public async Task<string> FollowUser(Guid followerId, Guid followeeId)
         {
-            var follow = new Follows
+            string responseMessage = string.Empty;
+            var follow = await _context.Follows.FirstOrDefaultAsync(x => x.FollowerId == followerId &&
+                                                                     x.FolloweeId == followeeId);
+
+            if (follow != null)
             {
-                FollowerId = folowerId,
-                FolloweeId = foloweeId
-            };
-            _context.Follows.Add(follow);
+                _context.Follows.Remove(follow);
+                responseMessage = "unfollowed";
+
+            }
+            else
+            {
+                var newFollow = new Follows
+                {
+                    FollowerId = followerId,
+                    FolloweeId = followeeId
+                };
+                _context.Follows.Add(newFollow);
+                responseMessage = "followed";
+            }
+            return responseMessage;
         }
 
         public async Task<User> GetById(Guid id)
         {
            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             return user;
+        }
+
+        public async Task<List<UserBasicInfo>> GetFollowers(Guid userId)
+        {
+            var followers = await _context.Follows.Include(f => f.Followee).Where(x => x.FolloweeId == userId).Select(f => new UserBasicInfo
+            {
+                ProfileImageUrl = f.Followee.ProfileImgUrl.ToFullImageUrl(),
+                UserId = f.FolloweeId,
+                Username = f.Followee.DisplayUsername
+            }).AsNoTracking().ToListAsync();
+            return followers;
         }
 
         public async Task<List<FollowRecommendation>> GetFollowRecommendationList(Guid userId)
