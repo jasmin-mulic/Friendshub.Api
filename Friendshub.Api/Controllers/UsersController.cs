@@ -20,7 +20,7 @@ namespace Friendshub.Api.Controllers
         public async Task<IActionResult> GetProfileDetails()
         {
             var userIdFromClaims = User.GetUserId();
-            if(userIdFromClaims == Guid.Empty)
+            if (userIdFromClaims == Guid.Empty)
                 return Unauthorized();
 
             var user = await _unitOfWork.UserRepository.GetById(userIdFromClaims);
@@ -68,9 +68,9 @@ namespace Friendshub.Api.Controllers
             }
         }
 
-       [HttpPost("follow-user")]
-       public async Task<IActionResult> FollowUser(string foloweeId)
-            {
+        [HttpPost("follow-user")]
+        public async Task<IActionResult> FollowUser(string foloweeId)
+        {
             try
             {
                 var userIdFromClaims = User.GetUserId();
@@ -79,26 +79,26 @@ namespace Friendshub.Api.Controllers
                     return Unauthorized();
 
                 var foloweeToGuid = Guid.Parse(foloweeId);
-               var followMessage =  await _unitOfWork.UserRepository.FollowUser(userIdFromClaims, foloweeToGuid);//vraca followed ili unfollowed
+                var followMessage = await _unitOfWork.UserRepository.FollowUser(userIdFromClaims, foloweeToGuid);//vraca followed ili unfollowed
                 await _unitOfWork.ApplyChanges();
-                return Ok(new {message = followMessage});
+                return Ok(new { message = followMessage });
             }
             catch (Exception exc)
             {
                 return StatusCode(500, exc.Message);
             }
         }
-       [HttpPost("delete-user")]
+        [HttpPost("delete-user")]
         public async Task<IActionResult> DeleteUser()
         {
             try
             {
-            var userIdFromClaims = User.GetUserId();
-            if(Guid.Empty == userIdFromClaims)
-                return Unauthorized("You are logged out.");
-            await _unitOfWork.UserRepository.DeleteUser(userIdFromClaims);
-            await _unitOfWork.ApplyChanges();
-            return Ok(new { message = "You deleted your account. See you soon :D" });
+                var userIdFromClaims = User.GetUserId();
+                if (Guid.Empty == userIdFromClaims)
+                    return Unauthorized("You are logged out.");
+                await _unitOfWork.UserRepository.DeleteUser(userIdFromClaims);
+                await _unitOfWork.ApplyChanges();
+                return Ok(new { message = "You deleted your account. See you soon :D" });
             }
             catch (Exception exc)
             {
@@ -106,7 +106,7 @@ namespace Friendshub.Api.Controllers
             }
         }
 
-        [HttpGet("followers")]
+        [HttpGet("get-followers-list")]
 
         public async Task<IActionResult> GetFollowersList()
         {
@@ -124,18 +124,36 @@ namespace Friendshub.Api.Controllers
             }
         }
 
-        [HttpPost("remove-follower/{followeerId}")]
+        [HttpPost("remove-from-followers/{followeerId}")]
         public async Task<IActionResult> RemoveFollower([FromRoute] Guid followeerId)
         {
             try
             {
                 var userIdFromClaims = User.GetUserId();
-                if( Guid.Empty == userIdFromClaims)
+                if (Guid.Empty == userIdFromClaims)
                     return Unauthorized("You are logged out.");
 
                 _unitOfWork.UserRepository.RemoveFollower(userIdFromClaims, followeerId);
-               await _unitOfWork.ApplyChanges();
+                await _unitOfWork.ApplyChanges();
                 return Ok(new { message = "Follower removed." });
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
+
+        [HttpGet("following")]
+
+        public async Task<IActionResult> GetFollowingList()
+        {
+            try
+            {
+                var userIdFromClaims = User.GetUserId();
+                if (Guid.Empty == userIdFromClaims)
+                    return Unauthorized("You are logged out.");
+                var followingList = await _unitOfWork.UserRepository.GetFollowings(userIdFromClaims);
+                return Ok(new { followings = followingList });
             }
             catch (Exception exc)
             {

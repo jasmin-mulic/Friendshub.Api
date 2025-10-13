@@ -1,6 +1,6 @@
 ﻿namespace Friendshub.Application.DTO.UserDto
 {
-    public class FollowRecommendation
+    public class FollowRecommendationDto
     {
         public Guid Id { get; set; }
         public string Username { get; set; }

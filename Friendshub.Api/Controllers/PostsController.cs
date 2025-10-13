@@ -102,12 +102,10 @@ namespace Friendshub.Api.Controllers
                 if (User.GetUserId() == Guid.Empty)
                     return Unauthorized("You are logged out.");
 
-                var post = await _unitOfWork.PostRepository.GetPostById(postId);
+               var isDeleted = await  _unitOfWork.PostRepository.DeletePost(postId);
+                if (!isDeleted)
+                    return BadRequest("Error deleting post");
 
-                if(post == null)
-
-                    return NotFound("Post not found.");
-                _unitOfWork.PostRepository.DeletePost(post);
                 await _unitOfWork.ApplyChanges();
                 return Ok(new { message = "Post deleted successfully." });
             }

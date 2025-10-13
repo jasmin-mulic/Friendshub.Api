@@ -90,10 +90,17 @@ namespace Friendshub.Infrastructure.Implementations
         }
         public async Task<List<UserBasicInfo>> GetFollowings(Guid userId)
         {
+            var followingList = await _context.Follows.Include(x => x.Follower).Where(x =>x.FollowerId == userId).Select(f => new UserBasicInfo
+            {
+                ProfileImageUrl = f.Followee.ProfileImgUrl.ToFullImageUrl(),
+                UserId = f.Followee.Id,
+                Username= f.Followee.DisplayUsername
+            }).ToListAsync();
+            return followingList;
 
         }
 
-        public async Task<List<FollowRecommendation>> GetFollowRecommendationList(Guid userId)
+        public async Task<List<FollowRecommendationDto>> GetFollowRecommendationList(Guid userId)
         {
             // Dobavi sve FolloweeId koje korisnik već prati
             var followingIds = await _context.Follows
@@ -108,7 +115,7 @@ namespace Friendshub.Infrastructure.Implementations
                     .Where(u => u.Id != userId) // ne predlaži samog sebe
                     .OrderBy(u => Guid.NewGuid())
                     .Take(20)
-                    .Select(u => new FollowRecommendation
+                    .Select(u => new FollowRecommendationDto
                     {
                         Id = u.Id,
                         Username = u.DisplayUsername,
@@ -122,7 +129,7 @@ namespace Friendshub.Infrastructure.Implementations
                 .Where(u => u.Id != userId && !followingIds.Contains(u.Id))
                 .OrderBy(u => Guid.NewGuid())
                 .Take(20)
-                .Select(u => new FollowRecommendation
+                .Select(u => new FollowRecommendationDto
                 {
                     Id = u.Id,
                     Username = u.DisplayUsername,

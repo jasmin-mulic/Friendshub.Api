@@ -75,7 +75,7 @@ namespace Friendshub.Infrastructure.Implementations
                 EmailAddress = request.EmailAddress.ToLower(),
                 PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password),
                 DateOfBirth = request.DateOfBirth,
-                ProfileImgUrl = string.Empty
+                ProfileImgUrl = null
             };
             result.UserId = user.Id;
             var userRole = new UserRole

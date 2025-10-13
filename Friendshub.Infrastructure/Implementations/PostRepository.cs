@@ -8,6 +8,7 @@ using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Friendshub.Infrastructure.Implementations
 {
@@ -124,14 +125,38 @@ namespace Friendshub.Infrastructure.Implementations
         }
 
 
-        public void DeletePost(Post post)
+        public async Task<bool> DeletePost(Guid postId)
         {
-            var comments = _context.Comments.Where(x => x.PostId == post.Id).ToList();
-            if(comments.Count > 0) 
-                _context.Comments.RemoveRange(comments);
-            _context.Posts.Remove(post);    
+            var post = await _context.Posts.Include(post => post.PostsImages).Where(x => x.Id == postId).SingleOrDefaultAsync();
+            if (post == null)
+                return false;
+
+            if (post.PostsImages.Count() > 0)
+            {
+                foreach (var image in post.PostsImages)
+                {
+                    if (!string.IsNullOrWhiteSpace(image.ImgUrl))
+                    {
+                        var physicalPath = Path.Combine(_env.WebRootPath, image.ImgUrl.Replace('/', Path.DirectorySeparatorChar));
+                        if (File.Exists(physicalPath))
+                        {
+                            try
+                            {
+                                File.Delete(physicalPath);
+                            }
+                            catch (Exception exc)
+                            {
+                                Console.WriteLine(exc.Message);
+                            }
+                        }
+                    }
+                }
+            }
+            _context.Posts.Remove(post);
+            return true;
         }
 
+        
         public async Task<Comment> GetCommentById(Guid commentId)
         {
             return await _context.Comments.FirstOrDefaultAsync(c =>  c.Id == commentId);
