@@ -37,11 +37,36 @@ namespace Friendshub.Infrastructure.Migrations
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     Active = table.Column<bool>(type: "bit", nullable: false),
                     ProfileImgUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PrivateAccount = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FollowRequest",
+                columns: table => new
+                {
+                    SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RecieverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FollowRequest", x => new { x.SenderId, x.RecieverId });
+                    table.ForeignKey(
+                        name: "FK_FollowRequest_Users_RecieverId",
+                        column: x => x.RecieverId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_FollowRequest_Users_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -116,7 +141,7 @@ namespace Friendshub.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRoles", x => new { x.RoleId, x.UserId });
+                    table.PrimaryKey("PK_UserRoles", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
                         name: "FK_UserRoles_Roles_RoleId",
                         column: x => x.RoleId,
@@ -239,6 +264,11 @@ namespace Friendshub.Infrastructure.Migrations
                 column: "CommentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FollowRequest_RecieverId",
+                table: "FollowRequest",
+                column: "RecieverId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Follows_FolloweeId",
                 table: "Follows",
                 column: "FolloweeId");
@@ -264,9 +294,9 @@ namespace Friendshub.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_UserId",
+                name: "IX_UserRoles_RoleId",
                 table: "UserRoles",
-                column: "UserId");
+                column: "RoleId");
         }
 
         /// <inheritdoc />
@@ -274,6 +304,9 @@ namespace Friendshub.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "CommentsLikes");
+
+            migrationBuilder.DropTable(
+                name: "FollowRequest");
 
             migrationBuilder.DropTable(
                 name: "Follows");

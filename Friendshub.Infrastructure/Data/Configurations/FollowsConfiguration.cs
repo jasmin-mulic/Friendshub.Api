@@ -9,6 +9,7 @@ namespace Friendshub.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Follows> builder)
         {
             builder.HasKey(f => new { f.FollowerId, f.FolloweeId });
+
             builder.HasOne(f => f.Follower)
                 .WithMany(x => x.Followings)
                 .HasForeignKey(f => f.FollowerId)

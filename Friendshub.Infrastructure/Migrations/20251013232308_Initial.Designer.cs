@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Friendshub.Infrastructure.Migrations
 {
     [DbContext(typeof(FriendshubDbContext))]
-    [Migration("20251013213235_Nullable_Profile_Pic")]
-    partial class Nullable_Profile_Pic
+    [Migration("20251013232308_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,6 +66,24 @@ namespace Friendshub.Infrastructure.Migrations
                     b.HasIndex("CommentId");
 
                     b.ToTable("CommentsLikes");
+                });
+
+            modelBuilder.Entity("Friendshub.Domain.Models.FollowRequest", b =>
+                {
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RecieverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("SenderId", "RecieverId");
+
+                    b.HasIndex("RecieverId");
+
+                    b.ToTable("FollowRequest");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Follows", b =>
@@ -229,15 +247,15 @@ namespace Friendshub.Infrastructure.Migrations
 
             modelBuilder.Entity("Friendshub.Domain.Models.UserRole", b =>
                 {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("RoleId", "UserId");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("UserId");
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles");
                 });
@@ -270,6 +288,25 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Navigation("Comment");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Friendshub.Domain.Models.FollowRequest", b =>
+                {
+                    b.HasOne("Friendshub.Domain.Models.User", "Reciever")
+                        .WithMany("RecievedFollowRequest")
+                        .HasForeignKey("RecieverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Friendshub.Domain.Models.User", "Sender")
+                        .WithMany("SentFollowRequests")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Reciever");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Follows", b =>
@@ -392,6 +429,10 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Navigation("PostLikes");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("RecievedFollowRequest");
+
+                    b.Navigation("SentFollowRequests");
 
                     b.Navigation("UserRoles");
                 });

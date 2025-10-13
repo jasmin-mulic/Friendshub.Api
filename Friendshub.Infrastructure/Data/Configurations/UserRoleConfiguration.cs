@@ -14,6 +14,7 @@ namespace Friendshub.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<UserRole> builder)
         {
+            builder.HasKey(ur => new {ur.UserId,ur.RoleId});
             builder.HasOne(x => x.User)
                    .WithMany(u => u.UserRoles)
                    .HasForeignKey(ur => ur.UserId)

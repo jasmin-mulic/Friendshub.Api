@@ -25,5 +25,10 @@ namespace Friendshub.Infrastructure.Data
         public virtual DbSet<PostLike> Likes { get; set; }
         public virtual DbSet<Comment> Comments { get; set; }    
         public virtual DbSet<CommentLike> CommentsLikes { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(FriendshubDbContext).Assembly);
+        }
     }
 }

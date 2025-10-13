@@ -50,6 +50,7 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<string> FollowUser(Guid followerId, Guid followeeId)
         {
             string responseMessage = string.Empty;
+
             var follow = await _context.Follows.FirstOrDefaultAsync(x => x.FollowerId == followerId &&
                                                                      x.FolloweeId == followeeId);
 
@@ -61,6 +62,19 @@ namespace Friendshub.Infrastructure.Implementations
             }
             else
             {
+                var followee = await _context.Users.FirstOrDefaultAsync(x => x.Id == followeeId);
+
+                if(followee.PrivateAccount)
+                {
+                    var newFollowRequest = new FollowRequest
+                    {
+                        SenderId = followerId,
+                        RecieverId = followeeId
+                    };
+                    responseMessage = "Follow request sent";
+                    return responseMessage;
+                };
+
                 var newFollow = new Follows
                 {
                     FollowerId = followerId,
