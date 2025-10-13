@@ -79,7 +79,7 @@ namespace Friendshub.Api.Controllers
                     return Unauthorized();
 
                 var foloweeToGuid = Guid.Parse(foloweeId);
-               var followMessage =  _unitOfWork.UserRepository.FollowUser(userIdFromClaims, foloweeToGuid);//vraca followed ili unfollowed
+               var followMessage =  await _unitOfWork.UserRepository.FollowUser(userIdFromClaims, foloweeToGuid);//vraca followed ili unfollowed
                 await _unitOfWork.ApplyChanges();
                 return Ok(new {message = followMessage});
             }
@@ -117,6 +117,25 @@ namespace Friendshub.Api.Controllers
                     return Unauthorized("You are logged out.");
                 var followerList = await _unitOfWork.UserRepository.GetFollowers(userIdFromClaims);
                 return Ok(new { followers = followerList });
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
+
+        [HttpPost("remove-follower/{followeerId}")]
+        public async Task<IActionResult> RemoveFollower([FromRoute] Guid followeerId)
+        {
+            try
+            {
+                var userIdFromClaims = User.GetUserId();
+                if( Guid.Empty == userIdFromClaims)
+                    return Unauthorized("You are logged out.");
+
+                _unitOfWork.UserRepository.RemoveFollower(userIdFromClaims, followeerId);
+               await _unitOfWork.ApplyChanges();
+                return Ok(new { message = "Follower removed." });
             }
             catch (Exception exc)
             {

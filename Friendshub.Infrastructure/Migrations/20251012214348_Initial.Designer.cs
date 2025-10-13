@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Friendshub.Infrastructure.Migrations
 {
     [DbContext(typeof(FriendshubDbContext))]
-    [Migration("20251010130622_Initial")]
+    [Migration("20251012214348_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

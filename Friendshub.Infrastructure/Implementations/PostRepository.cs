@@ -6,6 +6,7 @@ using Friendshub.Application.Extensions;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Friendshub.Infrastructure.Implementations
@@ -13,9 +14,11 @@ namespace Friendshub.Infrastructure.Implementations
     public class PostRepository : IPostRepository
     {
         private readonly FriendshubDbContext _context;
-        public PostRepository(FriendshubDbContext context)
+        private readonly IWebHostEnvironment _env;
+        public PostRepository(FriendshubDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _env = webHostEnvironment;
         }
 
         public async Task<PostClientDto> AddPost(AddPostDto request, User user)
@@ -38,14 +41,11 @@ namespace Friendshub.Infrastructure.Implementations
                     {
                         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
 
-                        // Folder unutar wwwroot
-                        var uploadsFolder = Path.Combine("wwwroot", "uploads", "posts");
+                        var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/posts/images");
 
-                        // Kreiranje foldera ako ne postoji
                         if (!Directory.Exists(uploadsFolder))
                             Directory.CreateDirectory(uploadsFolder);
 
-                        // Putanja za spremanje na disk
                         var physicalPath = Path.Combine(uploadsFolder, fileName);
 
                         using (var stream = new FileStream(physicalPath, FileMode.Create))
@@ -53,8 +53,7 @@ namespace Friendshub.Infrastructure.Implementations
                             await file.CopyToAsync(stream);
                         }
 
-                        // U bazi čuvamo relativnu putanju
-                        var relativePath = Path.Combine("uploads", "posts", fileName).Replace("\\", "/");
+                        var relativePath = Path.Combine("uploads", "posts", "images", fileName).Replace("\\", "/");
 
                         newPost.PostsImages.Add(new PostImage
                         {

@@ -13,5 +13,7 @@ namespace Friendshub.Application.Repositories
         Task<string> FollowUser(Guid folower, Guid Folowee);
         Task  DeleteUser(Guid id);
         Task<List<UserBasicInfo>> GetFollowers(Guid userId);
+        void RemoveFollower(Guid followeeId, Guid followerId);
+        Task<List<UserBasicInfo>> GetFollowings(Guid userId);
     }
 }

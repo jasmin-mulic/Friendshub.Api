@@ -35,6 +35,7 @@ namespace Friendshub.Infrastructure.Implementations
             {
                 await file.CopyToAsync(stream);
             }
+
             return $"/uploads/profileImages/{fileName}";
         }
 
@@ -79,13 +80,17 @@ namespace Friendshub.Infrastructure.Implementations
 
         public async Task<List<UserBasicInfo>> GetFollowers(Guid userId)
         {
-            var followers = await _context.Follows.Include(f => f.Followee).Where(x => x.FolloweeId == userId).Select(f => new UserBasicInfo
+            var followers = await _context.Follows.Include(f => f.Follower).Include(f => f.Followee).Where(x => x.FolloweeId == userId).Select(f => new UserBasicInfo
             {
-                ProfileImageUrl = f.Followee.ProfileImgUrl.ToFullImageUrl(),
-                UserId = f.FolloweeId,
-                Username = f.Followee.DisplayUsername
+                ProfileImageUrl = f.Follower.ProfileImgUrl.ToFullImageUrl(),
+                UserId = f.FollowerId,
+                Username = f.Follower.DisplayUsername
             }).AsNoTracking().ToListAsync();
             return followers;
+        }
+        public async Task<List<UserBasicInfo>> GetFollowings(Guid userId)
+        {
+
         }
 
         public async Task<List<FollowRecommendation>> GetFollowRecommendationList(Guid userId)
@@ -146,6 +151,15 @@ namespace Friendshub.Infrastructure.Implementations
                 PostCount = postCount
             };
             return userProfileData;
+        }
+
+        public void RemoveFollower(Guid followeeId, Guid followerId)
+        {
+            var follow = _context.Follows.FirstOrDefault(f => f.FolloweeId.Equals(followeeId)
+                                                        && f.FollowerId.Equals(followerId));
+            if (follow == null)
+                throw new ApplicationException("User is not following you.");
+            _context.Follows.Remove(follow);
         }
     }
 }
