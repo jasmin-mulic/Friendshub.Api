@@ -8,8 +8,8 @@ namespace Friendshub.Domain.Models
         public Guid PostId { get; set; }
         public string Content { get; set; } = string.Empty;
         public string CommentImageUrl { get; set; } = string.Empty;
-        public Post Post { get; set; }
+        public virtual  Post Post { get; set; }
         public DateTime CommentedAt { get; set; } = DateTime.UtcNow;
-        public List<CommentLike> CommentLikes { get; set; } = new();
+        public virtual  List<CommentLike> CommentLikes { get; set; } = new();
     }
 }

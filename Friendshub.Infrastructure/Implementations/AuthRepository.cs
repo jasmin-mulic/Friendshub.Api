@@ -19,9 +19,9 @@ namespace Friendshub.Infrastructure.Implementations
         }
         public async Task<LoginResult> LoginAsync(LoginUserDto request)
         {
+            var querryNormalized = request.UsernameOrEmail.ToLower();
             var result = new LoginResult();
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Username == request.UsernameOrEmail.ToLower() ||
-                                                                     x.EmailAddress == request.UsernameOrEmail.ToLower());
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Username == querryNormalized || x.EmailAddress == querryNormalized);
    
             if (user == null || BCrypt.Net.BCrypt.EnhancedVerify(request.Password, user.PasswordHash) == false)
             {
@@ -75,7 +75,7 @@ namespace Friendshub.Infrastructure.Implementations
                 EmailAddress = request.EmailAddress.ToLower(),
                 PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password),
                 DateOfBirth = request.DateOfBirth,
-                ProfileImgUrl = null
+                ProfileImageUrl = null
             };
             result.UserId = user.Id;
             var userRole = new UserRole

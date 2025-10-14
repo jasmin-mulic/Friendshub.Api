@@ -11,7 +11,7 @@ namespace Friendshub.Domain.Models
         public Guid Id { get; set; }
         public string ImgUrl { get; set; }
         public Guid PostId { get; set; }
-        public Post Post { get; set; }
+        public virtual Post Post { get; set; }
 
     }
 }

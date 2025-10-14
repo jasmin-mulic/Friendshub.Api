@@ -21,11 +21,11 @@ namespace Friendshub.Infrastructure.Implementations
 
         public async Task<string> ChangeProfilePicture(IFormFile file)
         {
-            if(file == null || file.Length == 0)
+            if (file == null || file.Length == 0)
                 throw new ArgumentNullException("Invalid file.");
 
             var uploadPath = Path.Combine(_env.WebRootPath, "uploads/profileImages");
-            if(!Directory.Exists(uploadPath))
+            if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
 
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
@@ -43,7 +43,7 @@ namespace Friendshub.Infrastructure.Implementations
         {
             var user = await _context.Users.FindAsync(id);
             var follows = await _context.Follows.Where(x => x.FollowerId == id).ToListAsync();
-             _context.Follows.RemoveRange(follows);
+            _context.Follows.RemoveRange(follows);
             _context.Users.Remove(user);
         }
 
@@ -58,37 +58,45 @@ namespace Friendshub.Infrastructure.Implementations
             {
                 _context.Follows.Remove(follow);
                 responseMessage = "unfollowed";
-
+                return responseMessage;
             }
-            else
+            var pendingRequest = await _context.FollowRequests.FirstOrDefaultAsync(x => x.SenderId == followerId && x.RecieverId == followeeId);
+
+            if(pendingRequest != null)
             {
-                var followee = await _context.Users.FirstOrDefaultAsync(x => x.Id == followeeId);
+                _context.FollowRequests.Remove(pendingRequest);
+                responseMessage = "Follow request canceled.";
+                return responseMessage;
+            }
 
-                if(followee.PrivateAccount)
-                {
-                    var newFollowRequest = new FollowRequest
-                    {
-                        SenderId = followerId,
-                        RecieverId = followeeId
-                    };
-                    responseMessage = "Follow request sent";
-                    return responseMessage;
-                };
-
+            var followee = await _context.Users.FirstOrDefaultAsync(x => x.Id == followeeId);
+            
+            if (!followee.PrivateAccount)
+            {
                 var newFollow = new Follows
                 {
                     FollowerId = followerId,
                     FolloweeId = followeeId
                 };
-                _context.Follows.Add(newFollow);
+               await _context.Follows.AddAsync(newFollow);
+
                 responseMessage = "followed";
+                return responseMessage;
             }
+
+            var newFollowRequest = new FollowRequest
+            {
+                SenderId = followerId,
+                RecieverId = followeeId
+            };
+           await _context.FollowRequests.AddAsync(newFollowRequest);
+            responseMessage = "Follow request sent";
             return responseMessage;
         }
 
         public async Task<User> GetById(Guid id)
         {
-           var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             return user;
         }
 
@@ -96,7 +104,7 @@ namespace Friendshub.Infrastructure.Implementations
         {
             var followers = await _context.Follows.Include(f => f.Follower).Include(f => f.Followee).Where(x => x.FolloweeId == userId).Select(f => new UserBasicInfo
             {
-                ProfileImageUrl = f.Follower.ProfileImgUrl.ToFullImageUrl(),
+                ProfileImageUrl = f.Follower.ProfileImageUrl.ToFullImageUrl(),
                 UserId = f.FollowerId,
                 Username = f.Follower.DisplayUsername
             }).AsNoTracking().ToListAsync();
@@ -104,11 +112,11 @@ namespace Friendshub.Infrastructure.Implementations
         }
         public async Task<List<UserBasicInfo>> GetFollowings(Guid userId)
         {
-            var followingList = await _context.Follows.Include(x => x.Follower).Where(x =>x.FollowerId == userId).Select(f => new UserBasicInfo
+            var followingList = await _context.Follows.Include(x => x.Follower).Where(x => x.FollowerId == userId).Select(f => new UserBasicInfo
             {
-                ProfileImageUrl = f.Followee.ProfileImgUrl.ToFullImageUrl(),
+                ProfileImageUrl = f.Followee.ProfileImageUrl.ToFullImageUrl(),
                 UserId = f.Followee.Id,
-                Username= f.Followee.DisplayUsername
+                Username = f.Followee.DisplayUsername
             }).ToListAsync();
             return followingList;
 
@@ -133,7 +141,7 @@ namespace Friendshub.Infrastructure.Implementations
                     {
                         Id = u.Id,
                         Username = u.DisplayUsername,
-                        ProfileImageUrl = u.ProfileImgUrl.ToFullImageUrl(),
+                        ProfileImageUrl = u.ProfileImageUrl.ToFullImageUrl(),
                     })
                     .ToListAsync();
             }
@@ -147,7 +155,7 @@ namespace Friendshub.Infrastructure.Implementations
                 {
                     Id = u.Id,
                     Username = u.DisplayUsername,
-                    ProfileImageUrl = u.ProfileImgUrl.ToFullImageUrl(),
+                    ProfileImageUrl = u.ProfileImageUrl.ToFullImageUrl(),
                 })
                 .ToListAsync();
 
@@ -166,10 +174,11 @@ namespace Friendshub.Infrastructure.Implementations
             var userProfileData = new ProfileDataDto
             {
                 DisplayUsername = user.Username,
-                ProfileImgUrl = string.IsNullOrWhiteSpace(user.ProfileImgUrl) ? null : user.ProfileImgUrl.ToFullImageUrl(),
+                ProfileImgUrl = string.IsNullOrWhiteSpace(user.ProfileImageUrl) ? null : user.ProfileImageUrl.ToFullImageUrl(),
                 FollowersCount = followersCount,
                 FollowingCount = followingCount,
-                PostCount = postCount
+                PostCount = postCount,
+                PrivateAccount = user.PrivateAccount, 
             };
             return userProfileData;
         }

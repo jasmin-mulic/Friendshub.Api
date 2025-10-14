@@ -7,6 +7,6 @@
         public int FollowersCount { get; set; }
         public int FollowingCount { get; set; }
         public int PostCount { get; set; }
-
+        public bool PrivateAccount { get; set; }
     }
 }

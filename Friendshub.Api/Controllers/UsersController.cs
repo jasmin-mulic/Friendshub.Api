@@ -38,7 +38,7 @@ namespace Friendshub.Api.Controllers
                     return Unauthorized();
                 var fileurl = await _unitOfWork.UserRepository.ChangeProfilePicture(formFile);
                 var user = await _unitOfWork.UserRepository.GetById(userId);
-                user.ProfileImgUrl = fileurl;
+                user.ProfileImageUrl = fileurl;
                 await _unitOfWork.ApplyChanges();
                 return Ok("Profile image changed successfully.");
             }

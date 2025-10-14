@@ -114,7 +114,7 @@ namespace Friendshub.Infrastructure.Implementations
             var commentDto = new CommentClientDto()
             {
                 Username = user.Username,
-                UserProfileImageUrl = newComment.CommentImageUrl,
+                UserProfileImageUrl = string.IsNullOrWhiteSpace(user.ProfileImageUrl) ? null : user.ProfileImageUrl,
                 CommentedAt = newComment.CommentedAt,
                 Content = newComment.Content,
                 CommentId = newComment.Id,
@@ -187,7 +187,7 @@ namespace Friendshub.Infrastructure.Implementations
                     Username = p.User.DisplayUsername,
                     PostId = p.Id,
                     PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
-                    ProfileImgUrl = p.User.ProfileImgUrl.ToFullImageUrl(),
+                    ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
                     PostedAt = p.PostedAt,
                     
                     Likes = GetLikes(p.Id),
@@ -196,12 +196,12 @@ namespace Friendshub.Infrastructure.Implementations
                         CommentedAt = c.CommentedAt,
                         CommentId = c.Id,
                         Content = c.Content,
-                        UserProfileImageUrl = p.User.ProfileImgUrl.ToFullImageUrl(),
+                        UserProfileImageUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
                         Username = p.User.DisplayUsername,
                         CommentLikes = c.CommentLikes.Where(x => x.UserId == userId).Select(like => new UserBasicInfo
                         {
-                            ProfileImageUrl = like.User.ProfileImgUrl.ToFullImageUrl(),
+                            ProfileImageUrl = like.User.ProfileImageUrl.ToFullImageUrl(),
                             Username = like.User.DisplayUsername,
                             UserId = like.UserId,
                         }).ToList(),
@@ -229,7 +229,7 @@ namespace Friendshub.Infrastructure.Implementations
                 Users = likes.Select(x => new UserBasicInfo
                 {
                     UserId = x.User.Id,
-                    ProfileImageUrl = x.User.ProfileImgUrl,
+                    ProfileImageUrl = x.User.ProfileImageUrl,
                     Username = x.User.DisplayUsername
                 }).ToList(),
             };
@@ -261,7 +261,7 @@ namespace Friendshub.Infrastructure.Implementations
                     UserId = p.UserId,
                     PostedAt = p.PostedAt,
                     Username = p.User.DisplayUsername,
-                    ProfileImgUrl = p.User.ProfileImgUrl.ToFullImageUrl(),
+                    ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
                     PostImagesUrl = p.PostsImages.Select(postImg => postImg.ImgUrl.ToFullImageUrl()).ToList(),
                     Likes = GetLikes(p.Id),
                     Comments = p.Comments.Select(c => new CommentClientDto
@@ -272,11 +272,11 @@ namespace Friendshub.Infrastructure.Implementations
                         CommentId = c.Id,
                         Username = c.Post.User.DisplayUsername,
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
-                        UserProfileImageUrl = c.Post.User.ProfileImgUrl,
+                        UserProfileImageUrl = c.Post.User.ProfileImageUrl,
                         CommentLikes = c.CommentLikes.Select(c => new UserBasicInfo
                         {
                             UserId = c.UserId,
-                            ProfileImageUrl = c.User.ProfileImgUrl.ToFullImageUrl(),
+                            ProfileImageUrl = c.User.ProfileImageUrl.ToFullImageUrl(),
                             Username = c.User.Username,
                         }).ToList(),
                     }).OrderByDescending(x => x.CommentedAt).ToList()
@@ -298,29 +298,39 @@ namespace Friendshub.Infrastructure.Implementations
             return post;
         }
 
-        public async Task<string> LikeComment(Guid userId, Guid CommentId)
+        public async Task<LikeCommentResponse> LikeComment(Guid userId, Guid CommentId)
         {
-            string responseMessage = string.Empty;
+            var response = new LikeCommentResponse();
             var like = await _context.CommentsLikes.FirstOrDefaultAsync(x => x.UserId == userId);
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId); ;
+
             if (like != null)
             {
-                responseMessage = "Comment disliked";
-            _context.CommentsLikes.Remove(like);
-            return responseMessage;
+                response.Message = "disliked";
+                response.CommentId = CommentId;
+                response.User.ProfileImageUrl = user.ProfileImageUrl == null ? null : user.ProfileImageUrl;
+                response.User.Username = user.Username;
+                response.User.UserId = userId;
 
+                _context.CommentsLikes.Remove(like);
+                return response;
             }
 
+                var newLike = new CommentLike
+                {
+                    UserId = userId,
+                    CommentId = CommentId,
+                    LikedAt = DateTime.Now,
+                };
+            response.Message = "liked";
+            response.CommentId = CommentId;
+            response.User.ProfileImageUrl = user.ProfileImageUrl;
+            response.User.Username = user.Username;
+            response.User.UserId = user.Id;
 
-            var newLike = new CommentLike
-            {
-                UserId = userId,
-                CommentId = CommentId,
-                LikedAt = DateTime.Now,
-            };
-            responseMessage = "Comment liked";
             await _context.CommentsLikes.AddAsync(newLike);
-            return responseMessage;
-        }
+                return response;
+            }
         public async Task<string> LikePost(Guid userId, Guid postId)
         {
             string message = string.Empty;

@@ -180,7 +180,7 @@ namespace Friendshub.Api.Controllers
 
                 var likeCommentResponse = await _unitOfWork.PostRepository.LikeComment(userIdFromClaims, CommentId);
                 await _unitOfWork.ApplyChanges();
-                return Ok(new { Message = likeCommentResponse });
+                return Ok(likeCommentResponse);
             }
             catch (Exception exc)
             {

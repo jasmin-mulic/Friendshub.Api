@@ -2,13 +2,6 @@
 using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.DTO.PostDto;
 using Friendshub.Domain.Models;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Friendshub.Application.Repositories
 {
     public interface IPostRepository
@@ -21,7 +14,7 @@ namespace Friendshub.Application.Repositories
         Task<string> LikePost(Guid UserId, Guid PostId);
         PostLikes GetLikes(Guid postId);
         Task<CommentClientDto> CommentPost (Guid userId, Post post, AddCommentDto comment);
-        Task<string> LikeComment(Guid UserId, Guid CommentId);
+        Task<LikeCommentResponse> LikeComment(Guid UserId, Guid CommentId);
         Task<Comment> GetCommentById(Guid commentId);
     }
 }
