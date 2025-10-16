@@ -11,7 +11,7 @@ namespace Friendshub.Application.DTO.DtoPost
         public List<string> PostImagesUrl { get; set; } = new List<string>();
         public string Username { get; set; }
         public string ProfileImgUrl { get; set; }
-        public PostLikes Likes { get; set; }
+        public PostLikes Likes { get; set; }  = new PostLikes();
         public List<CommentClientDto> Comments { get; set; } = new List<CommentClientDto>();
     }
 }

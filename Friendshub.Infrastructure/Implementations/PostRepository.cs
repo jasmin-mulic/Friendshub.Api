@@ -75,6 +75,8 @@ namespace Friendshub.Infrastructure.Implementations
                 PostId = newPost.Id,
                 PostImagesUrl = newPost.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
                 PostedAt = newPost.PostedAt,
+                Likes = new PostLikes(),
+                UserId = user.Id,
             };
 
             return postDto;
@@ -159,7 +161,7 @@ namespace Friendshub.Infrastructure.Implementations
         
         public async Task<Comment> GetCommentById(Guid commentId)
         {
-            return await _context.Comments.FirstOrDefaultAsync(c =>  c.Id == commentId);
+            return await _context.Comments.AsNoTracking().FirstOrDefaultAsync(c =>  c.Id == commentId);
         }
 
         public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int pageNumber = 1)
@@ -190,7 +192,7 @@ namespace Friendshub.Infrastructure.Implementations
                     ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
                     PostedAt = p.PostedAt,
                     
-                    Likes = GetLikes(p.Id),
+                    Likes = GetPostLikes(p.Id),
                     Comments = _context.Comments.Where(x => x.PostId == p.Id).Select(c => new CommentClientDto
                     {
                         CommentedAt = c.CommentedAt,
@@ -220,7 +222,7 @@ namespace Friendshub.Infrastructure.Implementations
             return PageResult;
         }
 
-        public  PostLikes GetLikes(Guid postId)
+        public  PostLikes GetPostLikes(Guid postId)
         {
             var likes = _context.Likes.Include(x => x.User).Where(l => l.PostId == postId).ToList();
             var postLikes = new PostLikes()
@@ -263,7 +265,7 @@ namespace Friendshub.Infrastructure.Implementations
                     Username = p.User.DisplayUsername,
                     ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
                     PostImagesUrl = p.PostsImages.Select(postImg => postImg.ImgUrl.ToFullImageUrl()).ToList(),
-                    Likes = GetLikes(p.Id),
+                    Likes = GetPostLikes(p.Id),
                     Comments = p.Comments.Select(c => new CommentClientDto
                     {
                         
@@ -298,39 +300,34 @@ namespace Friendshub.Infrastructure.Implementations
             return post;
         }
 
-        public async Task<LikeCommentResponse> LikeComment(Guid userId, Guid CommentId)
+        public async Task<LikeCommentResponse> LikeComment(Guid commentId, Guid userId)
         {
             var response = new LikeCommentResponse();
-            var like = await _context.CommentsLikes.FirstOrDefaultAsync(x => x.UserId == userId);
-            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId); ;
-
-            if (like != null)
+            var existingLike = await _context.CommentsLikes.FirstOrDefaultAsync((x => x.UserId == userId && x.CommentId == commentId));
+            if(existingLike != null)
             {
+                response.CommentId = commentId;
                 response.Message = "disliked";
-                response.CommentId = CommentId;
-                response.User.ProfileImageUrl = user.ProfileImageUrl == null ? null : user.ProfileImageUrl;
-                response.User.Username = user.Username;
                 response.User.UserId = userId;
-
-                _context.CommentsLikes.Remove(like);
+                _context.CommentsLikes.Remove(existingLike);
                 return response;
             }
-
-                var newLike = new CommentLike
-                {
-                    UserId = userId,
-                    CommentId = CommentId,
-                    LikedAt = DateTime.Now,
-                };
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
             response.Message = "liked";
-            response.CommentId = CommentId;
+            response.CommentId = commentId;
             response.User.ProfileImageUrl = user.ProfileImageUrl;
-            response.User.Username = user.Username;
-            response.User.UserId = user.Id;
+            response.User.Username = user.DisplayUsername;
+            response.User.ProfileImageUrl = user.ProfileImageUrl ?? null;
+            response.User.UserId = userId;
 
+            var newLike = new CommentLike()
+            {
+                UserId = userId,
+                CommentId = commentId,
+            };
             await _context.CommentsLikes.AddAsync(newLike);
-                return response;
-            }
+            return response;
+        }
         public async Task<string> LikePost(Guid userId, Guid postId)
         {
             string message = string.Empty;

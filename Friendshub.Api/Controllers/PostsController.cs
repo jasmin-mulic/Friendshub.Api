@@ -165,26 +165,24 @@ namespace Friendshub.Api.Controllers
                 return BadRequest(exc.Message);
             }
         }
-        [HttpPost("like-comment/{CommentId}")]
-        public async Task<IActionResult> LikeComment([FromRoute] Guid CommentId)
+        [HttpPost("like-comment/{commentId}")]
+        public async Task<IActionResult> LikeComment([FromRoute] Guid commentId)
         {
             try
             {
                 var userIdFromClaims = User.GetUserId();
-                if (userIdFromClaims == Guid.Empty)
-                    return Unauthorized("You are logged out");
-               
-                var comment = await _unitOfWork.PostRepository.GetCommentById(CommentId);
+                if(userIdFromClaims == Guid.Empty)
+                    return Unauthorized("You are logged out.");
+                var comment = await _unitOfWork.PostRepository.GetCommentById(commentId);
                 if (comment == null)
-                    return BadRequest("Comment is deleted.");
-
-                var likeCommentResponse = await _unitOfWork.PostRepository.LikeComment(userIdFromClaims, CommentId);
+                    return NotFound("Comment is deleted.");
+                var likeResponse = await _unitOfWork.PostRepository.LikeComment(commentId, userIdFromClaims);
                 await _unitOfWork.ApplyChanges();
-                return Ok(likeCommentResponse);
+                return Ok(likeResponse);
             }
             catch (Exception exc)
             {
-                return BadRequest(exc);
+                return BadRequest(exc.Message);
             }
         }
     }
