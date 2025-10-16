@@ -361,5 +361,54 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/wwwroot
-wwwroot/uploads
+## Build output
+bin/
+obj/
+out/
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.vcxproj.user
+*.pdb
+*.log
+
+## Rider
+.idea/
+
+## NuGet
+*.nupkg
+packages/
+*.snupkg
+
+## Dotnet
+*.dll
+*.exe
+*.db
+*.mdb
+*.bak
+
+## ASP.NET Core specific
+wwwroot/uploads/
+appsettings.*.json
+*.db
+*.sqlite
+*.log
+
+## JetBrains Rider
+.idea/
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## Temporary files
+*.tmp
+*.temp
+
+## User-specific files
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
