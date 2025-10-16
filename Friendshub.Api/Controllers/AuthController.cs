@@ -1,9 +1,7 @@
 ﻿using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Repositories;
-using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Friendshub.Api.Controllers

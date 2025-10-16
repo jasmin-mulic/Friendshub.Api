@@ -5,6 +5,7 @@ namespace Friendshub.Application.DTO.DtoPost
 {
     public class CommentClientDto
     {
+        public Guid UserId { get; set; }
         public Guid CommentId { get; set; }
         public string Content { get; set; }
         public string UserProfileImageUrl { get; set; }

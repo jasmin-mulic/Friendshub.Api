@@ -96,6 +96,7 @@ namespace Friendshub.Infrastructure.Implementations
                 PostId = post.Id,
                 CommentedAt = DateTime.UtcNow,
                 Content = comment.Content,
+                UserId = userId,
             };
 
             if (comment.Image != null && comment.Image.Length > 0)
@@ -115,6 +116,7 @@ namespace Friendshub.Infrastructure.Implementations
             }
             var commentDto = new CommentClientDto()
             {
+                UserId = userId,
                 Username = user.Username,
                 UserProfileImageUrl = string.IsNullOrWhiteSpace(user.ProfileImageUrl) ? null : user.ProfileImageUrl,
                 CommentedAt = newComment.CommentedAt,
@@ -159,7 +161,7 @@ namespace Friendshub.Infrastructure.Implementations
         }
 
         
-        public async Task<Comment> GetCommentById(Guid commentId)
+        public async Task<Comment> GetCommentByIdAsync(Guid commentId)
         {
             return await _context.Comments.AsNoTracking().FirstOrDefaultAsync(c =>  c.Id == commentId);
         }
@@ -195,13 +197,14 @@ namespace Friendshub.Infrastructure.Implementations
                     Likes = GetPostLikes(p.Id),
                     Comments = _context.Comments.Where(x => x.PostId == p.Id).Select(c => new CommentClientDto
                     {
+                        UserId = c.UserId,
                         CommentedAt = c.CommentedAt,
                         CommentId = c.Id,
                         Content = c.Content,
-                        UserProfileImageUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
+                        UserProfileImageUrl = c.User.ProfileImageUrl.ToFullImageUrl(),
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
-                        Username = p.User.DisplayUsername,
-                        CommentLikes = c.CommentLikes.Where(x => x.UserId == userId).Select(like => new UserBasicInfo
+                        Username =c.User.DisplayUsername,
+                        CommentLikes = c.CommentLikes.Where(x => x.CommentId == c.Id).Select(like => new UserBasicInfo
                         {
                             ProfileImageUrl = like.User.ProfileImageUrl.ToFullImageUrl(),
                             Username = like.User.DisplayUsername,
@@ -351,6 +354,13 @@ namespace Friendshub.Infrastructure.Implementations
             return message;
         }
 
-
+        public async Task<bool> DeleteComment(Guid commentId, Guid userId)
+        {
+            var comment = await _context.Comments.FirstOrDefaultAsync(c => c.UserId == userId && c.Id == commentId);
+            if (comment == null)
+                return false;
+            _context.Comments.Remove(comment);
+            return true;
+        }
     }
 }

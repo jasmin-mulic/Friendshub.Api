@@ -21,7 +21,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 
-    // Add Bearer Auth
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -58,10 +57,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("ReactAppPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // React dev server
+        policy.WithOrigins("http://localhost:5173") 
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials(); // if using cookies/auth headers
+              .AllowCredentials(); // 
     });
 });
 builder.Services.Configure<ApiBehaviorOptions>(options =>

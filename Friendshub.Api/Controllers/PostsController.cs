@@ -173,7 +173,7 @@ namespace Friendshub.Api.Controllers
                 var userIdFromClaims = User.GetUserId();
                 if(userIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out.");
-                var comment = await _unitOfWork.PostRepository.GetCommentById(commentId);
+                var comment = await _unitOfWork.PostRepository.GetCommentByIdAsync(commentId);
                 if (comment == null)
                     return NotFound("Comment is deleted.");
                 var likeResponse = await _unitOfWork.PostRepository.LikeComment(commentId, userIdFromClaims);
@@ -185,5 +185,25 @@ namespace Friendshub.Api.Controllers
                 return BadRequest(exc.Message);
             }
         }
+        [HttpDelete("comment/{commentId}")]
+        public async Task<IActionResult> DeleteComment([FromRoute] Guid commentId)
+        {
+            try
+            {
+                var userIdFromClaims = User.GetUserId();
+                if (userIdFromClaims == Guid.Empty)
+                    return Unauthorized("You are logged out");
+                var isDeleted = await _unitOfWork.PostRepository.DeleteComment(commentId, userIdFromClaims);
+                if (!isDeleted)
+                    return NotFound("Comment is already deleted.");
+                await _unitOfWork.ApplyChanges();
+                return Ok();
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
+
     }
 }

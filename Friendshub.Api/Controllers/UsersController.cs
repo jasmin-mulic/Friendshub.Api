@@ -79,7 +79,7 @@ namespace Friendshub.Api.Controllers
                     return Unauthorized();
 
                 var foloweeToGuid = Guid.Parse(foloweeId);
-                var followMessage = await _unitOfWork.UserRepository.FollowUser(userIdFromClaims, foloweeToGuid);//vraca followed ili unfollowed
+                var followMessage = await _unitOfWork.UserRepository.FollowUser(userIdFromClaims, foloweeToGuid);
                 await _unitOfWork.ApplyChanges();
                 return Ok(new { message = followMessage });
             }
@@ -88,6 +88,7 @@ namespace Friendshub.Api.Controllers
                 return StatusCode(500, exc.Message);
             }
         }
+
         [HttpPost("delete-user")]
         public async Task<IActionResult> DeleteUser()
         {
@@ -106,8 +107,26 @@ namespace Friendshub.Api.Controllers
             }
         }
 
-        [HttpGet("get-followers-list")]
 
+        [HttpPost("remove-follower/{followeeId}")]
+        public async Task<IActionResult> RemoveFollower([FromRoute] Guid followeeId)
+        {
+            try
+            {
+                var userIdFromClaims = User.GetUserId();
+                if (Guid.Empty == userIdFromClaims)
+                    return Unauthorized("You are logged out.");
+
+                _unitOfWork.UserRepository.RemoveFollower(userIdFromClaims, followeeId);
+                await _unitOfWork.ApplyChanges();
+                return Ok(new { message = "Follower removed." });
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
+        [HttpGet("followers-list")]
         public async Task<IActionResult> GetFollowersList()
         {
             try
@@ -124,27 +143,7 @@ namespace Friendshub.Api.Controllers
             }
         }
 
-        [HttpPost("remove-from-followers/{followeerId}")]
-        public async Task<IActionResult> RemoveFollower([FromRoute] Guid followeerId)
-        {
-            try
-            {
-                var userIdFromClaims = User.GetUserId();
-                if (Guid.Empty == userIdFromClaims)
-                    return Unauthorized("You are logged out.");
-
-                _unitOfWork.UserRepository.RemoveFollower(userIdFromClaims, followeerId);
-                await _unitOfWork.ApplyChanges();
-                return Ok(new { message = "Follower removed." });
-            }
-            catch (Exception exc)
-            {
-                return BadRequest(exc.Message);
-            }
-        }
-
-        [HttpGet("following")]
-
+        [HttpGet("following-list")]
         public async Task<IActionResult> GetFollowingList()
         {
             try

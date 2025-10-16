@@ -19,6 +19,7 @@
         public  bool PrivateAccount { get; set; } = false;
         public virtual List<FollowRequest> SentFollowRequests { get; set; } = new();
         public virtual List<FollowRequest> RecievedFollowRequest { get; set; } = new();
+        public virtual List<Comment> Comments { get; set; } = new();
      }
 
 }
