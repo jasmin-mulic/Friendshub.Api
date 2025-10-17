@@ -1,10 +1,8 @@
 ﻿using Friendshub.Api.Extensions;
-using Friendshub.Application.DTO;
 using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.DTO.PostDto;
 using Friendshub.Application.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Friendshub.Api.Controllers
@@ -44,6 +42,9 @@ namespace Friendshub.Api.Controllers
                 if (UserIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out.");
 
+                if (string.IsNullOrWhiteSpace(request.Content) && (request.ImagePaths == null || request.ImagePaths.Any()))
+                    return BadRequest(new { message = "You have to add at least one image or post content." });
+
                 var user = await _unitOfWork.UserRepository.GetById(UserIdFromClaims);
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 
@@ -55,14 +56,12 @@ namespace Friendshub.Api.Controllers
                     if (!allowedExtensions.Contains(extension))
                         return BadRequest("Image format not supported!");
 
-                        long maxSize = 10 * 1024 * 1024;
+                        long maxSize = 5 * 1024 * 1024;
                     if (image.Length > maxSize)
-                        return BadRequest("Image exceedes 10 MB!.");
+                        return BadRequest(new { Message = "Image exceedes 5 MB!." });
                 }
                 }
 
-                if (string.IsNullOrWhiteSpace(request.Content) && request.ImagePaths == null)
-                    return BadRequest(new { message = "You have to add at least one image or post content." });
 
                 var newPost = await _unitOfWork.PostRepository.AddPost(request, user);
                 await _unitOfWork.ApplyChanges();

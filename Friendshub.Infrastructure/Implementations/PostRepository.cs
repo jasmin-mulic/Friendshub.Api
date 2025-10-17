@@ -66,7 +66,6 @@ namespace Friendshub.Infrastructure.Implementations
             }
 
             _context.Posts.Add(newPost);
-            await _context.SaveChangesAsync(); // ne zaboravi sačuvati
 
             var postDto = new PostClientDto
             {

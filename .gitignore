@@ -412,3 +412,5 @@ Thumbs.db
 *.swo
 *.sublime-workspace
 *.sublime-project
+/Friendshub.Api/wwwroot/uploads/posts/images
+/Friendshub.Api/wwwroot/uploads
