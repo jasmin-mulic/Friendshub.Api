@@ -45,7 +45,7 @@ namespace Friendshub.Api.Controllers
                 if (string.IsNullOrWhiteSpace(request.Content) && (request.ImagePaths == null || request.ImagePaths.Any()))
                     return BadRequest(new { message = "You have to add at least one image or post content." });
 
-                var user = await _unitOfWork.UserRepository.GetById(UserIdFromClaims);
+                var user = await _unitOfWork.UserRepository.GetUserById(UserIdFromClaims);
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 
                 if(request.ImagePaths.Count > 0)

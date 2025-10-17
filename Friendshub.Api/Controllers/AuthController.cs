@@ -147,7 +147,7 @@ namespace Friendshub.Api.Controllers
             if (refreshToken.ExpiresOnUtc < DateTime.UtcNow)
                 return Unauthorized("Refresh token expired.");
 
-            var user = await _unitOfWork.UserRepository.GetById(refreshToken.UserId);
+            var user = await _unitOfWork.UserRepository.GetUserById(refreshToken.UserId);
 
             var newAccessToken = await _unitOfWork.TokenRepository.CreateAccessToken(user);
             return Ok(newAccessToken);

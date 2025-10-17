@@ -5,6 +5,7 @@ using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Friendshub.Infrastructure.Implementations
@@ -19,11 +20,11 @@ namespace Friendshub.Infrastructure.Implementations
             _env = env;
         }
 
-        public async Task<string> ChangeProfilePicture(IFormFile file)
+        public async Task<string> ChangeProfilePicture(Guid userId, IFormFile file)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentNullException("Invalid file.");
-
+            
             var uploadPath = Path.Combine(_env.WebRootPath, "uploads/profileImages");
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
@@ -36,7 +37,7 @@ namespace Friendshub.Infrastructure.Implementations
                 await file.CopyToAsync(stream);
             }
 
-            return $"/uploads/profileImages/{fileName}";
+            return uploadPath.ToFullImageUrl();
         }
 
         public async Task DeleteUser(Guid id)
@@ -94,10 +95,10 @@ namespace Friendshub.Infrastructure.Implementations
             return responseMessage;
         }
 
-        public async Task<User> GetById(Guid id)
+        public async Task<User> GetUserById(Guid id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-            return user;
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
         }
 
         public async Task<List<UserBasicInfo>> GetFollowers(Guid userId)
@@ -190,6 +191,45 @@ namespace Friendshub.Infrastructure.Implementations
             if (follow == null)
                 throw new ApplicationException("User is not following you.");
             _context.Follows.Remove(follow);
+        }
+        public async Task<UpdateUserValidationDto> UpdateUserInfo(Guid id, UpdateUserInfoDto updateUserInfo)
+        { 
+            var user = await GetUserById(id);
+            var errors = new UpdateUserValidationDto();
+            if (user == null)
+                throw new ApplicationException("Account not found.");
+
+            var usernameTaken =await _context.Users.FirstOrDefaultAsync(u => u.Username == updateUserInfo.Username);
+            if (usernameTaken != null)
+                errors.Username = "Username is taken.";
+
+            var emailTaken = await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress == updateUserInfo.EmailAddress);
+            if (emailTaken != null)
+                errors.EmailAddress = "Email address is taken";
+
+
+            if(updateUserInfo.ProfileImageUrl != null && updateUserInfo.ProfileImageUrl.Length > 0)
+            {
+                var currentProfilePicturePath = user.ProfileImageUrl.ToFullImageUrl();
+                if(File.Exists(currentProfilePicturePath))
+                    File.Delete(currentProfilePicturePath);
+
+                var uploadPath = Path.Combine(_env.WebRootPath, "uploads/profileImages");
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(updateUserInfo.ProfileImageUrl.FileName);
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await updateUserInfo.ProfileImageUrl.CopyToAsync(stream);
+                }
+            }
+            user.Username = updateUserInfo.Username;
+            user.DisplayUsername = updateUserInfo.Username.ToLower();
+            user.PrivateAccount = updateUserInfo.PrivateAccount;
+            
         }
     }
 }

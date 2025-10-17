@@ -1,4 +1,5 @@
 ﻿using Friendshub.Api.Extensions;
+using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace Friendshub.Api.Controllers
             if (userIdFromClaims == Guid.Empty)
                 return Unauthorized();
 
-            var user = await _unitOfWork.UserRepository.GetById(userIdFromClaims);
+            var user = await _unitOfWork.UserRepository.GetUserById(userIdFromClaims);
             var userData = await _unitOfWork.UserRepository.GetProfileData(user);
             return Ok(userData);
         }
@@ -33,12 +34,10 @@ namespace Friendshub.Api.Controllers
         {
             try
             {
-                var userId = User.GetUserId();
-                if (Guid.Empty == userId)
+                var userIdFromClaims = User.GetUserId();
+                if (Guid.Empty == userIdFromClaims)
                     return Unauthorized();
                 var fileurl = await _unitOfWork.UserRepository.ChangeProfilePicture(formFile);
-                var user = await _unitOfWork.UserRepository.GetById(userId);
-                user.ProfileImageUrl = fileurl;
                 await _unitOfWork.ApplyChanges();
                 return Ok("Profile image changed successfully.");
             }
@@ -158,6 +157,16 @@ namespace Friendshub.Api.Controllers
             {
                 return BadRequest(exc.Message);
             }
+        }
+        [HttpPut("/${id}")]
+        public async Task<IActionResult> UpdateUserInfo([FromRoute] Guid id, [FromForm]UpdateUserInfoDto request)
+        {
+            var userIdFromClaims = User.GetUserId();
+            if(Guid.Empty == userIdFromClaims)
+                return Unauthorized("You are logged out");
+            if (userIdFromClaims != id)
+                return Unauthorized("You don't have premissions.");
+            var validationErrors = _unitOfWork.UserRepository.UpdateUserInfo(id, request);
         }
     }
 }
