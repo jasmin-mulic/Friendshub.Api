@@ -70,7 +70,7 @@ namespace Friendshub.Infrastructure.Implementations
             var postDto = new PostClientDto
             {
                 Content = newPost.Content,
-                Username = newPost.User.DisplayUsername,
+                Username = newPost.User.Username,
                 PostId = newPost.Id,
                 PostImagesUrl = newPost.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
                 PostedAt = newPost.PostedAt,
@@ -187,7 +187,7 @@ namespace Friendshub.Infrastructure.Implementations
                 {
                     UserId = p.UserId,
                     Content = p.Content,
-                    Username = p.User.DisplayUsername,
+                    Username = p.User.Username,
                     PostId = p.Id,
                     PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
                     ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
@@ -202,11 +202,11 @@ namespace Friendshub.Infrastructure.Implementations
                         Content = c.Content,
                         UserProfileImageUrl = c.User.ProfileImageUrl.ToFullImageUrl(),
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
-                        Username =c.User.DisplayUsername,
+                        Username =c.User.Username,
                         CommentLikes = c.CommentLikes.Where(x => x.CommentId == c.Id).Select(like => new UserBasicInfo
                         {
                             ProfileImageUrl = like.User.ProfileImageUrl.ToFullImageUrl(),
-                            Username = like.User.DisplayUsername,
+                            Username = like.User.Username,
                             UserId = like.UserId,
                         }).ToList(),
                     }).OrderByDescending(x =>x.CommentedAt).ToList(),
@@ -234,7 +234,7 @@ namespace Friendshub.Infrastructure.Implementations
                 {
                     UserId = x.User.Id,
                     ProfileImageUrl = x.User.ProfileImageUrl,
-                    Username = x.User.DisplayUsername
+                    Username = x.User.Username
                 }).ToList(),
             };
             return postLikes;
@@ -264,7 +264,7 @@ namespace Friendshub.Infrastructure.Implementations
                     Content = p.Content,
                     UserId = p.UserId,
                     PostedAt = p.PostedAt,
-                    Username = p.User.DisplayUsername,
+                    Username = p.User.Username,
                     ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
                     PostImagesUrl = p.PostsImages.Select(postImg => postImg.ImgUrl.ToFullImageUrl()).ToList(),
                     Likes = GetPostLikes(p.Id),
@@ -274,7 +274,7 @@ namespace Friendshub.Infrastructure.Implementations
                         CommentedAt = c.CommentedAt,
                         Content = c.Content,
                         CommentId = c.Id,
-                        Username = c.Post.User.DisplayUsername,
+                        Username = c.Post.User.Username,
                         CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
                         UserProfileImageUrl = c.Post.User.ProfileImageUrl,
                         CommentLikes = c.CommentLikes.Select(c => new UserBasicInfo
@@ -318,7 +318,7 @@ namespace Friendshub.Infrastructure.Implementations
             response.Message = "liked";
             response.CommentId = commentId;
             response.User.ProfileImageUrl = user.ProfileImageUrl;
-            response.User.Username = user.DisplayUsername;
+            response.User.Username = user.Username;
             response.User.ProfileImageUrl = user.ProfileImageUrl ?? null;
             response.User.UserId = userId;
 

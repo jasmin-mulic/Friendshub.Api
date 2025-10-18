@@ -53,7 +53,7 @@ namespace Friendshub.Infrastructure.Implementations
             claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
             claims.Add(new Claim(ClaimTypes.DateOfBirth, user.DateOfBirth.ToString()));
             claims.Add(new Claim(ClaimTypes.Email, user.EmailAddress));
-            claims.Add(new Claim(ClaimTypes.Name, user.DisplayUsername));
+            claims.Add(new Claim(ClaimTypes.Name, user.Username));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

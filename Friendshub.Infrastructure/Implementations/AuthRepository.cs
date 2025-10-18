@@ -2,6 +2,7 @@
 using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Repositories;
 using Friendshub.Application.Results;
+using Friendshub.Application.Validators;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,13 @@ namespace Friendshub.Infrastructure.Implementations
             var usernameNormalized = request.Username.ToLower();
             var emailNormalized = request.EmailAddress.ToLower();
 
+            var validUsername = UsernameValidator.IsValidUsername(usernameNormalized, out var ErrorMessage);
+
+            if(!validUsername)
+            {
+                result.ValidationErrors.Add(
+                    new RegisterUserError { PropertyName = "Username", ErrorMessage = ErrorMessage });
+            }
             if (await _context.Users.AnyAsync(x => x.Username == usernameNormalized))
                 result.ValidationErrors.Add(
                     new RegisterUserError { PropertyName = "Username", ErrorMessage = "Username already exists" });
@@ -71,7 +79,6 @@ namespace Friendshub.Infrastructure.Implementations
             {
                 Id = Guid.NewGuid(),
                 Username = request.Username.ToLower(),
-                DisplayUsername = request.Username,
                 EmailAddress = request.EmailAddress.ToLower(),
                 PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password),
                 DateOfBirth = request.DateOfBirth,

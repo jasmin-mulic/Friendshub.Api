@@ -12,6 +12,7 @@ namespace Friendshub.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+
         public UsersController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -20,11 +21,11 @@ namespace Friendshub.Api.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetProfileDetails()
         {
-            var userIdFromClaims = User.GetUserId();
-            if (userIdFromClaims == Guid.Empty)
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
                 return Unauthorized();
 
-            var user = await _unitOfWork.UserRepository.GetUserById(userIdFromClaims);
+            var user = await _unitOfWork.UserRepository.GetUserById(userId);
             var userData = await _unitOfWork.UserRepository.GetProfileData(user);
             return Ok(userData);
         }
@@ -32,141 +33,102 @@ namespace Friendshub.Api.Controllers
         [HttpPost("change-profile-picture")]
         public async Task<IActionResult> ChangeProfileImage(IFormFile formFile)
         {
-            try
-            {
-                var userIdFromClaims = User.GetUserId();
-                if (Guid.Empty == userIdFromClaims)
-                    return Unauthorized();
-                var fileurl = await _unitOfWork.UserRepository.ChangeProfilePicture(formFile);
-                await _unitOfWork.ApplyChanges();
-                return Ok("Profile image changed successfully.");
-            }
-            catch (Exception)
-            {
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+                return Unauthorized();
 
-                throw;
-            }
+            var fileUrl = await _unitOfWork.UserRepository.ChangeProfilePicture(userId, formFile);
+            await _unitOfWork.ApplyChanges();
+
+            return Ok(new { message = "Profile image changed successfully.", url = fileUrl });
         }
 
         [HttpGet("follow-recommendations")]
         public async Task<IActionResult> GetFriendRecommendation()
         {
-            try
-            {
-                var userIdFromClaims = User.GetUserId();
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+                return Unauthorized();
 
-                if (userIdFromClaims.ToString() == string.Empty)
-                    return Unauthorized();
-
-                var followRecommendations = await _unitOfWork.UserRepository.GetFollowRecommendationList(userIdFromClaims);
-                return Ok(followRecommendations);
-            }
-            catch (Exception exc)
-            {
-                return Unauthorized(exc);
-            }
+            var recommendations = await _unitOfWork.UserRepository.GetFollowRecommendationList(userId);
+            return Ok(recommendations);
         }
 
         [HttpPost("follow-user")]
         public async Task<IActionResult> FollowUser(string foloweeId)
         {
-            try
-            {
-                var userIdFromClaims = User.GetUserId();
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+                return Unauthorized();
 
-                if (Guid.Empty == userIdFromClaims)
-                    return Unauthorized();
+            var followeeGuid = Guid.Parse(foloweeId);
+            var message = await _unitOfWork.UserRepository.FollowUser(userId, followeeGuid);
 
-                var foloweeToGuid = Guid.Parse(foloweeId);
-                var followMessage = await _unitOfWork.UserRepository.FollowUser(userIdFromClaims, foloweeToGuid);
-                await _unitOfWork.ApplyChanges();
-                return Ok(new { message = followMessage });
-            }
-            catch (Exception exc)
-            {
-                return StatusCode(500, exc.Message);
-            }
+            await _unitOfWork.ApplyChanges();
+            return Ok(new { message });
         }
 
         [HttpPost("delete-user")]
         public async Task<IActionResult> DeleteUser()
         {
-            try
-            {
-                var userIdFromClaims = User.GetUserId();
-                if (Guid.Empty == userIdFromClaims)
-                    return Unauthorized("You are logged out.");
-                await _unitOfWork.UserRepository.DeleteUser(userIdFromClaims);
-                await _unitOfWork.ApplyChanges();
-                return Ok(new { message = "You deleted your account. See you soon :D" });
-            }
-            catch (Exception exc)
-            {
-                return BadRequest(exc.Message);
-            }
-        }
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+                return Unauthorized("You are logged out.");
 
+            await _unitOfWork.UserRepository.DeleteUser(userId);
+            await _unitOfWork.ApplyChanges();
+
+            return Ok(new { message = "You deleted your account. See you soon :D" });
+        }
 
         [HttpPost("remove-follower/{followeeId}")]
         public async Task<IActionResult> RemoveFollower([FromRoute] Guid followeeId)
         {
-            try
-            {
-                var userIdFromClaims = User.GetUserId();
-                if (Guid.Empty == userIdFromClaims)
-                    return Unauthorized("You are logged out.");
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+                return Unauthorized("You are logged out.");
 
-                _unitOfWork.UserRepository.RemoveFollower(userIdFromClaims, followeeId);
-                await _unitOfWork.ApplyChanges();
-                return Ok(new { message = "Follower removed." });
-            }
-            catch (Exception exc)
-            {
-                return BadRequest(exc.Message);
-            }
+            _unitOfWork.UserRepository.RemoveFollower(userId, followeeId);
+            await _unitOfWork.ApplyChanges();
+
+            return Ok(new { message = "Follower removed." });
         }
+
         [HttpGet("followers-list")]
         public async Task<IActionResult> GetFollowersList()
         {
-            try
-            {
-                var userIdFromClaims = User.GetUserId();
-                if (Guid.Empty == userIdFromClaims)
-                    return Unauthorized("You are logged out.");
-                var followerList = await _unitOfWork.UserRepository.GetFollowers(userIdFromClaims);
-                return Ok(new { followers = followerList });
-            }
-            catch (Exception exc)
-            {
-                return BadRequest(exc.Message);
-            }
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+                return Unauthorized("You are logged out.");
+
+            var followers = await _unitOfWork.UserRepository.GetFollowers(userId);
+            return Ok(new { followers });
         }
 
         [HttpGet("following-list")]
         public async Task<IActionResult> GetFollowingList()
         {
-            try
-            {
-                var userIdFromClaims = User.GetUserId();
-                if (Guid.Empty == userIdFromClaims)
-                    return Unauthorized("You are logged out.");
-                var followingList = await _unitOfWork.UserRepository.GetFollowings(userIdFromClaims);
-                return Ok(new { followings = followingList });
-            }
-            catch (Exception exc)
-            {
-                return BadRequest(exc.Message);
-            }
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+                return Unauthorized("You are logged out.");
+
+            var followings = await _unitOfWork.UserRepository.GetFollowings(userId);
+            return Ok(new { followings });
         }
-        [HttpPut("/${id}")]
-        public async Task<IActionResult> UpdateUserInfo([FromRoute] Guid id, [FromForm]UpdateUserInfoDto request)
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUserInfo([FromRoute] Guid id, [FromForm] UpdateUserInfoDto request)
         {
-            var userIdFromClaims = User.GetUserId();
-            if(Guid.Empty == userIdFromClaims)
-                return Unauthorized("You are logged out");
-            if (userIdFromClaims != id)
-                return Unauthorized("You don't have premissions.");
-            var validationErrors = _unitOfWork.UserRepository.UpdateUserInfo(id, request);
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+                return Unauthorized("You are logged out.");
+            if (userId != id)
+                return Unauthorized("You don't have permissions.");
+
+            var validationErrors = await _unitOfWork.UserRepository.UpdateUserInfo(id, request);
+            await _unitOfWork.ApplyChanges();
+
+            return Ok(validationErrors);
         }
     }
 }

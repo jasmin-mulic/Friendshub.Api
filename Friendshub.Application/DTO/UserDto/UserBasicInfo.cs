@@ -10,6 +10,6 @@ namespace Friendshub.Application.DTO.UserDto
     {
         public Guid UserId { get; set; }
         public string Username { get; set; }
-        public string? ProfileImageUrl { get; set; } = null;
+        public string ProfileImageUrl { get; set; } = null;
     }
 }
