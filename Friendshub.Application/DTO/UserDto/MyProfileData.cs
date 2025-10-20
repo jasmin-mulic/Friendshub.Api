@@ -1,6 +1,6 @@
 ﻿namespace Friendshub.Application.DTO.UserDto
 {
-    public class ProfileDataDto
+    public class MyProfileData
     {
         public string Username { get; set; }
         public string ProfileImageUrl { get; set; }

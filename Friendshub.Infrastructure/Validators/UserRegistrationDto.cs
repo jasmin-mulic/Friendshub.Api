@@ -26,7 +26,7 @@ namespace Friendshub.Infrastructure.Validators
             .NotEmpty()
             .WithMessage("Email address can't be empty.")
             .EmailAddress()
-            .WithMessage("Username can't be longer than 15 characters");
+            .WithMessage("Email address is not valid");
 
             RuleFor(x => x.Password)
             .MinimumLength(7)

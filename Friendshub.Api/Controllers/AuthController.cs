@@ -1,7 +1,10 @@
-﻿using Friendshub.Api.Extensions;
+﻿using FluentValidation;
+using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Repositories;
+using Friendshub.Application.Results;
 using Friendshub.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Friendshub.Api.Controllers
@@ -74,34 +77,35 @@ namespace Friendshub.Api.Controllers
             }
         }
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(RegisterUserDto registerUser)
+        public async Task<IActionResult> Register([FromBody]RegisterUserDto registerUser, [FromServices]IValidator<RegisterUserDto> validator)
         {
             try
             {
-                if (!ModelState.IsValid)
+                var errors = validator.Validate(registerUser);
+                if(!errors.IsValid)
                 {
-                    if (!ModelState.IsValid)
+                    var registerResult = new RegisterResult();
+                    registerResult.Success = false;
+                    foreach (var  error in errors.Errors)
                     {
-                        var errors = new Dictionary<string, List<string>>();
-                        foreach (var entry in ModelState)
+                        registerResult.ValidationErrors.Add(new RegisterUserError()
                         {
-                            if (entry.Value.Errors.Count > 0)
-                            {
-                                errors[entry.Key] = entry.Value.Errors.Select(e => e.ErrorMessage).ToList();
-                            }
-                        }
-                        return BadRequest(new { Errors = errors });
+                            ErrorMessage = error.ErrorMessage,
+                            PropertyName = error.PropertyName,
+                        });
                     }
+                        return BadRequest(registerResult);
                 }
+                    
                 var result = await _unitOfWork.AuthRepository.RegisterAsync(registerUser);
-                if (result.ValidationErrors.Count == 0)
+                if (result.Success)
                 {
                     var refreshToken = _unitOfWork.TokenRepository.AddRefreshToken(result.UserId);
                     await _unitOfWork.ApplyChanges();
                     return Ok("You registered successfully");
                 }
                 else
-                    return BadRequest(result.ValidationErrors);
+                    return BadRequest( result);
             }
             catch (Exception exc)
             {

@@ -1,6 +1,9 @@
+using FluentValidation;
 using Friendshub.Application.Repositories;
-using Friendshub.Infrastructure.Data;
 using Friendshub.Infrastructure;
+using Friendshub.Infrastructure.Data;
+using Friendshub.Infrastructure.Implementations;
+using Friendshub.Infrastructure.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,8 +11,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
-using Friendshub.Infrastructure.Implementations;
-using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +48,8 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
+
 builder.Services.AddDbContext<FriendshubDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("FriendshubDb")));
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

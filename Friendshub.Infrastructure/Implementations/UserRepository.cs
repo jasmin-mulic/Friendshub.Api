@@ -1,4 +1,5 @@
-﻿using Friendshub.Application.DTO.UserDto;
+﻿using Friendshub.Application.DTO.DtoPost;
+using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Extensions;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
@@ -174,13 +175,13 @@ namespace Friendshub.Infrastructure.Implementations
             return await query.ToListAsync();
         }
 
-        public async Task<ProfileDataDto> GetProfileData(User request)
+        public async Task<MyProfileData> GetMyProfileData(User request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
             if (user == null)
                 return null;
 
-            return new ProfileDataDto
+            return new MyProfileData
             {
                 Username = user.Username,
                 ProfileImageUrl = string.IsNullOrWhiteSpace(user.ProfileImageUrl)
@@ -204,10 +205,53 @@ namespace Friendshub.Infrastructure.Implementations
 
             _context.Follows.Remove(follow);
         }
+        public async Task<UserProfileData> GetUserProfileData(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user == null)
+                return null;
+
+            var userData = new UserProfileData();
+            userData.Username = user.Username;
+            userData.UserId = user.Id;
+            userData.PrivateAccount = user.PrivateAccount;
+            userData.ProfileImageUrl = user.ProfileImageUrl == null ? null : user.ProfileImageUrl.ToFullImageUrl();
+
+            if(!user.PrivateAccount)
+            {
+                var postsDto = await _context.Posts.Include(p => p.PostsImages)
+                                                   .Include(p => p.Comments)
+                                                   .ThenInclude(c =>c.CommentLikes)
+                                                   .Select(x => new PostClientDto
+                {
+                                 PostId = x.Id,
+                                 PostedAt = x.PostedAt,
+                                 UserId = x.UserId,
+                                 Comments =  _context.Comments.Where(x => x.PostId == x.Id)
+                                .Select(c => new CommentClientDto
+                                {
+                                   CommentedAt = c.CommentedAt,
+                                   UserId = c.UserId,
+                                   CommentImageUrl = c.CommentImageUrl,
+                                   Content = c.Content,
+                                   Username = c.User.Username,
+                                   CommentLikes = _context.CommentsLikes.Where(x => x.CommentId == c.Id)
+                                                  .Select(x => new UserBasicInfo {
+                                   UserId = x.UserId,
+                                   ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
+                                  }).ToList()
+                                }).ToList(),
+                }).ToListAsync();
+                userData.Posts = postsDto;
+            }
+            return userData;
+        }
+       
         #endregion
 
         #region Update User
-        public async Task<UpdateUserValidationDto> UpdateUserInfo(Guid id, UpdateUserInfoDto updateUserInfo)
+        public async Task<UpdateUserValidationDto> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo)
         {
             var user = await GetUserById(id);
             if (user == null)
@@ -259,6 +303,7 @@ namespace Friendshub.Infrastructure.Implementations
             _context.Users.Update(user);
             return errors;
         }
+
         #endregion
     }
 }

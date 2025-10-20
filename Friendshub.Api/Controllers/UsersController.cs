@@ -8,7 +8,6 @@ namespace Friendshub.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -17,18 +16,20 @@ namespace Friendshub.Api.Controllers
         {
             _unitOfWork = unitOfWork;
         }
+        [Authorize]
 
         [HttpGet("me")]
-        public async Task<IActionResult> GetProfileDetails()
+        public async Task<IActionResult> GetMyProfileData()
         {
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
                 return Unauthorized();
 
             var user = await _unitOfWork.UserRepository.GetUserById(userId);
-            var userData = await _unitOfWork.UserRepository.GetProfileData(user);
+            var userData = await _unitOfWork.UserRepository.GetMyProfileData(user);
             return Ok(userData);
         }
+        [Authorize]
 
         [HttpPost("change-profile-picture")]
         public async Task<IActionResult> ChangeProfileImage(IFormFile formFile)
@@ -42,6 +43,7 @@ namespace Friendshub.Api.Controllers
 
             return Ok(new { message = "Profile image changed successfully.", url = fileUrl });
         }
+        [Authorize]
 
         [HttpGet("follow-recommendations")]
         public async Task<IActionResult> GetFriendRecommendation()
@@ -53,6 +55,7 @@ namespace Friendshub.Api.Controllers
             var recommendations = await _unitOfWork.UserRepository.GetFollowRecommendationList(userId);
             return Ok(recommendations);
         }
+        [Authorize]
 
         [HttpPost("follow-user")]
         public async Task<IActionResult> FollowUser(string foloweeId)
@@ -67,6 +70,7 @@ namespace Friendshub.Api.Controllers
             await _unitOfWork.ApplyChanges();
             return Ok(new { message });
         }
+        [Authorize]
 
         [HttpPost("delete-user")]
         public async Task<IActionResult> DeleteUser()
@@ -80,6 +84,7 @@ namespace Friendshub.Api.Controllers
 
             return Ok(new { message = "You deleted your account. See you soon :D" });
         }
+        [Authorize]
 
         [HttpPost("remove-follower/{followeeId}")]
         public async Task<IActionResult> RemoveFollower([FromRoute] Guid followeeId)
@@ -93,6 +98,7 @@ namespace Friendshub.Api.Controllers
 
             return Ok(new { message = "Follower removed." });
         }
+        [Authorize]
 
         [HttpGet("followers-list")]
         public async Task<IActionResult> GetFollowersList()
@@ -104,6 +110,7 @@ namespace Friendshub.Api.Controllers
             var followers = await _unitOfWork.UserRepository.GetFollowers(userId);
             return Ok(new { followers });
         }
+        [Authorize]
 
         [HttpGet("following-list")]
         public async Task<IActionResult> GetFollowingList()
@@ -115,6 +122,7 @@ namespace Friendshub.Api.Controllers
             var followings = await _unitOfWork.UserRepository.GetFollowings(userId);
             return Ok(new { followings });
         }
+        [Authorize]
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUserInfo([FromRoute] Guid id, [FromForm] UpdateUserInfoDto request)
@@ -125,10 +133,18 @@ namespace Friendshub.Api.Controllers
             if (userId != id)
                 return Unauthorized("You don't have permissions.");
 
-            var validationErrors = await _unitOfWork.UserRepository.UpdateUserInfo(id, request);
+            var validationErrors = await _unitOfWork.UserRepository.UpdateUserData(id, request);
             await _unitOfWork.ApplyChanges();
 
             return Ok(validationErrors);
+        }
+        [HttpGet("/{id}")]
+        public async Task<IActionResult> GetUserProfileData([FromRoute] Guid id)
+        {
+            var userInfo = await _unitOfWork.UserRepository.GetUserProfileData(id);
+            if (userInfo == null)
+                return NotFound("User does not exist or is deleted.");
+            return Ok(userInfo);
         }
     }
 }
