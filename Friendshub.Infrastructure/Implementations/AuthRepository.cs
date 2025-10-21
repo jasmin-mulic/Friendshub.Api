@@ -67,16 +67,17 @@ namespace Friendshub.Infrastructure.Implementations
                 return result;
             }
 
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = request.Username.ToLower(),
-                EmailAddress = request.EmailAddress.ToLower(),
-                PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password),
-                DateOfBirth = request.DateOfBirth,
-                ProfileImageUrl = null
-            };
+                var user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = request.Username.ToLower(),
+                    EmailAddress = request.EmailAddress.ToLower(),
+                    PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password),
+                    DateOfBirth = request.DateOfBirth,
+                    ProfileImageUrl = null
+                };
             result.UserId = user.Id;
+            result.Success = true;
             var userRole = new UserRole
             {
                 UserId = user.Id,
@@ -85,6 +86,22 @@ namespace Friendshub.Infrastructure.Implementations
             await _context.UserRoles.AddAsync(userRole);
             await _context.Users.AddAsync(user);
             return result;
+        }
+        public async Task<bool> DeleteAccount(Guid id, string password)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return false;
+            if(user.ProfileImageUrl != null)
+            {
+                var directoryPath = Path.Combine("wwwroot", user.ProfileImageUrl);
+                Directory.Delete(directoryPath);
+            }
+
+            var follows = await _context.Follows.Where(x => x.FollowerId == id).ToListAsync();
+            _context.Follows.RemoveRange(follows);
+            _context.Users.Remove(user);
+            return true;
         }
     }
 }

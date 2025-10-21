@@ -158,8 +158,6 @@ namespace Friendshub.Infrastructure.Implementations
             _context.Posts.Remove(post);
             return true;
         }
-
-        
         public async Task<Comment> GetCommentByIdAsync(Guid commentId)
         {
             return await _context.Comments.AsNoTracking().FirstOrDefaultAsync(c =>  c.Id == commentId);
@@ -233,7 +231,7 @@ namespace Friendshub.Infrastructure.Implementations
                 Users = likes.Select(x => new UserBasicInfo
                 {
                     UserId = x.User.Id,
-                    ProfileImageUrl = x.User.ProfileImageUrl,
+                    ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
                     Username = x.User.Username
                 }).ToList(),
             };
@@ -247,44 +245,44 @@ namespace Friendshub.Infrastructure.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
 
-            var querry = _context.Posts.Include(p => p.PostsImages)
-                                        .Include(p => p.User)
-                                        .Include(p => p.Comments)
-                                        .ThenInclude(c => c.CommentLikes)
-                                        .Where(x => x.UserId == userId).OrderByDescending(x => x.PostedAt);
+            var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).
+                        Include(p => p.Comments).ThenInclude(c => c.CommentLikes).Where(p => p.UserId == userId);
+
             var totalCount = querry.Count();
 
-            var postsEntities = await querry.Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var postEntities = await querry.OrderByDescending(x => x.PostedAt).Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize).ToListAsync();
 
-                var posts = postsEntities.Select(p => new PostClientDto
+            var posts = postEntities.Select(p => new PostClientDto
+            {
+                UserId = p.UserId,
+                Content = p.Content,
+                Username = p.User.Username,
+                PostId = p.Id,
+                PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
+                ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
+                PostedAt = p.PostedAt,
+
+                Likes = GetPostLikes(p.Id),
+                Comments = _context.Comments.Where(x => x.PostId == p.Id).Select(c => new CommentClientDto
                 {
-                    PostId = p.Id,
-                    Content = p.Content,
-                    UserId = p.UserId,
-                    PostedAt = p.PostedAt,
-                    Username = p.User.Username,
-                    ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
-                    PostImagesUrl = p.PostsImages.Select(postImg => postImg.ImgUrl.ToFullImageUrl()).ToList(),
-                    Likes = GetPostLikes(p.Id),
-                    Comments = p.Comments.Select(c => new CommentClientDto
+                    UserId = c.UserId,
+                    CommentedAt = c.CommentedAt,
+                    CommentId = c.Id,
+                    Content = c.Content,
+                    UserProfileImageUrl = c.User.ProfileImageUrl.ToFullImageUrl(),
+                    CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
+                    Username = c.User.Username,
+                    CommentLikes = c.CommentLikes.Where(x => x.CommentId == c.Id).Select(like => new UserBasicInfo
                     {
-                        
-                        CommentedAt = c.CommentedAt,
-                        Content = c.Content,
-                        CommentId = c.Id,
-                        Username = c.Post.User.Username,
-                        CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
-                        UserProfileImageUrl = c.Post.User.ProfileImageUrl,
-                        CommentLikes = c.CommentLikes.Select(c => new UserBasicInfo
-                        {
-                            UserId = c.UserId,
-                            ProfileImageUrl = c.User.ProfileImageUrl.ToFullImageUrl(),
-                            Username = c.User.Username,
-                        }).ToList(),
-                    }).OrderByDescending(x => x.CommentedAt).ToList()
-                }).ToList();
+                        ProfileImageUrl = like.User.ProfileImageUrl.ToFullImageUrl(),
+                        Username = like.User.Username,
+                        UserId = like.UserId,
+                    }).ToList(),
+                }).OrderByDescending(x => x.CommentedAt).ToList(),
+
+
+            }).ToList();
 
             var PageResult = new PageResult<PostClientDto>
             {

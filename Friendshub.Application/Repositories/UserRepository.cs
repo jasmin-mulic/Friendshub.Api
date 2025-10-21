@@ -11,11 +11,10 @@ namespace Friendshub.Application.Repositories
         Task<string> ChangeProfilePicture(Guid userId, IFormFile file);
         Task <List<FollowRecommendationDto>> GetFollowRecommendationList(Guid id);
         Task<string> FollowUser(Guid folower, Guid Folowee);
-        Task  DeleteUser(Guid id);
         Task<List<UserBasicInfo>> GetFollowers(Guid userId);
         void RemoveFollower(Guid followeeId, Guid followerId);
         Task<List<UserBasicInfo>> GetFollowings(Guid userId);
-        Task<UpdateUserValidationDto> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo);
+        Task<Dictionary<string, string>> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo);
         Task<UserProfileData> GetUserProfileData(Guid userId);
     }
 }

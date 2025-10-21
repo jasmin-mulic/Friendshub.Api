@@ -4,8 +4,10 @@ using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Repositories;
 using Friendshub.Application.Results;
 using Friendshub.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Friendshub.Api.Controllers
 {
@@ -161,6 +163,32 @@ namespace Friendshub.Api.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, exc.Message);
             }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAccount(string password)
+        {
+            var useIdFromClaims = User.GetUserId();
+            if (Guid.Empty == useIdFromClaims)
+                return Unauthorized("You are logged out");
+
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == useIdFromClaims);
+            var isPasswordCorrect = BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash);
+
+            if (!isPasswordCorrect)
+                throw new ApplicationException("Password incorrect.");
+
+            if(user.ProfileImageUrl != null)
+            {
+                var profileImagePath = Path.Combine("wwwroot", user.ProfileImageUrl);
+                if(Path.Exists(profileImagePath))
+                    Directory.Delete(profileImagePath);
+            }
+            var isDeletionSuccess = await _unitOfWork.AuthRepository.DeleteAccount(useIdFromClaims, password);
+            if (!isDeletionSuccess)
+                return BadRequest("Error deleting your account.");
+            await _context.SaveChangesAsync();
+            return Ok(new { Message = "Account deleted successfully. See you again :)" });
         }
     }
 }

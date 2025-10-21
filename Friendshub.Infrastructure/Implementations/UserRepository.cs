@@ -54,20 +54,6 @@ namespace Friendshub.Infrastructure.Implementations
             return relativePath.ToFullImageUrl();
         }
         #endregion
-
-        #region User Management
-        public async Task DeleteUser(Guid id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                throw new ApplicationException("User not found.");
-
-            var follows = await _context.Follows.Where(x => x.FollowerId == id).ToListAsync();
-            _context.Follows.RemoveRange(follows);
-            _context.Users.Remove(user);
-        }
-        #endregion
-
         #region Follow System
         public async Task<string> FollowUser(Guid followerId, Guid followeeId)
         {
@@ -177,7 +163,7 @@ namespace Friendshub.Infrastructure.Implementations
 
         public async Task<MyProfileData> GetMyProfileData(User request)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
+            var user = await _context.Users.Include(x => x.Posts).ThenInclude(p => p.PostsImages).FirstOrDefaultAsync(x => x.Id == request.Id);
             if (user == null)
                 return null;
 
@@ -207,7 +193,7 @@ namespace Friendshub.Infrastructure.Implementations
         }
         public async Task<UserProfileData> GetUserProfileData(Guid userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
 
             if (user == null)
                 return null;
@@ -251,26 +237,26 @@ namespace Friendshub.Infrastructure.Implementations
         #endregion
 
         #region Update User
-        public async Task<UpdateUserValidationDto> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo)
+        public async Task<Dictionary<string, string>> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo)
         {
             var user = await GetUserById(id);
             if (user == null)
                 throw new ApplicationException("Account not found.");
 
-            var errors = new UpdateUserValidationDto();
+            var errors = new Dictionary<string, string>();
 
             // Validation
             var usernameTaken = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == updateUserInfo.Username && u.Id != id);
             if (usernameTaken != null)
-                errors.Username = "Username is taken.";
+                errors.Add("username", "Username is already taken");
 
             var emailTaken = await _context.Users
                 .FirstOrDefaultAsync(u => u.EmailAddress == updateUserInfo.EmailAddress && u.Id != id);
             if (emailTaken != null)
-                errors.EmailAddress = "Email address is taken.";
+                errors.Add("emailAddress", "Email address is already taken");
 
-            if (!string.IsNullOrEmpty(errors.Username) || !string.IsNullOrEmpty(errors.EmailAddress))
+            if (errors.Count > 0)
                 return errors;
 
             // Update image

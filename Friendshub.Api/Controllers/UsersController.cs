@@ -1,6 +1,8 @@
-﻿using Friendshub.Api.Extensions;
+﻿using FluentValidation;
+using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Repositories;
+using Friendshub.Infrastructure.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -72,20 +74,6 @@ namespace Friendshub.Api.Controllers
         }
         [Authorize]
 
-        [HttpPost("delete-user")]
-        public async Task<IActionResult> DeleteUser()
-        {
-            var userId = User.GetUserId();
-            if (userId == Guid.Empty)
-                return Unauthorized("You are logged out.");
-
-            await _unitOfWork.UserRepository.DeleteUser(userId);
-            await _unitOfWork.ApplyChanges();
-
-            return Ok(new { message = "You deleted your account. See you soon :D" });
-        }
-        [Authorize]
-
         [HttpPost("remove-follower/{followeeId}")]
         public async Task<IActionResult> RemoveFollower([FromRoute] Guid followeeId)
         {
@@ -125,7 +113,7 @@ namespace Friendshub.Api.Controllers
         [Authorize]
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUserInfo([FromRoute] Guid id, [FromForm] UpdateUserInfoDto request)
+        public async Task<IActionResult> UpdateUserInfo([FromRoute] Guid id, [FromForm] UpdateUserInfoDto request, [FromServices] IValidator<UpdateUserInfoDto> validator)
         {
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
@@ -133,12 +121,18 @@ namespace Friendshub.Api.Controllers
             if (userId != id)
                 return Unauthorized("You don't have permissions.");
 
+            var errors = validator.Validate(request);
+            if(!errors.IsValid)
+                return BadRequest(errors);
+
             var validationErrors = await _unitOfWork.UserRepository.UpdateUserData(id, request);
+            if(validationErrors.Count > 0)
+                return BadRequest(new {Errors  = validationErrors});
             await _unitOfWork.ApplyChanges();
 
             return Ok(validationErrors);
         }
-        [HttpGet("/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetUserProfileData([FromRoute] Guid id)
         {
             var userInfo = await _unitOfWork.UserRepository.GetUserProfileData(id);
