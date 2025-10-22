@@ -90,12 +90,18 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<bool> DeleteAccount(Guid id, string password)
         {
             var user = await _context.Users.FindAsync(id);
+            var isPasswordCorrect = BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash);
+
+            if (!isPasswordCorrect)
+                return false;
+
             if (user == null)
                 return false;
             if(user.ProfileImageUrl != null)
             {
-                var directoryPath = Path.Combine("wwwroot", user.ProfileImageUrl);
-                Directory.Delete(directoryPath);
+                var directoryPath = Path.Combine("wwwroot", user.ProfileImageUrl) ;
+                if(System.IO.File.Exists(directoryPath))
+                    System.IO.File.Delete(directoryPath);
             }
 
             var follows = await _context.Follows.Where(x => x.FollowerId == id).ToListAsync();
