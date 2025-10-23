@@ -28,22 +28,10 @@ namespace Friendshub.Api.Controllers
                 return Unauthorized();
 
             var user = await _unitOfWork.UserRepository.GetUserById(userId);
+            if (user == null)
+                return NotFound("User not found.");
             var userData = await _unitOfWork.UserRepository.GetMyProfileData(user);
             return Ok(userData);
-        }
-        [Authorize]
-
-        [HttpPost("change-profile-picture")]
-        public async Task<IActionResult> ChangeProfileImage(IFormFile formFile)
-        {
-            var userId = User.GetUserId();
-            if (userId == Guid.Empty)
-                return Unauthorized();
-
-            var fileUrl = await _unitOfWork.UserRepository.ChangeProfilePicture(userId, formFile);
-            await _unitOfWork.ApplyChanges();
-
-            return Ok(new { message = "Profile image changed successfully.", url = fileUrl });
         }
         [Authorize]
 
@@ -60,13 +48,15 @@ namespace Friendshub.Api.Controllers
         [Authorize]
 
         [HttpPost("follow-user")]
-        public async Task<IActionResult> FollowUser(string foloweeId)
+        public async Task<IActionResult> FollowUser(Guid foloweeId)
         {
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
                 return Unauthorized();
+            if (userId == foloweeId)
+                return BadRequest("You can't follow yourself.");
 
-            var followeeGuid = Guid.Parse(foloweeId);
+            var followeeGuid = (foloweeId);
             var message = await _unitOfWork.UserRepository.FollowUser(userId, followeeGuid);
 
             await _unitOfWork.ApplyChanges();

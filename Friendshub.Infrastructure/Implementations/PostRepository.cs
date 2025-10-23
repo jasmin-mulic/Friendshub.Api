@@ -8,7 +8,6 @@ using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace Friendshub.Infrastructure.Implementations
 {
