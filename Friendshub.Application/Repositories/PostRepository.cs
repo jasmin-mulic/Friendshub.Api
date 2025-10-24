@@ -12,7 +12,6 @@ namespace Friendshub.Application.Repositories
         Task<bool> DeletePost(Guid postId);
         Task<Post> GetPostById(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);
-        PostLikes GetPostLikes(Guid postId);
         Task<CommentClientDto> CommentPost (Guid userId, Post post, AddCommentDto comment);
         Task<LikeCommentResponse> LikeComment(Guid commentId, Guid userId);
         Task<Comment> GetCommentByIdAsync(Guid commentId);

@@ -8,7 +8,7 @@ namespace Friendshub.Application.DTO.UserDto
         public string Username { get; set; }
         public string ProfileImageUrl { get; set; }
         public bool PrivateAccount { get; set; }
-        public List<PostClientDto> Posts { get; set; }
+        public List<PostClientDto> Posts { get; set; } = new List<PostClientDto>();
         public int FollowersCount { get; set; }
         public int FollowingCount { get; set; }
     }

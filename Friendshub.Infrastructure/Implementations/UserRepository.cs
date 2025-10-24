@@ -89,11 +89,11 @@ namespace Friendshub.Infrastructure.Implementations
                 return "followed";
             }
 
-                await _context.FollowRequests.AddAsync(new FollowRequest
-                {
-                    SenderId = followerId,
-                    RecieverId = followeeId
-                });
+            await _context.FollowRequests.AddAsync(new FollowRequest
+            {
+                SenderId = followerId,
+                RecieverId = followeeId
+            });
             return "Follow request sent";
         }
         #endregion
@@ -191,9 +191,9 @@ namespace Friendshub.Infrastructure.Implementations
 
             _context.Follows.Remove(follow);
         }
-        public async Task<UserProfileData> GetUserProfileData(Guid userId)
+        public async Task<UserProfileData> GetUserProfileData(string username)
         {
-            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Username == username);
 
             if (user == null)
                 return null;
@@ -204,36 +204,46 @@ namespace Friendshub.Infrastructure.Implementations
             userData.PrivateAccount = user.PrivateAccount;
             userData.ProfileImageUrl = user.ProfileImageUrl == null ? null : user.ProfileImageUrl.ToFullImageUrl();
 
-            if(!user.PrivateAccount)
+            if (!user.PrivateAccount)
             {
                 var postsDto = await _context.Posts.Include(p => p.PostsImages)
                                                    .Include(p => p.Comments)
-                                                   .ThenInclude(c =>c.CommentLikes)
+                                                   .ThenInclude(c => c.CommentLikes)
+                                                   .Where(p => p.UserId == user.Id)
                                                    .Select(x => new PostClientDto
-                {
-                                 PostId = x.Id,
-                                 PostedAt = x.PostedAt,
-                                 UserId = x.UserId,
-                                 Comments =  _context.Comments.Where(x => x.PostId == x.Id)
+                                                   {
+                                                       PostId = x.Id,
+                                                       PostedAt = x.PostedAt,
+                                                       Username = x.User.Username,
+                                                       Content = x.Content,
+                                                       ProfileImgUrl = x.User.ProfileImageUrl,
+                                                       UserId = x.UserId,
+                                                       Likes = _context.Likes.Include("User").Where(like => like.PostId == x.Id).Select((l => new UserBasicInfo
+                                                       {
+                                                           UserId = l.UserId,
+                                                           ProfileImageUrl = l.User.ProfileImageUrl == null ? null : l.User.ProfileImageUrl.ToFullImageUrl(),
+                                                           Username = l.User.Username,
+                                                       })).ToList(),
+                                 Comments = _context.Comments.Where(x => x.PostId == x.Id)
                                 .Select(c => new CommentClientDto
                                 {
-                                   CommentedAt = c.CommentedAt,
-                                   UserId = c.UserId,
-                                   CommentImageUrl = c.CommentImageUrl,
-                                   Content = c.Content,
-                                   Username = c.User.Username,
-                                   CommentLikes = _context.CommentsLikes.Where(x => x.CommentId == c.Id)
+                                    CommentedAt = c.CommentedAt,
+                                    UserId = c.UserId,
+                                    CommentImageUrl = c.CommentImageUrl,
+                                    Content = c.Content,
+                                    Username = c.User.Username,
+                                    CommentLikes = _context.CommentsLikes.Where(x => x.CommentId == c.Id)
                                                   .Select(x => new UserBasicInfo {
-                                   UserId = x.UserId,
-                                   ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
-                                  }).ToList()
+                                                      UserId = x.UserId,
+                                                      ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
+                                                  }).ToList()
                                 }).ToList(),
-                }).ToListAsync();
+                                                   }).ToListAsync();
                 userData.Posts = postsDto;
             }
             return userData;
         }
-       
+
         #endregion
 
         #region Update User
@@ -282,7 +292,6 @@ namespace Friendshub.Infrastructure.Implementations
                 user.ProfileImageUrl = relativePath;
             }
 
-            // Update info
             user.Username = updateUserInfo.Username.ToLower();
             user.PrivateAccount = updateUserInfo.PrivateAccount;
 
@@ -291,5 +300,25 @@ namespace Friendshub.Infrastructure.Implementations
         }
 
         #endregion
+
+        #region Helpers
+        public PostLikes GetPostLikes(Guid postId)
+        {
+            var likes = _context.Likes.Include(x => x.User).Where(l => l.PostId == postId).ToList();
+            var postLikes = new PostLikes()
+            {
+                Count = likes.Count,
+                Users = likes.Select(x => new UserBasicInfo
+                {
+                    UserId = x.User.Id,
+                    ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
+                    Username = x.User.Username
+                }).ToList(),
+            };
+            return postLikes;
+        }
+
+        #endregion
+
     }
 }

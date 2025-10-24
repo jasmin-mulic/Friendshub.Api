@@ -122,10 +122,10 @@ namespace Friendshub.Api.Controllers
 
             return Ok(validationErrors);
         }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserProfileData([FromRoute] Guid id)
+        [HttpGet("{username}")]
+        public async Task<IActionResult> GetUserProfileData([FromRoute] string username)
         {
-            var userInfo = await _unitOfWork.UserRepository.GetUserProfileData(id);
+            var userInfo = await _unitOfWork.UserRepository.GetUserProfileData(username);
             if (userInfo == null)
                 return NotFound("User does not exist or is deleted.");
             return Ok(userInfo);

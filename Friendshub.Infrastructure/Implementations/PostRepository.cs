@@ -73,7 +73,7 @@ namespace Friendshub.Infrastructure.Implementations
                 PostId = newPost.Id,
                 PostImagesUrl = newPost.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
                 PostedAt = newPost.PostedAt,
-                Likes = new PostLikes(),
+                Likes = new List<UserBasicInfo>(),
                 UserId = user.Id,
             };
 
@@ -86,7 +86,7 @@ namespace Friendshub.Infrastructure.Implementations
             if (string.IsNullOrWhiteSpace(comment.Content) && (comment.Image == null || comment.Image.Length == 0))
                 throw new ApplicationException("You have to add comment or a picture.");
 
-            var user = await _context.Users.FirstOrDefaultAsync(x =>x.Id == userId);
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x =>x.Id == userId);
 
             var newComment = new Comment
             {
@@ -169,16 +169,16 @@ namespace Friendshub.Infrastructure.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
 
-            var followingUsersIds = await _context.Follows.Where(x => x.FollowerId == userId)
+            var followingUsersIds = await _context.Follows.AsNoTracking().Where(x => x.FollowerId == userId)
                                    .Select(x => x.FolloweeId).ToListAsync();
 
             var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).
-                        Include(p => p.Comments).ThenInclude(c => c.CommentLikes).Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId));
+                        Include(p => p.Comments).ThenInclude(c => c.CommentLikes).AsNoTracking().Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId));
             
             var totalCount = querry.Count();
 
             var postEntities = await querry.OrderByDescending(x => x.PostedAt).Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize).ToListAsync();
+                .Take(pageSize).AsNoTracking().ToListAsync();
 
                 var posts = postEntities.Select(p => new PostClientDto
                 {
@@ -190,7 +190,13 @@ namespace Friendshub.Infrastructure.Implementations
                     ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
                     PostedAt = p.PostedAt,
                     
-                    Likes = GetPostLikes(p.Id),
+                    Likes = _context.Likes.Include("User").Where(like => like.PostId == p.Id).Select((l => new UserBasicInfo
+                    {
+                        UserId = l.UserId,
+                        ProfileImageUrl = l.User.ProfileImageUrl == null ? null : l.User.ProfileImageUrl.ToFullImageUrl(),
+                        Username = l.User.Username,
+                    })).ToList(),
+                    LikeCount = _context.Likes.AsNoTracking().Where(x => x.PostId == p.Id).Count(),
                     Comments = _context.Comments.Where(x => x.PostId == p.Id).Select(c => new CommentClientDto
                     {
                         UserId = c.UserId,
@@ -220,23 +226,6 @@ namespace Friendshub.Infrastructure.Implementations
             };
             return PageResult;
         }
-
-        public  PostLikes GetPostLikes(Guid postId)
-        {
-            var likes = _context.Likes.Include(x => x.User).Where(l => l.PostId == postId).ToList();
-            var postLikes = new PostLikes()
-            {
-                Count = likes.Count,
-                Users = likes.Select(x => new UserBasicInfo
-                {
-                    UserId = x.User.Id,
-                    ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
-                    Username = x.User.Username
-                }).ToList(),
-            };
-            return postLikes;
-        }
-
         public async Task<PageResult<PostClientDto>> GetMyPosts(Guid userId, int pageNumber = 1)
         {
             int pageSize = 10;
@@ -245,7 +234,7 @@ namespace Friendshub.Infrastructure.Implementations
             if (pageSize > 10) pageSize = 10;
 
             var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).
-                        Include(p => p.Comments).ThenInclude(c => c.CommentLikes).Where(p => p.UserId == userId);
+                        Include(p => p.Comments).ThenInclude(c => c.CommentLikes).AsNoTracking().Where(p => p.UserId == userId);
 
             var totalCount = querry.Count();
 
@@ -262,7 +251,13 @@ namespace Friendshub.Infrastructure.Implementations
                 ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
                 PostedAt = p.PostedAt,
 
-                Likes = GetPostLikes(p.Id),
+                Likes = _context.Likes.Include(x => x.User).AsNoTracking().Where(like => like.PostId == p.Id).Select((l => new UserBasicInfo
+                {
+                    UserId = l.UserId,
+                    ProfileImageUrl = l.User.ProfileImageUrl == null ? null : l.User.ProfileImageUrl.ToFullImageUrl(),
+                    Username = l.User.Username,
+                })).ToList(),
+                LikeCount = _context.Likes.AsNoTracking().Where(l => l.PostId == p.Id).Count(),
                 Comments = _context.Comments.Where(x => x.PostId == p.Id).Select(c => new CommentClientDto
                 {
                     UserId = c.UserId,

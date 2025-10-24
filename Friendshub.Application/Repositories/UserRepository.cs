@@ -15,6 +15,6 @@ namespace Friendshub.Application.Repositories
         void RemoveFollower(Guid followeeId, Guid followerId);
         Task<List<UserBasicInfo>> GetFollowings(Guid userId);
         Task<Dictionary<string, string>> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo);
-        Task<UserProfileData> GetUserProfileData(Guid userId);
+        Task<UserProfileData> GetUserProfileData(string username);
     }
 }
