@@ -93,10 +93,10 @@ namespace Friendshub.Infrastructure.Implementations
             var isPasswordCorrect = BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash);
 
             if (!isPasswordCorrect)
-                return false;
+                throw new ApplicationException("Wrong password.");
 
             if (user == null)
-                return false;
+                throw new ApplicationException("Your account might be banned. Try logging in again.");
             if(user.ProfileImageUrl != null)
             {
                 var directoryPath = Path.Combine("wwwroot", user.ProfileImageUrl) ;

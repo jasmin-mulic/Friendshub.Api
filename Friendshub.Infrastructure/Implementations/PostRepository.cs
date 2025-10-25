@@ -197,7 +197,7 @@ namespace Friendshub.Infrastructure.Implementations
                         Username = l.User.Username,
                     })).ToList(),
                     LikeCount = _context.Likes.AsNoTracking().Where(x => x.PostId == p.Id).Count(),
-                    Comments = _context.Comments.Where(x => x.PostId == p.Id).Select(c => new CommentClientDto
+                    Comments = _context.Comments.AsNoTracking().Where(x => x.PostId == p.Id).Select(c => new CommentClientDto
                     {
                         UserId = c.UserId,
                         CommentedAt = c.CommentedAt,

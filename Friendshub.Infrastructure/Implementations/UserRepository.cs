@@ -207,36 +207,36 @@ namespace Friendshub.Infrastructure.Implementations
             if (!user.PrivateAccount)
             {
                 var postsDto = await _context.Posts.Include(p => p.PostsImages)
-                                                   .Include(p => p.Comments)
-                                                   .ThenInclude(c => c.CommentLikes)
-                                                   .Where(p => p.UserId == user.Id)
-                                                   .Select(x => new PostClientDto
-                                                   {
-                                                       PostId = x.Id,
-                                                       PostedAt = x.PostedAt,
-                                                       Username = x.User.Username,
-                                                       Content = x.Content,
-                                                       ProfileImgUrl = x.User.ProfileImageUrl,
-                                                       UserId = x.UserId,
-                                                       Likes = _context.Likes.Include("User").Where(like => like.PostId == x.Id).Select((l => new UserBasicInfo
-                                                       {
-                                                           UserId = l.UserId,
-                                                           ProfileImageUrl = l.User.ProfileImageUrl == null ? null : l.User.ProfileImageUrl.ToFullImageUrl(),
-                                                           Username = l.User.Username,
-                                                       })).ToList(),
+                            .Include(p => p.Comments)
+                            .ThenInclude(c => c.CommentLikes)
+                            .Where(p => p.UserId == user.Id)
+                            .Select(x => new PostClientDto
+                            {
+                                PostId = x.Id,
+                                PostedAt = x.PostedAt,
+                                Username = x.User.Username,
+                                Content = x.Content,
+                                ProfileImgUrl = x.User.ProfileImageUrl,
+                                UserId = x.UserId,
+                                Likes = _context.Likes.Include("User").Where(like => like.PostId == x.Id).Select((l => new UserBasicInfo
+                                {
+                                    UserId = l.UserId,
+                                    ProfileImageUrl = l.User.ProfileImageUrl == null ? null : l.User.ProfileImageUrl.ToFullImageUrl(),
+                                    Username = l.User.Username,
+                                })).ToList(),
                                  Comments = _context.Comments.Where(x => x.PostId == x.Id)
                                 .Select(c => new CommentClientDto
                                 {
-                                    CommentedAt = c.CommentedAt,
-                                    UserId = c.UserId,
-                                    CommentImageUrl = c.CommentImageUrl,
-                                    Content = c.Content,
-                                    Username = c.User.Username,
-                                    CommentLikes = _context.CommentsLikes.Where(x => x.CommentId == c.Id)
-                                                  .Select(x => new UserBasicInfo {
-                                                      UserId = x.UserId,
-                                                      ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
-                                                  }).ToList()
+                            CommentedAt = c.CommentedAt,
+                            UserId = c.UserId,
+                            CommentImageUrl = c.CommentImageUrl,
+                            Content = c.Content,
+                            Username = c.User.Username,
+                            CommentLikes = _context.CommentsLikes.Where(x => x.CommentId == c.Id)
+                                          .Select(x => new UserBasicInfo {
+                                              UserId = x.UserId,
+                                              ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
+                                          }).ToList()
                                 }).ToList(),
                                                    }).ToListAsync();
                 userData.Posts = postsDto;
@@ -252,7 +252,7 @@ namespace Friendshub.Infrastructure.Implementations
             var user = await GetUserById(id);
             if (user == null)
                 throw new ApplicationException("Account not found.");
-
+            user.IsDeleted = true;
             var errors = new Dictionary<string, string>();
 
             // Validation

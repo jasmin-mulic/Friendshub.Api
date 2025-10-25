@@ -1,4 +1,6 @@
-﻿namespace Friendshub.Application.Extensions
+﻿using Friendshub.Domain.Models;
+
+namespace Friendshub.Application.Extensions
 {
     public static class StringExtensions
     {
@@ -13,6 +15,17 @@
             relativePath = relativePath.TrimStart('/');
 
             return $"{BackendBaseUrl}{relativePath}";
+        }
+        public static string BuildNotificationMessage(this string senderName, NotificationType type)
+        {
+            return type switch
+            {
+                NotificationType.Follow => $"{senderName} followed you.",
+                NotificationType.Like => $"{senderName} liked your post.",
+                NotificationType.Comment => $"{senderName} commented on your post.",
+                NotificationType.Request => $"{senderName} sent you follow request.",
+                _ => $"{senderName} sent you a notification."
+            };
         }
     }
 }

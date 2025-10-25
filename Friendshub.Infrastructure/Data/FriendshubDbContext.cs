@@ -13,7 +13,6 @@ namespace Friendshub.Infrastructure.Data
     {
         public FriendshubDbContext(DbContextOptions<FriendshubDbContext> options) : base(options)
         {
-
         }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
@@ -26,6 +25,7 @@ namespace Friendshub.Infrastructure.Data
         public virtual DbSet<Comment> Comments { get; set; }    
         public virtual DbSet<CommentLike> CommentsLikes { get; set; }
         public virtual DbSet<FollowRequest> FollowRequests { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
