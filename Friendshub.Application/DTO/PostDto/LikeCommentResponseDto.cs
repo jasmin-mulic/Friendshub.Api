@@ -5,7 +5,7 @@ using Friendshub.Domain.Models;
 
 namespace Friendshub.Application.DTO.PostDto
 {
-    public class LikeCommentResponse
+    public class LikeCommentResponseDto
     {
         public Guid CommentId { get; set; }
         public string Message { get; set; }

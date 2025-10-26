@@ -13,7 +13,7 @@ namespace Friendshub.Application.Repositories
         Task<Post> GetPostById(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);
         Task<CommentClientDto> CommentPost (Guid userId, Post post, AddCommentDto comment);
-        Task<LikeCommentResponse> LikeComment(Guid commentId, Guid userId);
+        Task<LikeCommentResponseDto> LikeComment(Guid commentId, Guid userId);
         Task<Comment> GetCommentByIdAsync(Guid commentId);
         Task<bool> DeleteComment(Guid commentId, Guid userId);
     }

@@ -294,9 +294,9 @@ namespace Friendshub.Infrastructure.Implementations
             return post;
         }
 
-        public async Task<LikeCommentResponse> LikeComment(Guid commentId, Guid userId)
+        public async Task<LikeCommentResponseDto> LikeComment(Guid commentId, Guid userId)
         {
-            var response = new LikeCommentResponse();
+            var response = new LikeCommentResponseDto();
             var existingLike = await _context.CommentsLikes.FirstOrDefaultAsync((x => x.UserId == userId && x.CommentId == commentId));
             if(existingLike != null)
             {
