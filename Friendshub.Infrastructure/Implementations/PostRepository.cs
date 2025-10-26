@@ -159,7 +159,7 @@ namespace Friendshub.Infrastructure.Implementations
             _context.Posts.Remove(post);
             return true;
         }
-        public async Task<Comment> GetCommentByIdAsync(Guid commentId)
+        public async Task<Comment> GetCommentById(Guid commentId)
         {
             return await _context.Comments.AsNoTracking().FirstOrDefaultAsync(c =>  c.Id == commentId);
         }
@@ -296,7 +296,7 @@ namespace Friendshub.Infrastructure.Implementations
             return post;
         }
 
-        public async Task<LikeCommentResponseDto> LikeComment(Guid commentId, Guid userId)
+        public async Task<LikeCommentResponseDto> LikePostComment(Guid commentId, Guid userId)
         {
             var response = new LikeCommentResponseDto();
             var existingLike = await _context.CommentsLikes.FirstOrDefaultAsync((x => x.UserId == userId && x.CommentId == commentId));
