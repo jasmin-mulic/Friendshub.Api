@@ -32,13 +32,14 @@ namespace Friendshub.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DisplayUsername = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     Active = table.Column<bool>(type: "bit", nullable: false),
-                    ProfileImgUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProfileImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PrivateAccount = table.Column<bool>(type: "bit", nullable: false)
+                    PrivateAccount = table.Column<bool>(type: "bit", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,7 +47,7 @@ namespace Friendshub.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FollowRequest",
+                name: "FollowRequests",
                 columns: table => new
                 {
                     SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -55,14 +56,14 @@ namespace Friendshub.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FollowRequest", x => new { x.SenderId, x.RecieverId });
+                    table.PrimaryKey("PK_FollowRequests", x => new { x.SenderId, x.RecieverId });
                     table.ForeignKey(
-                        name: "FK_FollowRequest_Users_RecieverId",
+                        name: "FK_FollowRequests_Users_RecieverId",
                         column: x => x.RecieverId,
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_FollowRequest_Users_SenderId",
+                        name: "FK_FollowRequests_Users_SenderId",
                         column: x => x.SenderId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -90,6 +91,36 @@ namespace Friendshub.Infrastructure.Migrations
                         column: x => x.FollowerId,
                         principalTable: "Users",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ReceiverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NotificationType = table.Column<int>(type: "int", nullable: false),
+                    EntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    isRead = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_Users_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Notifications_Users_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -161,6 +192,7 @@ namespace Friendshub.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CommentImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -175,6 +207,11 @@ namespace Friendshub.Infrastructure.Migrations
                         principalTable: "Posts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Comments_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -259,13 +296,18 @@ namespace Friendshub.Infrastructure.Migrations
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comments_UserId",
+                table: "Comments",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CommentsLikes_CommentId",
                 table: "CommentsLikes",
                 column: "CommentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FollowRequest_RecieverId",
-                table: "FollowRequest",
+                name: "IX_FollowRequests_RecieverId",
+                table: "FollowRequests",
                 column: "RecieverId");
 
             migrationBuilder.CreateIndex(
@@ -277,6 +319,16 @@ namespace Friendshub.Infrastructure.Migrations
                 name: "IX_Likes_PostId",
                 table: "Likes",
                 column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_ReceiverId",
+                table: "Notifications",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_SenderId",
+                table: "Notifications",
+                column: "SenderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PostImages_PostId",
@@ -306,13 +358,16 @@ namespace Friendshub.Infrastructure.Migrations
                 name: "CommentsLikes");
 
             migrationBuilder.DropTable(
-                name: "FollowRequest");
+                name: "FollowRequests");
 
             migrationBuilder.DropTable(
                 name: "Follows");
 
             migrationBuilder.DropTable(
                 name: "Likes");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "PostImages");

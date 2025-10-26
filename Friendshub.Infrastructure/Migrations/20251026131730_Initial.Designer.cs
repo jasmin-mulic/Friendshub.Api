@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Friendshub.Infrastructure.Migrations
 {
     [DbContext(typeof(FriendshubDbContext))]
-    [Migration("20251016145806_fixing_comment_model")]
-    partial class fixing_comment_model
+    [Migration("20251026131730_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -104,6 +104,42 @@ namespace Friendshub.Infrastructure.Migrations
                     b.HasIndex("FolloweeId");
 
                     b.ToTable("Follows");
+                });
+
+            modelBuilder.Entity("Friendshub.Domain.Models.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("EntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NotificationType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("isRead")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Post", b =>
@@ -227,11 +263,14 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
 
-                    b.Property<string>("DisplayUsername")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("EmailAddress")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -341,6 +380,25 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Navigation("Follower");
                 });
 
+            modelBuilder.Entity("Friendshub.Domain.Models.Notification", b =>
+                {
+                    b.HasOne("Friendshub.Domain.Models.User", "Reciever")
+                        .WithMany("ReceivedNotifications")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Friendshub.Domain.Models.User", "Sender")
+                        .WithMany("SentNotifications")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Reciever");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Friendshub.Domain.Models.Post", b =>
                 {
                     b.HasOne("Friendshub.Domain.Models.User", "User")
@@ -445,9 +503,13 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.Navigation("Posts");
 
+                    b.Navigation("ReceivedNotifications");
+
                     b.Navigation("RecievedFollowRequest");
 
                     b.Navigation("SentFollowRequests");
+
+                    b.Navigation("SentNotifications");
 
                     b.Navigation("UserRoles");
                 });
