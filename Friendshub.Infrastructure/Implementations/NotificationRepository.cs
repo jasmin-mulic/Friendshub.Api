@@ -15,7 +15,7 @@ namespace Friendshub.Infrastructure.Implementations
             _context = context;
         }
 
-        public async Task CreateNotificationAsync(Guid senderId, Guid receiverId, NotificationType type, Guid? entityId = null)
+        public async Task CreateNotification(Guid senderId, Guid receiverId, NotificationType type, Guid? entityId = null)
         {
             if (senderId == receiverId)
                 return;

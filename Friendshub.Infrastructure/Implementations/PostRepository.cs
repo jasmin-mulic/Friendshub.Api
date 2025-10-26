@@ -338,7 +338,7 @@ namespace Friendshub.Infrastructure.Implementations
                     PostId = postId,
                     LikedAt = DateTime.UtcNow
                 };
-                await _notificationRepository.CreateNotificationAsync(userId, post.UserId, NotificationType.Like, postId);
+                await _notificationRepository.CreateNotification(userId, post.UserId, NotificationType.Like, postId);
                 _context.Likes.Add(newlike);
 
                 message = "Post liked.";

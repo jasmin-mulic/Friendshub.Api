@@ -175,7 +175,7 @@ namespace Friendshub.Api.Controllers
             if (Guid.Empty == useIdFromClaims)
                 return Unauthorized( new{ Message =  "You are logged out"});
 
-            var isDeletionSuccess = await _unitOfWork.AuthRepository.DeleteAccount(useIdFromClaims, password);
+            var isDeletionSuccess = await _unitOfWork.AuthRepository.DeleteAccountAsync(useIdFromClaims, password);
 
             if (!isDeletionSuccess)
                 return BadRequest("Error deleting your account.");

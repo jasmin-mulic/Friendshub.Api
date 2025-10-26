@@ -87,7 +87,7 @@ namespace Friendshub.Infrastructure.Implementations
             await _context.Users.AddAsync(user);
             return result;
         }
-        public async Task<bool> DeleteAccount(Guid id, string password)
+        public async Task<bool> DeleteAccountAsync(Guid id, string password)
         {
             var user = await _context.Users.FindAsync(id);
             var isPasswordCorrect = BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash);

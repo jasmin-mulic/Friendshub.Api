@@ -7,6 +7,6 @@ namespace Friendshub.Application.Repositories
     {
         Task<LoginResult> LoginAsync(LoginUserDto request);
         Task<RegisterResult> RegisterAsync(RegisterUserDto request);
-        Task<bool> DeleteAccount(Guid userId, string password);
+        Task<bool> DeleteAccountAsync(Guid userId, string password);
     }
 }
