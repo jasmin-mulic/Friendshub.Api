@@ -2,6 +2,7 @@
 using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.DTO.PostDto;
 using Friendshub.Application.Repositories;
+using Friendshub.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -128,6 +129,7 @@ namespace Friendshub.Api.Controllers
                     return BadRequest("Post is deleted.");
 
                 var likeResponse = await _unitOfWork.PostRepository.LikePost(userId, postId);
+
 
                 await _unitOfWork.ApplyChanges();
                 return Ok(likeResponse);

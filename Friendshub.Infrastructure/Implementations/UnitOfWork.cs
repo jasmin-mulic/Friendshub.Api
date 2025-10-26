@@ -21,13 +21,15 @@ namespace Friendshub.Infrastructure.Implementations
             TokenRepository = new TokenRepository(_context, _configuration);
             AuthRepository = new AuthRepository(_context, TokenRepository);
             UserRepository = new UserRepository(_context, _webHostEnvironment);
-            PostRepository = new PostRepository(_context, webHostEnvironment);
+            NotificationRepository = new NotificationRepository(_context);
+            PostRepository = new PostRepository(_context, webHostEnvironment,NotificationRepository);
             
         }
         public IAuthRepository AuthRepository { get; }
         public ITokenRepository TokenRepository { get; }
         public IUserRepository UserRepository { get; }
         public IPostRepository PostRepository { get; }
+        public INotificationRepository NotificationRepository { get; }
 
 
         public async Task<bool> ApplyChanges()

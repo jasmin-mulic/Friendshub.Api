@@ -12,6 +12,7 @@ namespace Friendshub.Application.Repositories
          ITokenRepository TokenRepository { get;}
          IUserRepository UserRepository { get;}
          IPostRepository PostRepository { get;}
+         INotificationRepository NotificationRepository { get;}
          Task<bool> ApplyChanges();
     }
 }

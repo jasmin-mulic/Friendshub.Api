@@ -15,10 +15,12 @@ namespace Friendshub.Infrastructure.Implementations
     {
         private readonly FriendshubDbContext _context;
         private readonly IWebHostEnvironment _env;
-        public PostRepository(FriendshubDbContext context, IWebHostEnvironment webHostEnvironment)
+        private readonly INotificationRepository _notificationRepository;
+        public PostRepository(FriendshubDbContext context, IWebHostEnvironment webHostEnvironment, INotificationRepository notificationRepository)
         {
             _context = context;
             _env = webHostEnvironment;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<PostClientDto> AddPost(AddPostDto request, User user)
@@ -325,6 +327,8 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<string> LikePost(Guid userId, Guid postId)
         {
             string message = string.Empty;
+            var post = await _context.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == postId);
+
             var like = await _context.Likes.FirstOrDefaultAsync(x => x.UserId == userId && postId == x.PostId);
             if (like == null)
             {
@@ -334,7 +338,9 @@ namespace Friendshub.Infrastructure.Implementations
                     PostId = postId,
                     LikedAt = DateTime.UtcNow
                 };
+                await _notificationRepository.CreateNotificationAsync(userId, post.UserId, NotificationType.Like, postId);
                 _context.Likes.Add(newlike);
+
                 message = "Post liked.";
             }
             else
