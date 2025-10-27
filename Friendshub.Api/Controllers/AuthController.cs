@@ -68,7 +68,7 @@ namespace Friendshub.Api.Controllers
                 };
                 Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
 
-                await _unitOfWork.ApplyChanges();
+                await _unitOfWork.ApplyChangesAsync();
                 return Ok(response.AccessToken);
             }
 
@@ -103,7 +103,7 @@ namespace Friendshub.Api.Controllers
                 if (result.Success)
                 {
                     var refreshToken = _unitOfWork.TokenRepository.AddRefreshToken(result.UserId);
-                    await _unitOfWork.ApplyChanges();
+                    await _unitOfWork.ApplyChangesAsync();
                     return Ok("You registered successfully");
                 }
                 else
@@ -128,7 +128,7 @@ namespace Friendshub.Api.Controllers
                 });
                 var userIdFromClaims = User.GetUserId();
                 _unitOfWork.TokenRepository.DeleteRefreshToken(userIdFromClaims);
-                await _unitOfWork.ApplyChanges();
+                await _unitOfWork.ApplyChangesAsync();
 
                 return Ok(new { message = "Logged out successfully." });
             }

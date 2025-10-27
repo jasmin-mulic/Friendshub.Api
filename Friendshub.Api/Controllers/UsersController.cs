@@ -59,7 +59,7 @@ namespace Friendshub.Api.Controllers
             var followeeGuid = (foloweeId);
             var message = await _unitOfWork.UserRepository.FollowUser(userId, followeeGuid);
 
-            await _unitOfWork.ApplyChanges();
+            await _unitOfWork.ApplyChangesAsync();
             return Ok(new { message });
         }
         [Authorize]
@@ -72,7 +72,7 @@ namespace Friendshub.Api.Controllers
                 return Unauthorized("You are logged out.");
 
             _unitOfWork.UserRepository.RemoveFollower(userId, followeeId);
-            await _unitOfWork.ApplyChanges();
+            await _unitOfWork.ApplyChangesAsync();
 
             return Ok(new { message = "Follower removed." });
         }
@@ -118,7 +118,7 @@ namespace Friendshub.Api.Controllers
             var validationErrors = await _unitOfWork.UserRepository.UpdateUserData(id, request);
             if(validationErrors.Count > 0)
                 return BadRequest(new {Errors  = validationErrors});
-            await _unitOfWork.ApplyChanges();
+            await _unitOfWork.ApplyChangesAsync();
 
             return Ok(validationErrors);
         }

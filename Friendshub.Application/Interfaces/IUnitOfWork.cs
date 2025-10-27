@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Friendshub.Application.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,8 @@ namespace Friendshub.Application.Repositories
          ITokenRepository TokenRepository { get;}
          IUserRepository UserRepository { get;}
          IPostRepository PostRepository { get;}
+         IUserRoleRepository UserRoleRepository { get;}
          INotificationRepository NotificationRepository { get;}
-         Task<bool> ApplyChanges();
+         Task<bool> ApplyChangesAsync();
     }
 }

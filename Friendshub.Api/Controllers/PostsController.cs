@@ -65,7 +65,7 @@ namespace Friendshub.Api.Controllers
 
 
                 var newPost = await _unitOfWork.PostRepository.AddPost(request, user);
-                await _unitOfWork.ApplyChanges();
+                await _unitOfWork.ApplyChangesAsync();
                 return Ok(newPost);
 
             }
@@ -106,7 +106,7 @@ namespace Friendshub.Api.Controllers
                 if (!isDeleted)
                     return BadRequest("Error deleting post");
 
-                await _unitOfWork.ApplyChanges();
+                await _unitOfWork.ApplyChangesAsync();
                 return Ok(new { message = "Post deleted successfully." });
             }
             catch (Exception exc)
@@ -131,7 +131,7 @@ namespace Friendshub.Api.Controllers
                 var likeResponse = await _unitOfWork.PostRepository.LikePost(userId, postId);
 
 
-                await _unitOfWork.ApplyChanges();
+                await _unitOfWork.ApplyChangesAsync();
                 return Ok(likeResponse);
             }
             catch (Exception exc)
@@ -157,7 +157,7 @@ namespace Friendshub.Api.Controllers
                 var newComment = await _unitOfWork.PostRepository.CommentPost(userIdFromClaIms, post, comment);
                 if (newComment == null)
                     return BadRequest("Error adding post.");
-                await _unitOfWork.ApplyChanges();
+                await _unitOfWork.ApplyChangesAsync();
                 return Ok(newComment);  
                 
             }
@@ -178,7 +178,7 @@ namespace Friendshub.Api.Controllers
                 if (comment == null)
                     return NotFound("Comment is deleted.");
                 var likeResponse = await _unitOfWork.PostRepository.LikePostComment(commentId, userIdFromClaims);
-                await _unitOfWork.ApplyChanges();
+                await _unitOfWork.ApplyChangesAsync();
                 return Ok(likeResponse);
             }
             catch (Exception exc)
@@ -197,7 +197,7 @@ namespace Friendshub.Api.Controllers
                 var isDeleted = await _unitOfWork.PostRepository.DeleteComment(commentId, userIdFromClaims);
                 if (!isDeleted)
                     return NotFound("Comment is already deleted.");
-                await _unitOfWork.ApplyChanges();
+                await _unitOfWork.ApplyChangesAsync();
                 return Ok();
             }
             catch (Exception exc)

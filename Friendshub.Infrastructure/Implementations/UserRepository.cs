@@ -301,24 +301,12 @@ namespace Friendshub.Infrastructure.Implementations
 
         #endregion
 
-        #region Helpers
-        public PostLikes GetPostLikes(Guid postId)
-        {
-            var likes = _context.Likes.Include(x => x.User).Where(l => l.PostId == postId).ToList();
-            var postLikes = new PostLikes()
-            {
-                Count = likes.Count,
-                Users = likes.Select(x => new UserBasicInfo
-                {
-                    UserId = x.User.Id,
-                    ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
-                    Username = x.User.Username
-                }).ToList(),
-            };
-            return postLikes;
-        }
 
-        #endregion
+
+        public async Task<User> GetUserByEmailOrUsername(string emailOrUsername)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.EmailAddress == emailOrUsername || x.Username == emailOrUsername);
+        }
 
     }
 }

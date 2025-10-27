@@ -16,5 +16,6 @@ namespace Friendshub.Application.Repositories
         Task<List<UserBasicInfo>> GetFollowings(Guid userId);
         Task<Dictionary<string, string>> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo);
         Task<UserProfileData> GetUserProfileData(string username);
+        Task<User> GetUserByEmailOrUsername(string emailOrUsername);
     }
 }
