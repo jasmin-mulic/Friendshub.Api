@@ -72,21 +72,8 @@ namespace Friendshub.Application.Interfaces.Implementations
 
         public void DeleteRefreshToken(Guid userId)
         {
-            var token = _unitOfWork.TokenRepository.GetRefteshTokenByUserId(userId);
-            _context.RefreshTokens.Remove(token);
-        }
-
-        public async Task<RefreshToken> GetRefreshTokenByValue(string value)
-        {
-            return await _context.RefreshTokens.FirstOrDefaultAsync(rToken => rToken.Token == value);
-
-
-        }
-
-        public async Task<RefreshToken> GetUserRefreshToken(Guid userId)
-        {
-            var token = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.UserId == userId);
-            return token;
+            var token =  _unitOfWork.TokenRepository.GetRefteshTokenByUserId(userId);
+            _unitOfWork.TokenRepository.RemoveRefreshToken(token);
         }
     }
 }

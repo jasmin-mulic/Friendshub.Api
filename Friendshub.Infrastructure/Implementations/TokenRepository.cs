@@ -31,9 +31,14 @@ namespace Friendshub.Infrastructure.Implementations
             await _context.RefreshTokens.AddAsync(token);
         }
 
-        public async Task<RefreshToken> GetRefteshTokenByUserId(Guid userId)
+        public RefreshToken GetRefteshTokenByUserId(Guid userId)
         {
-            return await _context.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == userId);
+            return  _context.RefreshTokens.AsNoTracking().(x => x.UserId == userId);
+        }
+
+        public void RemoveRefreshToken(RefreshToken token)
+        {
+            _context.RefreshTokens.Remove(token);
         }
     }
 }
