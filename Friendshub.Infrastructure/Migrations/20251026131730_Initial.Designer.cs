@@ -91,7 +91,7 @@ namespace Friendshub.Infrastructure.Migrations
                     b.ToTable("FollowRequests");
                 });
 
-            modelBuilder.Entity("Friendshub.Domain.Models.Follows", b =>
+            modelBuilder.Entity("Friendshub.Domain.Models.Follow", b =>
                 {
                     b.Property<Guid>("FollowerId")
                         .HasColumnType("uniqueidentifier");
@@ -103,7 +103,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("FolloweeId");
 
-                    b.ToTable("Follows");
+                    b.ToTable("Follow");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Notification", b =>
@@ -361,7 +361,7 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Friendshub.Domain.Models.Follows", b =>
+            modelBuilder.Entity("Friendshub.Domain.Models.Follow", b =>
                 {
                     b.HasOne("Friendshub.Domain.Models.User", "Followee")
                         .WithMany("Followers")

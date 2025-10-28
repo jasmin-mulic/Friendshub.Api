@@ -1,6 +1,6 @@
 ﻿namespace Friendshub.Domain.Models
 {
-    public class Follows
+    public class Follow : BaseEntity
     {
         public Guid FolloweeId { get; set; }
         public Guid FollowerId { get; set; }

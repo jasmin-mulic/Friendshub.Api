@@ -11,9 +11,10 @@ namespace Friendshub.Infrastructure.Data.Configurations
 {
     public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
     {
-
         public void Configure(EntityTypeBuilder<Notification> builder)
         {
+        builder.HasQueryFilter(x => x.IsActive && !x.IsDeleted);
+
             builder.HasOne(x => x.Sender)
                 .WithMany(s => s.SentNotifications)
                 .HasForeignKey(s => s.SenderId)

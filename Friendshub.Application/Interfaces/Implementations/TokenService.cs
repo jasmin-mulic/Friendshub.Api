@@ -75,5 +75,15 @@ namespace Friendshub.Application.Interfaces.Implementations
             var token =  _unitOfWork.TokenRepository.GetRefteshTokenByUserId(userId);
             _unitOfWork.TokenRepository.RemoveRefreshToken(token);
         }
+
+        public Task<RefreshToken> GetRefreshTokenByValue(string value)
+        {
+            return _unitOfWork.TokenRepository.GetRefteshTokenByUserId()
+        }
+
+        public Task<RefreshToken> GetUserRefreshToken(Guid userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

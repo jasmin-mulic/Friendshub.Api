@@ -14,6 +14,7 @@ namespace Friendshub.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Post> builder)
         {
             builder.HasOne(p => p.User).WithMany(p => p.Posts).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasQueryFilter(x => x.IsActive && !x.IsDeleted);
         }
     }
 }

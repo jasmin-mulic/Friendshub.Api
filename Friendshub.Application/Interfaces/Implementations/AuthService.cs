@@ -9,9 +9,11 @@ namespace Friendshub.Application.Interfaces.Implementations
     internal class AuthService : IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public AuthService(IUnitOfWork unitOfWork)
+        private readonly ITokenService _tokenService;
+        public AuthService(IUnitOfWork unitOfWork, ITokenService tokenService)
         {   
               _unitOfWork = unitOfWork;
+              _tokenService = tokenService;
         }
         public async Task<LoginResult> LoginAsync(LoginUserDto request)
         {
@@ -26,7 +28,7 @@ namespace Friendshub.Application.Interfaces.Implementations
             }
             result.Success = true;
             result.User = user;
-            result.AccessToken = await _unitOfWork.TokenRepository.AddRefreshTokenAsync(user);
+            result.AccessToken = await _tokenService.CreateAccessToken(user);
             return result;
         }
         public async Task<RegisterResult> RegisterAsync(RegisterUserDto request)
@@ -36,11 +38,11 @@ namespace Friendshub.Application.Interfaces.Implementations
             var usernameNormalized = request.Username.ToLower();
             var emailNormalized = request.EmailAddress.ToLower();
 
-            if (await _context.Users.AnyAsync(x => x.Username == usernameNormalized))
+            if (await _unitOfWork.UserRepository.IsUsernameTaken(usernameNormalized))
                 result.ValidationErrors.Add(
                     new RegisterUserError { PropertyName = "Username", ErrorMessage = "Username already exists" });
 
-            if (await _context.Users.AnyAsync(x => x.EmailAddress == emailNormalized))
+            if (await _unitOfWork.UserRepository.IsEmailAddressTaken(emailNormalized))
                 result.ValidationErrors.Add(new RegisterUserError { PropertyName = "EmailAddress", ErrorMessage = "Email address already exists" });
 
             var today = DateOnly.FromDateTime(DateTime.Today);
@@ -74,18 +76,21 @@ namespace Friendshub.Application.Interfaces.Implementations
             };
             result.UserId = user.Id;
             result.Success = true;
+
             var userRole = new UserRole
             {
                 UserId = user.Id,
                 RoleId = 1,
             };
-            await _context.UserRoles.AddAsync(userRole);
-            await _context.Users.AddAsync(user);
+
+            await _unitOfWork.UserRoleRepository.AddASync(userRole);
+            await _unitOfWork.UserRepository.AddAsync(user);
+            await _unitOfWork.ApplyChangesAsync();
             return result;
         }
-        public async Task<bool> DeleteAccountAsync(Guid id, string password)
+        public async Task<bool> DeleteAccountAsync(Guid userId, string password)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _unitOfWork.UserRepository.GetUserById(userId);
             var isPasswordCorrect = BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash);
 
             if (!isPasswordCorrect)
@@ -100,9 +105,10 @@ namespace Friendshub.Application.Interfaces.Implementations
                     System.IO.File.Delete(directoryPath);
             }
 
-            var follows = await _context.Follows.Where(x => x.FollowerId == id).ToListAsync();
-            _context.Follows.RemoveRange(follows);
-            _context.Users.Remove(user);
+            var follows = await _unitOfWork.FollowRepository.GetUserFollowingList(userId);
+            _unitOfWork.FollowRepository.RemoveFollows(follows);
+            _unitOfWork.UserRepository.DeleteUser(user);
+           await _unitOfWork.ApplyChangesAsync();
             return true;
         }
     }

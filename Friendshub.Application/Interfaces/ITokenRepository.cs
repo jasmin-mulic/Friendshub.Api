@@ -4,8 +4,9 @@ namespace Friendshub.Application.Repositories
     public interface ITokenRepository
     {
         Task AddRefreshTokenAsync(RefreshToken token);
-        RefreshToken GetRefteshTokenByUserId(Guid userId);
+        Task<RefreshToken> GetRefteshTokenByUserId(Guid userId);
         Task RemoveRefreshToken(RefreshToken token);
+        Task<RefreshToken> GetByValueAsync (string value);
         
     }
 }

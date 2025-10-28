@@ -12,8 +12,8 @@
         public string PasswordHash { get; set; } = string.Empty;
         public virtual List<UserRole> UserRoles { get; set; } = new();  
         public virtual List<Post> Posts { get; set;} = new();
-        public virtual List<Follows> Followers { get; set; } = new();
-        public virtual List<Follows> Followings { get; set; } = new();
+        public virtual List<Follow> Followers { get; set; } = new();
+        public virtual List<Follow> Followings { get; set; } = new();
         public virtual List<PostLike> PostLikes { get; set; } = new();
         public virtual List<CommentLike> CommentLikes { get; set; } = new();
         public  bool PrivateAccount { get; set; } = false;

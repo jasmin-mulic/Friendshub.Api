@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Friendshub.Infrastructure.Data.Configurations
 {
-    public class FollowsConfiguration : IEntityTypeConfiguration<Follows>
+    public class FollowsConfiguration : IEntityTypeConfiguration<Follow>
     {
-        public void Configure(EntityTypeBuilder<Follows> builder)
+        public void Configure(EntityTypeBuilder<Follow> builder)
         {
+            builder.HasQueryFilter(x => x.IsActive && !x.IsDeleted);
+
             builder.HasKey(f => new { f.FollowerId, f.FolloweeId });
 
             builder.HasOne(f => f.Follower)

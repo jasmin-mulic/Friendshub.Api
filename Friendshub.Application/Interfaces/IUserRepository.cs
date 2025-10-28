@@ -17,5 +17,9 @@ namespace Friendshub.Application.Repositories
         Task<Dictionary<string, string>> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo);
         Task<UserProfileData> GetUserProfileData(string username);
         Task<User> GetUserByEmailOrUsername(string emailOrUsername);
+        Task<bool> IsUsernameTaken(string username);
+        Task<bool> IsEmailAddressTaken(string emailAddress);
+        Task AddAsync(User user);
+        void DeleteUser(User user);
     }
 }

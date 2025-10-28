@@ -25,6 +25,7 @@ namespace Friendshub.Infrastructure.Implementations
             NotificationRepository = new NotificationRepository(_context);
             PostRepository = new PostRepository(_context, webHostEnvironment,NotificationRepository);
             UserRoleRepository = new UserRoleRepository(_context);
+            FollowRepository = new FollowRepository(_context);
             
         }
         public IAuthRepository AuthRepository { get; }
@@ -33,6 +34,7 @@ namespace Friendshub.Infrastructure.Implementations
         public IPostRepository PostRepository { get; }
         public INotificationRepository NotificationRepository { get; }
         public IUserRoleRepository UserRoleRepository { get; }
+        public IFollowRepository FollowRepository
 
 
         public async Task<bool> ApplyChangesAsync()

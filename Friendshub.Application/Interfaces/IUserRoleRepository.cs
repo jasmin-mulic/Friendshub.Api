@@ -10,5 +10,6 @@ namespace Friendshub.Application.Interfaces
     public interface IUserRoleRepository
     {
         Task<List<UserRole>> GetRolesByUserId(Guid userId);
+        Task AddASync(UserRole userRole);
     }
 }

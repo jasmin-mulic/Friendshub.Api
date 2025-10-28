@@ -15,6 +15,7 @@ namespace Friendshub.Application.Repositories
          IPostRepository PostRepository { get;}
          IUserRoleRepository UserRoleRepository { get;}
          INotificationRepository NotificationRepository { get;}
+         IFollowRepository FollowRepository { get;}
          Task<bool> ApplyChangesAsync();
     }
 }

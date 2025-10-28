@@ -1,13 +1,10 @@
 ﻿using FluentValidation;
 using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO.Auth;
+using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Application.Results;
-using Friendshub.Infrastructure.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Friendshub.Api.Controllers
 {
@@ -15,69 +12,55 @@ namespace Friendshub.Api.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IAuthService _authService;
+        private readonly ITokenService _tokenService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly FriendshubDbContext _context;
-        public AuthController(IUnitOfWork unitOfWork, FriendshubDbContext context)
+        public AuthController(IAuthService authServuce, ITokenService tokenService, IUnitOfWork unitOfWork )
         {
-            _context = context;
+            _authService = authServuce;
+            _tokenService = tokenService;
             _unitOfWork = unitOfWork;
         }
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginUserDto request)
+        public async Task<IActionResult> Login( [FromBody] LoginUserDto request, [FromServices] IValidator<LoginUserDto> validator)
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    var errors = new Dictionary<string, List<string>>();
-                    foreach (var entry in ModelState)
-                    {
-                        if (entry.Value.Errors.Count > 0)
-                        {
-                            errors[entry.Key] = entry.Value.Errors
-                                .Select(e => e.ErrorMessage)
-                                .ToList();
-                        }
-                    }
-                    return BadRequest(new { Errors = errors });
-                }
 
-                var response = await _unitOfWork.AuthRepository.LoginAsync(request);
+                var validationResult = validator.Validate(request);
+                if (!validationResult.IsValid)
+                    return BadRequest(new { Errors = validationResult.Errors });
 
-                if (response.Success == false)
+                // 2️⃣ Pokušaj prijave
+                var response = await _authService.LoginAsync(request);
+                if (!response.Success)
                     return Unauthorized("Wrong credentials");
 
-                var accessToken = response.AccessToken;
-                var refreshToken = await _unitOfWork.TokenRepository.GetUserRefreshToken(response.User.Id);
+                // 3️⃣ Uvijek kreiraj novi refresh token (nova sesija)
+                var refreshToken = await _tokenService.AddRefreshToken(response.User.Id);
 
-                if (refreshToken == null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
+                // 4️⃣ Postavi cookie (HttpOnly + Secure)
+                var cookieOptions = new CookieOptions
                 {
-                  refreshToken = await _unitOfWork.TokenRepository.AddRefreshToken(response.User.Id);
-                }
-                else
-                {
-                    refreshToken.ExpiresOnUtc = DateTime.UtcNow.AddDays(7);
-                    refreshToken.Token = _unitOfWork.TokenRepository.CreateRefreshToken();
-                    _context.RefreshTokens.Update(refreshToken);
-                }
-                var cookieOptions = new CookieOptions { 
                     HttpOnly = true,
-                    Secure = true, 
-                    SameSite = SameSiteMode.None, 
-                    Expires = refreshToken.ExpiresOnUtc 
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = refreshToken.ExpiresOnUtc
                 };
                 Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
 
+                // 5️⃣ Sačuvaj promjene
                 await _unitOfWork.ApplyChangesAsync();
+
+                // 6️⃣ Vrati Access token klijentu
                 return Ok(response.AccessToken);
             }
-
-
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, exc.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody]RegisterUserDto registerUser, [FromServices]IValidator<RegisterUserDto> validator)
         {

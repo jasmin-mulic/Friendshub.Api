@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Friendshub.Domain.Models
 {
-    public class Notification
+    public class Notification : BaseEntity
     {
         public Guid Id { get; set; }
         public Guid SenderId { get; set; }

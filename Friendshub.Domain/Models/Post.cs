@@ -2,7 +2,7 @@
 
 namespace Friendshub.Domain.Models
 {
-    public class Post
+    public class Post : BaseEntity
     {
         public Guid Id { get; set; }
         public string Content { get; set; }

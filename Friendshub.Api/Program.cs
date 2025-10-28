@@ -1,4 +1,5 @@
 using FluentValidation;
+using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Repositories;
 using Friendshub.Infrastructure;
 using Friendshub.Infrastructure.Data;
@@ -49,6 +50,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginUserDto>();
 
 builder.Services.AddDbContext<FriendshubDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("FriendshubDb")));
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();

@@ -71,7 +71,7 @@ namespace Friendshub.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Follows",
+                name: "Follow",
                 columns: table => new
                 {
                     FolloweeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -312,7 +312,7 @@ namespace Friendshub.Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Follows_FolloweeId",
-                table: "Follows",
+                table: "Follow",
                 column: "FolloweeId");
 
             migrationBuilder.CreateIndex(
@@ -361,7 +361,7 @@ namespace Friendshub.Infrastructure.Migrations
                 name: "FollowRequests");
 
             migrationBuilder.DropTable(
-                name: "Follows");
+                name: "Follow");
 
             migrationBuilder.DropTable(
                 name: "Likes");

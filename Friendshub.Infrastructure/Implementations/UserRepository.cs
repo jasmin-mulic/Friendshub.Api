@@ -81,7 +81,7 @@ namespace Friendshub.Infrastructure.Implementations
 
             if (!followee.PrivateAccount)
             {
-                await _context.Follows.AddAsync(new Follows
+                await _context.Follows.AddAsync(new Follow
                 {
                     FollowerId = followerId,
                     FolloweeId = followeeId
@@ -308,5 +308,26 @@ namespace Friendshub.Infrastructure.Implementations
             return await _context.Users.FirstOrDefaultAsync(x => x.EmailAddress == emailOrUsername || x.Username == emailOrUsername);
         }
 
+        public async Task<bool> IsUsernameTaken(string username)
+        {
+            var isTaken = await _context.Users.AnyAsync(x => x.Username == username);
+            return isTaken;
+        }
+
+        public async Task<bool> IsEmailAddressTaken(string emailAddress)
+        {
+            var isTaken = await _context.Users.AnyAsync(x => x.EmailAddress == emailAddress);
+            return isTaken;
+        }
+        public async Task AddAsync(User user)
+        {
+            await _context.Users.AddAsync(user);    
+        }
+
+        public void DeleteUser(User user)
+        {
+            user.IsDeleted = true;
+            user.IsActive = false;
+        }
     }
 }
