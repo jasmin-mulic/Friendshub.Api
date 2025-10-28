@@ -6,11 +6,11 @@ namespace Friendshub.Application.Repositories
 {
     public interface IPostRepository
     {
-        Task<PostClientDto> AddPost(AddPostDto request, User user);
-        Task<PageResult<PostClientDto>>GetMyPosts(Guid userId, int page);
+        Task AddPostAsync(Post post);
+        Task<List<Post>>GetPostsByUserId(Guid userId);
         Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int page);
-        Task<bool> DeletePost(Guid postId);
-        Task<Post> GetPostById(Guid postId);
+        void DeletePost(Post post);
+        Task<Post> GetPostByIdAsync(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);
         Task<CommentClientDto> CommentPost (Guid userId, Post post, AddCommentDto comment);
         Task<LikeCommentResponseDto> LikePostComment(Guid commentId, Guid userId);
