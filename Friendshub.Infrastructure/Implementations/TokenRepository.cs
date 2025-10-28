@@ -3,15 +3,6 @@ using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Friendshub.Infrastructure.Implementations
 {
@@ -47,11 +38,7 @@ namespace Friendshub.Infrastructure.Implementations
         public void RemoveRefreshToken(RefreshToken token)
         {
             _context.RefreshTokens.Remove(token);
-        }
 
-        Task ITokenRepository.RemoveRefreshToken(RefreshToken token)
-        {
-            throw new NotImplementedException();
         }
     }
 }

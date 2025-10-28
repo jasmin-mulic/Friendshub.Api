@@ -94,7 +94,8 @@ namespace Friendshub.Application.Interfaces.Implementations
             var isPasswordCorrect = BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash);
 
             if (!isPasswordCorrect)
-                throw new ApplicationException("Wrong password.");
+                throw new UnauthorizedAccessException
+                    ("Wrong password.");
 
             if (user == null)
                 throw new ApplicationException("Your account might be banned. Try logging in again.");

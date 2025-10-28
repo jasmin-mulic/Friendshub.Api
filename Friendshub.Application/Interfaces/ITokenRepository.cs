@@ -5,7 +5,8 @@ namespace Friendshub.Application.Repositories
     {
         Task AddRefreshTokenAsync(RefreshToken token);
         Task<RefreshToken> GetRefteshTokenByUserId(Guid userId);
-        Task RemoveRefreshToken(RefreshToken token);
+
+        void RemoveRefreshToken(RefreshToken token);
         Task<RefreshToken> GetByValueAsync (string value);
         
     }

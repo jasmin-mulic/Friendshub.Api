@@ -1,9 +1,8 @@
-﻿using Friendshub.Application.Repositories;
+﻿using Friendshub.Application.Interfaces;
+using Friendshub.Application.Repositories;
 using Friendshub.Infrastructure.Data;
-using Friendshub.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Friendshub.Application.Interfaces;
 namespace Friendshub.Infrastructure.Implementations
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
@@ -34,8 +33,8 @@ namespace Friendshub.Infrastructure.Implementations
         public IPostRepository PostRepository { get; }
         public INotificationRepository NotificationRepository { get; }
         public IUserRoleRepository UserRoleRepository { get; }
-        public IFollowRepository FollowRepository
-
+        public IFollowRepository FollowRepository { get; }
+             
 
         public async Task<bool> ApplyChangesAsync()
         {

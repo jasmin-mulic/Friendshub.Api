@@ -70,20 +70,15 @@ namespace Friendshub.Application.Interfaces.Implementations
             return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
         }
 
-        public void DeleteRefreshToken(Guid userId)
+        public async Task DeleteRefreshToken(Guid userId)
         {
-            var token =  _unitOfWork.TokenRepository.GetRefteshTokenByUserId(userId);
-            _unitOfWork.TokenRepository.RemoveRefreshToken(token);
+            var token = await _unitOfWork.TokenRepository.GetRefteshTokenByUserId(userId);
+            await _unitOfWork.TokenRepository.RemoveRefreshToken(token);
         }
 
         public Task<RefreshToken> GetRefreshTokenByValue(string value)
         {
-            return _unitOfWork.TokenRepository.GetRefteshTokenByUserId()
-        }
-
-        public Task<RefreshToken> GetUserRefreshToken(Guid userId)
-        {
-            throw new NotImplementedException();
+            return _unitOfWork.TokenRepository.GetByValueAsync(value); ;
         }
     }
 }
