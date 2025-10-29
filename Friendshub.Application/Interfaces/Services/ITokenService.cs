@@ -8,6 +8,6 @@ namespace Friendshub.Application.Interfaces.Services
         Task<RefreshToken> GetUserRefreshToken(Guid userId);
         Task<RefreshToken> AddRefreshToken(Guid userId);
         Task<RefreshToken> GetRefreshTokenByValue(string value);
-        void DeleteRefreshToken(Guid UserId);
+        Task DeleteRefreshTokenByUserId(Guid userId);
     }
 }

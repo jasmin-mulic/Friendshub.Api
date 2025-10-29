@@ -1,5 +1,6 @@
 using FluentValidation;
 using Friendshub.Application.DTO.Auth;
+using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Application.Repositories;
 using Friendshub.Infrastructure;
 using Friendshub.Infrastructure.Data;

@@ -195,7 +195,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Likes");
+                    b.ToTable("PostLikes");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.RefreshToken", b =>
@@ -421,7 +421,7 @@ namespace Friendshub.Infrastructure.Migrations
             modelBuilder.Entity("Friendshub.Domain.Models.PostLike", b =>
                 {
                     b.HasOne("Friendshub.Domain.Models.Post", "Post")
-                        .WithMany("Likes")
+                        .WithMany("PostLikes")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -476,7 +476,7 @@ namespace Friendshub.Infrastructure.Migrations
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Likes");
+                    b.Navigation("PostLikes");
 
                     b.Navigation("PostsImages");
                 });

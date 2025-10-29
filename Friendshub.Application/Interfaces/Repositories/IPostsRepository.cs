@@ -2,7 +2,7 @@
 using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.DTO.PostDto;
 using Friendshub.Domain.Models;
-namespace Friendshub.Application.Repositories
+namespace Friendshub.Application.Interfaces.Repositories
 {
     public interface IPostRepository
     {
@@ -12,9 +12,8 @@ namespace Friendshub.Application.Repositories
         void DeletePost(Post post);
         Task<Post> GetPostByIdAsync(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);
-        Task<CommentClientDto> CommentPost (Guid userId, Post post, AddCommentDto comment);
-        Task<LikeCommentResponseDto> LikePostComment(Guid commentId, Guid userId);
-        Task<Comment> GetCommentById(Guid commentId);
-        Task<bool> DeleteComment(Guid commentId, Guid userId);
+        Task<List<PostClientDto>> GetPostsByUserIdsync(Guid userId, int pageNumber, int pageSize);
+        Task<List<PostLike>> GetPostLikes(Guid PostId);
+
     }
 }

@@ -218,7 +218,7 @@ namespace Friendshub.Infrastructure.Implementations
                                 Content = x.Content,
                                 ProfileImgUrl = x.User.ProfileImageUrl,
                                 UserId = x.UserId,
-                                Likes = _context.Likes.Include("User").Where(like => like.PostId == x.Id).Select((l => new UserBasicInfo
+                                Likes = _context.PostLikes.Include("User").Where(like => like.PostId == x.Id).Select((l => new UserBasicInfo
                                 {
                                     UserId = l.UserId,
                                     ProfileImageUrl = l.User.ProfileImageUrl == null ? null : l.User.ProfileImageUrl.ToFullImageUrl(),

@@ -45,7 +45,7 @@ namespace Friendshub.Infrastructure.Implementations
                 UserId = userId,
             };
 
-            if (comment.Image != null && comment.Image.Length > 0)
+            if (comment.Image != null && comment.Image.Length == 1)
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(comment.Image.FileName);
                 var uploadFolder = Path.Combine("wwwroot", "uploads", "comments");
@@ -133,13 +133,13 @@ namespace Friendshub.Infrastructure.Implementations
                     ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
                     PostedAt = p.PostedAt,
                     
-                    Likes = _context.Likes.Include("User").Where(like => like.PostId == p.Id).Select((l => new UserBasicInfo
+                    Likes = _context.PostLikes.Include("User").Where(like => like.PostId == p.Id).Select((l => new UserBasicInfo
                     {
                         UserId = l.UserId,
                         ProfileImageUrl = l.User.ProfileImageUrl == null ? null : l.User.ProfileImageUrl.ToFullImageUrl(),
                         Username = l.User.Username,
                     })).ToList(),
-                    LikeCount = _context.Likes.AsNoTracking().Where(x => x.PostId == p.Id).Count(),
+                    LikeCount = _context.PostLikes.AsNoTracking().Where(x => x.PostId == p.Id).Count(),
                     Comments = _context.Comments.AsNoTracking().Where(x => x.PostId == p.Id).Select(c => new CommentClientDto
                     {
                         UserId = c.UserId,
@@ -209,7 +209,7 @@ namespace Friendshub.Infrastructure.Implementations
             string message = string.Empty;
             var post = await _context.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == postId);
 
-            var like = await _context.Likes.FirstOrDefaultAsync(x => x.UserId == userId && postId == x.PostId);
+            var like = await _context.PostLikes.FirstOrDefaultAsync(x => x.UserId == userId && postId == x.PostId);
             if (like == null)
             {
                 var newlike = new PostLike()
@@ -219,14 +219,14 @@ namespace Friendshub.Infrastructure.Implementations
                     LikedAt = DateTime.UtcNow
                 };
                 await _notificationRepository.CreateNotification(userId, post.UserId, NotificationType.Like, postId);
-                _context.Likes.Add(newlike);
+                _context.PostLikes.Add(newlike);
 
                 message = "Post liked.";
             }
             else
             {
             message = "Post disliked.";
-                _context.Likes.Remove(like);
+                _context.PostLikes.Remove(like);
             }
             return message;
         }
@@ -240,7 +240,7 @@ namespace Friendshub.Infrastructure.Implementations
             return true;
         }
 
-        public async Task<(List<PostClientDto>, int)> GetPostsByUserIdAsync(Guid userId, int pageNumber, int pageSize)
+        public async Task<List<PostClientDto>> GetPostsByUserIdAsync(Guid userId, int pageNumber, int pageSize)
         {
             var query = _context.Posts
                 .Include(p => p.PostsImages)
@@ -289,8 +289,11 @@ namespace Friendshub.Infrastructure.Implementations
                     }).OrderByDescending(x => x.CommentedAt).ToList()
                 }).ToListAsync();
 
-            return (posts, totalCount);
+            return posts;
         }
-
+        public async Task<List<PostLike>> GetPostLikes(Guid PostId)
+        {
+            return await _context.PostLikes.AsNoTracking().Where(x => x.PostId == PostId).ToListAsync();
+        }
     }
 }

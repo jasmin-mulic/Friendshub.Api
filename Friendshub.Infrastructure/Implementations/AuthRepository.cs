@@ -1,6 +1,6 @@
-﻿ using Friendshub.Application.DTO;
+﻿using Friendshub.Application.DTO;
 using Friendshub.Application.DTO.Auth;
-using Friendshub.Application.Repositories;
+using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Application.Results;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;

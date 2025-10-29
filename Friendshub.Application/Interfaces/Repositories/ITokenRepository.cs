@@ -1,5 +1,5 @@
 ﻿using Friendshub.Domain.Models;
-namespace Friendshub.Application.Repositories
+namespace Friendshub.Application.Interfaces.Repositories
 {
     public interface ITokenRepository
     {

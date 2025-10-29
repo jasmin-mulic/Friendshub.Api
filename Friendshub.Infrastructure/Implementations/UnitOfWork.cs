@@ -1,4 +1,5 @@
 ﻿using Friendshub.Application.Interfaces;
+using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Application.Repositories;
 using Friendshub.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
@@ -25,6 +26,7 @@ namespace Friendshub.Infrastructure.Implementations
             PostRepository = new PostRepository(_context, webHostEnvironment,NotificationRepository);
             UserRoleRepository = new UserRoleRepository(_context);
             FollowRepository = new FollowRepository(_context);
+            PostLikeRepository = new PostLikeRepository(_context);
             
         }
         public IAuthRepository AuthRepository { get; }
@@ -34,6 +36,7 @@ namespace Friendshub.Infrastructure.Implementations
         public INotificationRepository NotificationRepository { get; }
         public IUserRoleRepository UserRoleRepository { get; }
         public IFollowRepository FollowRepository { get; }
+       public IPostLikeRepository PostLikeRepository { get; }
              
 
         public async Task<bool> ApplyChangesAsync()

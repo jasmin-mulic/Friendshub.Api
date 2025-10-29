@@ -1,4 +1,5 @@
 ﻿using Friendshub.Application.Interfaces;
+using Friendshub.Application.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace Friendshub.Application.Repositories
          IUserRoleRepository UserRoleRepository { get;}
          INotificationRepository NotificationRepository { get;}
          IFollowRepository FollowRepository { get;}
+        IPostLikeRepository PostLikeRepository { get;}
          Task<bool> ApplyChangesAsync();
     }
 }

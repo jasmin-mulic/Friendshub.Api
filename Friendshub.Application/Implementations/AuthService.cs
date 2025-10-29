@@ -4,7 +4,7 @@ using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Application.Results;
 using Friendshub.Domain.Models;
-namespace Friendshub.Application.Interfaces.Implementations
+namespace Friendshub.Application.Implementations
 {
     internal class AuthService : IAuthService
     {
@@ -102,8 +102,8 @@ namespace Friendshub.Application.Interfaces.Implementations
             if (user.ProfileImageUrl != null)
             {
                 var directoryPath = Path.Combine("wwwroot", user.ProfileImageUrl);
-                if (System.IO.File.Exists(directoryPath))
-                    System.IO.File.Delete(directoryPath);
+                if (File.Exists(directoryPath))
+                    File.Delete(directoryPath);
             }
 
             var follows = await _unitOfWork.FollowRepository.GetUserFollowingList(userId);

@@ -1,8 +1,7 @@
-﻿
-using Friendshub.Application.DTO.UserDto;
+﻿using Friendshub.Application.DTO.UserDto;
 using Friendshub.Domain.Models;
 using Microsoft.AspNetCore.Http;
-namespace Friendshub.Application.Repositories
+namespace Friendshub.Application.Interfaces.Repositories
 {
     public interface IUserRepository
     {
