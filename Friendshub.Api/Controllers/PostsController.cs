@@ -1,6 +1,7 @@
 ﻿using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.DTO.PostDto;
+using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +14,10 @@ namespace Friendshub.Api.Controllers
     [ApiController]
     public class PostsController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public PostsController(IUnitOfWork unitOfWork)
+        private readonly IPostService _postService;
+        public PostsController(IPostService postService)
         {
-            _unitOfWork = unitOfWork;
+            _postService = postService;
         }
         [HttpGet("my-posts/page/{page}")]
         public async Task<IActionResult> GetmyPosts([FromRoute] int page)
@@ -26,7 +27,7 @@ namespace Friendshub.Api.Controllers
                 var userIdFromClaims = User.GetUserId();
                 if (Guid.Empty == userIdFromClaims)
                     return Unauthorized("You are logged out.");
-                var posts = await _unitOfWork.PostRepository.GetMyPosts(userIdFromClaims, page);
+                var posts = await _postService.GetMyPosts(userIdFromClaims, page);
                 return Ok(posts);
             }
             catch (Exception exc)
@@ -64,8 +65,7 @@ namespace Friendshub.Api.Controllers
                 }
 
 
-                var newPost = await _unitOfWork.PostRepository.AddPost(request, user);
-                await _unitOfWork.ApplyChangesAsync();
+                var newPost = await _postService.AddPost(request, user);
                 return Ok(newPost);
 
             }
@@ -83,7 +83,7 @@ namespace Friendshub.Api.Controllers
                 if (Guid.Empty == userIdFromClaims)
                     return Unauthorized("You are logged out.");
 
-                var feed = await _unitOfWork.PostRepository.GetFeedPosts(userIdFromClaims, page);
+                var feed = await _postService.GetFeedPosts(userIdFromClaims, page);
                  
                 return Ok(feed);
                 
@@ -102,11 +102,10 @@ namespace Friendshub.Api.Controllers
                 if (User.GetUserId() == Guid.Empty)
                     return Unauthorized("You are logged out.");
 
-               var isDeleted = await  _unitOfWork.PostRepository.DeletePost(postId);
+               var isDeleted = await  _postService.DeletePost(postId);
                 if (!isDeleted)
                     return BadRequest("Error deleting post");
 
-                await _unitOfWork.ApplyChangesAsync();
                 return Ok(new { message = "Post deleted successfully." });
             }
             catch (Exception exc)
@@ -124,14 +123,11 @@ namespace Friendshub.Api.Controllers
                  if (userId == Guid.Empty)
                 return Unauthorized("Session expired. Please log in.");
 
-                var post = await _unitOfWork.PostRepository.GetPostById(postId);
+                var post = await _postService.GetPostByIdAsync(postId);
                 if (post == null)
                     return BadRequest("Post is deleted.");
 
-                var likeResponse = await _unitOfWork.PostRepository.LikePost(userId, postId);
-
-
-                await _unitOfWork.ApplyChangesAsync();
+                var likeResponse = await _postService.LikePost(userId, postId);
                 return Ok(likeResponse);
             }
             catch (Exception exc)
@@ -149,15 +145,14 @@ namespace Friendshub.Api.Controllers
                 if (userIdFromClaIms == Guid.Empty)
                     return Unauthorized();
 
-                var post = await _unitOfWork.PostRepository.GetPostById(postId);
+                var post = await _postService.GetPostByIdAsync(postId);
 
                 if(post == null)
                     return NotFound("Post is deleted");
 
-                var newComment = await _unitOfWork.PostRepository.CommentPost(userIdFromClaIms, post, comment);
+                var newComment = await _postService.CommentPost(userIdFromClaIms, post, comment);
                 if (newComment == null)
                     return BadRequest("Error adding post.");
-                await _unitOfWork.ApplyChangesAsync();
                 return Ok(newComment);  
                 
             }

@@ -11,7 +11,7 @@ namespace Friendshub.Application.Interfaces.Services
         Task<PageResult<PostClientDto>> GetMyPosts(Guid userId, int page);
         Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int page);
         Task<bool> DeletePost(Guid postId);
-        Task<Post> GetPostById(Guid postId);
+        Task<Post> GetPostByIdAsync(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);
         Task<CommentClientDto> CommentPost(Guid userId, Post post, AddCommentDto comment);
     }

@@ -119,7 +119,7 @@ namespace Friendshub.Application.Implementations
             return PageResult;
         }
 
-        public async Task<Post> GetPostById(Guid postId)
+        public async Task<Post> GetPostByIdAsync(Guid postId)
         {
            return await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
         }
