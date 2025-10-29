@@ -89,9 +89,15 @@ namespace Friendshub.Application.Implementations
             return true;
         }
 
-        public Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int page)
+        public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int pageNumber)
         {
-            throw new NotImplementedException();
+            int pageSize = 10;
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 10) pageSize = 10;
+            if (pageSize > 10) pageSize = 10;
+            var usersFollowed = await _unitOfWork.FollowRepository.GetUserFollowingList(userId);
+            var feedPosts = await _unitOfWork.PostRepository.GetFeedPosts(userId,)
+
         }
 
         public async Task<PageResult<PostClientDto>> GetMyPosts(Guid userId, int pageNumber)

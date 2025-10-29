@@ -14,12 +14,10 @@ namespace Friendshub.Api.Controllers
     {
         private readonly IAuthService _authService;
         private readonly ITokenService _tokenService;
-        private readonly IUnitOfWork _unitOfWork;
         public AuthController(IAuthService authServuce, ITokenService tokenService, IUnitOfWork unitOfWork )
         {
             _authService = authServuce;
             _tokenService = tokenService;
-            _unitOfWork = unitOfWork;
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login( [FromBody] LoginUserDto request, [FromServices] IValidator<LoginUserDto> validator)
@@ -31,15 +29,12 @@ namespace Friendshub.Api.Controllers
                 if (!validationResult.IsValid)
                     return BadRequest(new { Errors = validationResult.Errors });
 
-                // 2️⃣ Pokušaj prijave
                 var response = await _authService.LoginAsync(request);
                 if (!response.Success)
                     return Unauthorized("Wrong credentials");
 
-                // 3️⃣ Uvijek kreiraj novi refresh token (nova sesija)
                 var refreshToken = await _tokenService.AddRefreshToken(response.User.Id);
 
-                // 4️⃣ Postavi cookie (HttpOnly + Secure)
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
@@ -49,10 +44,6 @@ namespace Friendshub.Api.Controllers
                 };
                 Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
 
-                // 5️⃣ Sačuvaj promjene
-                await _unitOfWork.ApplyChangesAsync();
-
-                // 6️⃣ Vrati Access token klijentu
                 return Ok(response.AccessToken);
             }
             catch (Exception ex)
@@ -81,12 +72,10 @@ namespace Friendshub.Api.Controllers
                     }
                         return BadRequest(registerResult);
                 }
-                    
-                var result = await _unitOfWork.AuthRepository.RegisterAsync(registerUser);
+                   var result =  await _authService.RegisterAsync(registerUser);
                 if (result.Success)
                 {
-                    var refreshToken = _unitOfWork.TokenRepository.AddRefreshToken(result.UserId);
-                    await _unitOfWork.ApplyChangesAsync();
+                    var refreshToken = _tokenService.AddRefreshToken(result.UserId);
                     return Ok("You registered successfully");
                 }
                 else
@@ -110,9 +99,7 @@ namespace Friendshub.Api.Controllers
                     Path = "/"
                 });
                 var userIdFromClaims = User.GetUserId();
-                _unitOfWork.TokenRepository.DeleteRefreshToken(userIdFromClaims);
-                await _unitOfWork.ApplyChangesAsync();
-
+                await _tokenService.DeleteRefreshTokenByUserId(userIdFromClaims);
                 return Ok(new { message = "Logged out successfully." });
             }
             catch (Exception)
@@ -130,7 +117,7 @@ namespace Friendshub.Api.Controllers
             if(!Request.Cookies.TryGetValue("refreshToken", out var refreshTokenValue))
                 return Unauthorized("No refresh token found in cookies");
 
-            var refreshToken = await _unitOfWork.TokenRepository.GetRefreshTokenByValue(refreshTokenValue);
+            var refreshToken = await _tokenService.GetRefreshTokenByValue(refreshTokenValue);
             if (refreshToken == null)
                 return Unauthorized("Invalid refresh token");
 

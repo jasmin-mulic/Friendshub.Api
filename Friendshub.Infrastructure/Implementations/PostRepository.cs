@@ -3,6 +3,7 @@ using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.DTO.PostDto;
 using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Extensions;
+using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
@@ -29,7 +30,7 @@ namespace Friendshub.Infrastructure.Implementations
         }
 
 
-        public async Task<CommentClientDto> CommentPost(Guid userId, Post post, AddCommentDto comment)
+        public async Task<CommentClientDto> AddCommentToPost(Guid userId, Post post, AddCommentDto comment)
         {
             if (string.IsNullOrWhiteSpace(comment.Content) && (comment.Image == null || comment.Image.Length == 0))
                 throw new ApplicationException("You have to add comment or a picture.");
@@ -100,7 +101,7 @@ namespace Friendshub.Infrastructure.Implementations
             }
             _context.Posts.Remove(post);
         }
-        public async Task<Comment> GetCommentById(Guid commentId)
+        public async Task<Comment> GetPostCommentById(Guid commentId)
         {
             return await _context.Comments.AsNoTracking().FirstOrDefaultAsync(c =>  c.Id == commentId);
         }
@@ -294,6 +295,68 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<List<PostLike>> GetPostLikes(Guid PostId)
         {
             return await _context.PostLikes.AsNoTracking().Where(x => x.PostId == PostId).ToListAsync();
+        }
+
+        public Task<List<Post>> GetPostsByUserId(Guid userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<PostClientDto>> GetPostsByUserIdsync(Guid userId, int pageNumber, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<PostClientDto>> GetFeedPosts(Guid userId, int pageNumber, int pageSize)
+        {
+            var query = _context.Posts
+             .Include(p => p.PostsImages)
+             .Include(p => p.User)
+             .Include(p => p.Comments).ThenInclude(c => c.CommentLikes)
+             .Where(p => p.UserId == userId)
+             .AsNoTracking();
+
+            var totalCount = await query.CountAsync();
+
+            var posts = await query
+                .OrderByDescending(x => x.PostedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new PostClientDto
+                {
+                    UserId = p.UserId,
+                    Content = p.Content,
+                    Username = p.User.Username,
+                    PostId = p.Id,
+                    PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
+                    ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
+                    PostedAt = p.PostedAt,
+                    Likes = p.Likes.Select(l => new UserBasicInfo
+                    {
+                        UserId = l.UserId,
+                        ProfileImageUrl = l.User.ProfileImageUrl.ToFullImageUrl(),
+                        Username = l.User.Username,
+                    }).ToList(),
+                    LikeCount = p.Likes.Count(),
+                    Comments = p.Comments.Select(c => new CommentClientDto
+                    {
+                        UserId = c.UserId,
+                        CommentedAt = c.CommentedAt,
+                        CommentId = c.Id,
+                        Content = c.Content,
+                        UserProfileImageUrl = c.User.ProfileImageUrl.ToFullImageUrl(),
+                        CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
+                        Username = c.User.Username,
+                        CommentLikes = c.CommentLikes.Select(like => new UserBasicInfo
+                        {
+                            ProfileImageUrl = like.User.ProfileImageUrl.ToFullImageUrl(),
+                            Username = like.User.Username,
+                            UserId = like.UserId,
+                        }).ToList(),
+                    }).OrderByDescending(x => x.CommentedAt).ToList()
+                }).ToListAsync();
+
+            return posts;
         }
     }
 }
