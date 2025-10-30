@@ -1,7 +1,7 @@
 ﻿using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Results;
 
-namespace Friendshub.Application.Repositories
+namespace Friendshub.Application.Interfaces.Repositories
 {
     public interface IAuthRepository
     {

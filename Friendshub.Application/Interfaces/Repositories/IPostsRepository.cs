@@ -8,7 +8,7 @@ namespace Friendshub.Application.Interfaces.Repositories
     {
         Task AddPostAsync(Post post);
         Task<List<Post>>GetPostsByUserId(Guid userId);
-        Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int page);
+        Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId,List<Guid> follows, int page);
         void DeletePost(Post post);
         Task<Post> GetPostByIdAsync(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);

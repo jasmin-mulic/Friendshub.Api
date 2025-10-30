@@ -9,10 +9,11 @@ namespace Friendshub.Application.Interfaces.Services
     {
         Task<PostClientDto> AddPost(AddPostDto request, User user);
         Task<PageResult<PostClientDto>> GetMyPosts(Guid userId, int page);
-        Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int page);
+        Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId,List<Follow> follows, int page);
         Task<bool> DeletePost(Guid postId);
         Task<Post> GetPostByIdAsync(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);
         Task<CommentClientDto> CommentPost(Guid userId, Post post, AddCommentDto comment);
+        Task<Comment> GetCommentByIdAsync(Guid postId);
     }
 }

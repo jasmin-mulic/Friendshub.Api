@@ -1,4 +1,4 @@
-﻿using Friendshub.Application.Interfaces;
+﻿using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using System;

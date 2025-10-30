@@ -12,6 +12,14 @@ namespace Friendshub.Infrastructure.Implementations
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private bool _disposed = false;
+        public IAuthRepository AuthRepository { get; }
+        public ITokenRepository TokenRepository { get; }
+        public IUserRepository UserRepository { get; }
+        public IPostRepository PostRepository { get; }
+        public INotificationRepository NotificationRepository { get; }
+        public IUserRoleRepository UserRoleRepository { get; }
+        public IFollowRepository FollowRepository { get; }
+        public IPostLikeRepository PostLikeRepository { get; }
         public UnitOfWork(FriendshubDbContext context,
                          IConfiguration configuration, 
                          IWebHostEnvironment webHostEnvironment)
@@ -29,14 +37,6 @@ namespace Friendshub.Infrastructure.Implementations
             PostLikeRepository = new PostLikeRepository(_context);
             
         }
-        public IAuthRepository AuthRepository { get; }
-        public ITokenRepository TokenRepository { get; }
-        public IUserRepository UserRepository { get; }
-        public IPostRepository PostRepository { get; }
-        public INotificationRepository NotificationRepository { get; }
-        public IUserRoleRepository UserRoleRepository { get; }
-        public IFollowRepository FollowRepository { get; }
-       public IPostLikeRepository PostLikeRepository { get; }
              
 
         public async Task<bool> ApplyChangesAsync()

@@ -106,15 +106,13 @@ namespace Friendshub.Infrastructure.Implementations
             return await _context.Comments.AsNoTracking().FirstOrDefaultAsync(c =>  c.Id == commentId);
         }
 
-        public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int pageNumber = 1)
+        public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId,List<Guid> followingUsersIds, int pageNumber = 1)
         {
             int pageSize = 10;
             if (pageNumber < 1) pageNumber = 1;
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
 
-            var followingUsersIds = await _context.Follows.AsNoTracking().Where(x => x.FollowerId == userId)
-                                   .Select(x => x.FolloweeId).ToListAsync();
 
             var querry = _context.Posts.Include(p => p.PostsImages).Include(p => p.User).
                         Include(p => p.Comments).ThenInclude(c => c.CommentLikes).AsNoTracking().Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId));
@@ -313,7 +311,7 @@ namespace Friendshub.Infrastructure.Implementations
              .Include(p => p.PostsImages)
              .Include(p => p.User)
              .Include(p => p.Comments).ThenInclude(c => c.CommentLikes)
-             .Where(p => p.UserId == userId)
+             .Where(p => p.UserId == userId )
              .AsNoTracking();
 
             var totalCount = await query.CountAsync();

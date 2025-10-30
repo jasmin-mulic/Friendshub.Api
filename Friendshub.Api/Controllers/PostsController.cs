@@ -169,7 +169,7 @@ namespace Friendshub.Api.Controllers
                 var userIdFromClaims = User.GetUserId();
                 if(userIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out.");
-                var comment = await _unitOfWork.PostRepository.GetCommentById(commentId);
+                var comment = await _postService.GetCommentByIdAsync(commentId);
                 if (comment == null)
                     return NotFound("Comment is deleted.");
                 var likeResponse = await _unitOfWork.PostRepository.LikePostComment(commentId, userIdFromClaims);

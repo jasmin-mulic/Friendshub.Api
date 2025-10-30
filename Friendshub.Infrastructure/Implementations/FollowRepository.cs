@@ -12,9 +12,9 @@ namespace Friendshub.Infrastructure.Implementations
         {
             _context = context;
         }
-        public async Task<List<Follow>> GetUserFollowingList(Guid userId)
+        public async Task<List<Guid>> GetUserFollowingList(Guid userId)
         {
-            return await _context.Follows.Where(x => x.FollowerId == userId).ToListAsync();
+            return await _context.Follows.AsNoTracking().Where(x => x.FollowerId == userId).Select(x => x.FollowerId).ToListAsync();
         }
 
         public void RemoveFollows(List<Follow> follows)

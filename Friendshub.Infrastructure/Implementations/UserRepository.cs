@@ -1,7 +1,7 @@
 ﻿using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Extensions;
-using Friendshub.Application.Repositories;
+using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
@@ -22,37 +22,6 @@ namespace Friendshub.Infrastructure.Implementations
         }
 
         #region Profile Picture
-        public async Task<string> ChangeProfilePicture(Guid userId, IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                throw new ArgumentNullException("Invalid file.");
-
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null)
-                throw new ApplicationException("User not found.");
-
-            var uploadDir = Path.Combine(_env.WebRootPath, "uploads/profileImages");
-            Directory.CreateDirectory(uploadDir);
-
-            if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
-            {
-                var oldPath = Path.Combine(_env.WebRootPath, user.ProfileImageUrl);
-                if (File.Exists(oldPath))
-                    File.Delete(oldPath);
-            }
-
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var relativePath = Path.Combine("uploads/profileImages", fileName).Replace("\\", "/");
-            var fullPath = Path.Combine(_env.WebRootPath, relativePath);
-
-            using (var stream = new FileStream(fullPath, FileMode.Create))
-                await file.CopyToAsync(stream);
-
-            user.ProfileImageUrl = relativePath;
-            _context.Users.Update(user);
-
-            return relativePath.ToFullImageUrl();
-        }
         #endregion
         #region Follow System
         public async Task<string> FollowUser(Guid followerId, Guid followeeId)
