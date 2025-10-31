@@ -5,7 +5,7 @@ namespace Friendshub.Application.Interfaces.Repositories
     {
         Task<List<Follow>> GetUserFollowingList(Guid userId);
         void RemoveFollows(List<Guid> follows);
-
+        Task<List<Guid>> GetFollowingUsersIds(Guid followerId);
 
     }
 }

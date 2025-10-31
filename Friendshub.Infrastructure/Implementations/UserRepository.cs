@@ -20,9 +20,6 @@ namespace Friendshub.Infrastructure.Implementations
             _context = context;
             _env = env;
         }
-
-        #region Profile Picture
-        #endregion
         #region Follow System
         public async Task<string> FollowUser(Guid followerId, Guid followeeId)
         {

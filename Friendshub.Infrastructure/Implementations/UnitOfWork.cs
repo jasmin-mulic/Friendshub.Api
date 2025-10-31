@@ -15,6 +15,7 @@ namespace Friendshub.Infrastructure.Implementations
         public IAuthRepository AuthRepository { get; }
         public ITokenRepository TokenRepository { get; }
         public IUserRepository UserRepository { get; }
+        public ICommentRepository CommentRepository { get; }
         public IPostRepository PostRepository { get; }
         public INotificationRepository NotificationRepository { get; }
         public IUserRoleRepository UserRoleRepository { get; }
@@ -35,6 +36,7 @@ namespace Friendshub.Infrastructure.Implementations
             UserRoleRepository = new UserRoleRepository(_context);
             FollowRepository = new FollowRepository(_context);
             PostLikeRepository = new PostLikeRepository(_context);
+            CommentRepository = new CommentRepository(_context)
             
         }
              

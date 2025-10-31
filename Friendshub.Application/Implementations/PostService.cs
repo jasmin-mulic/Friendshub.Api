@@ -16,8 +16,12 @@ namespace Friendshub.Application.Implementations
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<PostClientDto> AddPost(AddPostDto request, User user)
+        public async Task<PostClientDto> AddPost(AddPostDto request, Guid userId)
         {
+            var user = await _unitOfWork.UserRepository.GetUserById(userId);
+            if (user == null)
+                throw new NullReferenceException("Your account is either banned or deleted.");
+
             if (string.IsNullOrWhiteSpace(request.Content) && (request.ImagePaths == null || request.ImagePaths.Count == 0))
                 return null;
 
@@ -34,6 +38,8 @@ namespace Friendshub.Application.Implementations
                 {
                     if (file.Length > 0)
                     {
+                        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
                         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
 
                         var uploadsFolder = Path.Combine("wwwrooot", "uploads/posts/images");
@@ -75,11 +81,6 @@ namespace Friendshub.Application.Implementations
             return postDto;
         }
 
-        public Task<CommentClientDto> CommentPost(Guid userId, Post post, AddCommentDto comment)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<bool> DeletePost(Guid postId)
         {
             var post = await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
@@ -95,8 +96,17 @@ namespace Friendshub.Application.Implementations
             if (pageNumber < 1) pageNumber = 1;
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
-            var usersFollowed = await _unitOfWork.FollowRepository.GetUserFollowingList(userId);
-            var feedPosts = await _unitOfWork.PostRepository.GetFeedPosts(userId,)
+            var followingsIds = await _unitOfWork.FollowRepository.GetFollowingUsersIds(userId);
+            var feedPosts = await _unitOfWork.PostRepository.GetFeedPosts(userId, followingsIds, pageSize);
+
+            var PageResult = new PageResult<PostClientDto>
+            {
+                Items = feedPosts,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = feedPosts.TotalCount,
+            };
+            return PageResult;
 
         }
 

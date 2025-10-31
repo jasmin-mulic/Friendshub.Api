@@ -7,9 +7,9 @@ namespace Friendshub.Application.Interfaces.Services
 {
     public interface IPostService
     {
-        Task<PostClientDto> AddPost(AddPostDto request, User user);
+        Task<PostClientDto> AddPost(AddPostDto request, Guid userId);
         Task<PageResult<PostClientDto>> GetMyPosts(Guid userId, int page);
-        Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId,List<Follow> follows, int page);
+        Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId, int page);
         Task<bool> DeletePost(Guid postId);
         Task<Post> GetPostByIdAsync(Guid postId);
         Task<string> LikePost(Guid UserId, Guid PostId);

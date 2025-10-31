@@ -46,26 +46,7 @@ namespace Friendshub.Api.Controllers
 
                 if (string.IsNullOrWhiteSpace(request.Content) && (request.ImagePaths == null || request.ImagePaths.Any()))
                     return BadRequest(new { message = "You have to add at least one image or post content." });
-
-                var user = await _unitOfWork.UserRepository.GetUserById(UserIdFromClaims);
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-
-                if(request.ImagePaths.Count > 0)
-                {
-                foreach (var image in request.ImagePaths)
-                {
-                    var extension = Path.GetExtension(image.FileName.ToLowerInvariant());
-                    if (!allowedExtensions.Contains(extension))
-                        return BadRequest("Image format not supported!");
-
-                        long maxSize = 5 * 1024 * 1024;
-                    if (image.Length > maxSize)
-                        return BadRequest(new { Message = "Image exceedes 5 MB!." });
-                }
-                }
-
-
-                var newPost = await _postService.AddPost(request, user);
+                var newPost = await _postService.AddPost(request, UserIdFromClaims);
                 return Ok(newPost);
 
             }

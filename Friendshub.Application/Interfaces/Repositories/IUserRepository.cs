@@ -7,7 +7,6 @@ namespace Friendshub.Application.Interfaces.Repositories
     {
         Task<MyProfileData> GetMyProfileData(User user);
         Task<User> GetUserById(Guid id);
-        Task<string> ChangeProfilePicture(Guid userId, IFormFile file);
         Task <List<FollowRecommendationDto>> GetFollowRecommendationList(Guid id);
         Task<string> FollowUser(Guid folower, Guid Folowee);
         Task<List<UserBasicInfo>> GetFollowers(Guid userId);

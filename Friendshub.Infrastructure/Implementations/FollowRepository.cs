@@ -12,14 +12,26 @@ namespace Friendshub.Infrastructure.Implementations
         {
             _context = context;
         }
-        public async Task<List<Guid>> GetUserFollowingList(Guid userId)
+
+        public async Task<List<Guid>> GetFollowingUsersIds(Guid followerId)
         {
-            return await _context.Follows.AsNoTracking().Where(x => x.FollowerId == userId).Select(x => x.FollowerId).ToListAsync();
+            return await _context.Follows.AsNoTracking().Where(x => x.FollowerId == followerId).Select(x => x.FolloweeId).ToListAsync();
+        }
+        
+
+        public async Task<List<Follow>> GetUserFollowingList(Guid userId)
+        {
+            return await _context.Follows.AsNoTracking().Where(x => x.FollowerId == userId).ToListAsync();
         }
 
         public void RemoveFollows(List<Follow> follows)
         {
             _context.Follows.RemoveRange(follows);
+        }
+
+        public void RemoveFollows(List<Guid> follows)
+        {
+            throw new NotImplementedException();
         }
     }
 }
