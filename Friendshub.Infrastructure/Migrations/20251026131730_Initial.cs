@@ -258,7 +258,7 @@ namespace Friendshub.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CommentsLikes",
+                name: "CommentLikes",
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -302,7 +302,7 @@ namespace Friendshub.Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_CommentsLikes_CommentId",
-                table: "CommentsLikes",
+                table: "CommentLikes",
                 column: "CommentId");
 
             migrationBuilder.CreateIndex(
@@ -355,7 +355,7 @@ namespace Friendshub.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CommentsLikes");
+                name: "CommentLikes");
 
             migrationBuilder.DropTable(
                 name: "FollowRequests");

@@ -16,16 +16,18 @@ namespace Friendshub.Application.Implementations
         public async Task<LikeCommentResponseDto> LikePostComment(Guid commentId, Guid userId)
         {
             var response = new LikeCommentResponseDto();
-            var existingLike = await _context.CommentsLikes.FirstOrDefaultAsync((x => x.UserId == userId && x.CommentId == commentId));
+            var existingLike = await _unitOfWork.CommentLikeRepository.GetUserLikeAsync(userId,commentId);
             if (existingLike != null)
             {
                 response.CommentId = commentId;
                 response.Message = "disliked";
                 response.User.UserId = userId;
-                _context.CommentsLikes.Remove(existingLike);
+                _unitOfWork.CommentLikeRepository.RemoveCommentLike(existingLike);
+                await _unitOfWork.ApplyChangesAsync();
                 return response;
             }
-            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await _unitOfWork.UserRepository.GetByIdAsNoTracking(userId);
+
             response.Message = "liked";
             response.CommentId = commentId;
             response.User.ProfileImageUrl = user.ProfileImageUrl;
@@ -38,8 +40,34 @@ namespace Friendshub.Application.Implementations
                 UserId = userId, 
                 CommentId = commentId,
             };
-            await _context.CommentsLikes.AddAsync(newLike);
+            await _unitOfWork.CommentLikeRepository.AddCommentLike(newLike);
+            await _unitOfWork.ApplyChangesAsync();
             return response;  
+        }
+        public async Task<string> LikePost(Guid userId, Guid postId)
+        {
+            var post = await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
+            if (post != null)
+                throw new NullReferenceException("Post not found.");
+            var postLikes = await _unitOfWork.PostRepository.GetPostLikes(postId);
+            var myLike = postLikes.FirstOrDefault(x => x.UserId == userId);
+
+            if (myLike != null)
+            {
+                _unitOfWork.PostLikeRepository.RemoveLike(myLike);
+                return "Disliked";
+            }
+            var newLike = new PostLike
+            {
+                UserId = userId,
+                PostId = postId,
+                LikedAt = DateTime.Now,
+            };
+            await _unitOfWork.PostLikeRepository.AddLike(newLike);
+
+            await _unitOfWork.ApplyChangesAsync();
+
+            return "Liked";
         }
     }
 }

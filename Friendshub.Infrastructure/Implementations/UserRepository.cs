@@ -198,7 +198,7 @@ namespace Friendshub.Infrastructure.Implementations
                             CommentImageUrl = c.CommentImageUrl,
                             Content = c.Content,
                             Username = c.User.Username,
-                            CommentLikes = _context.CommentsLikes.Where(x => x.CommentId == c.Id)
+                            CommentLikes = _context.CommentLikes.Where(x => x.CommentId == c.Id)
                                           .Select(x => new UserBasicInfo {
                                               UserId = x.UserId,
                                               ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
@@ -294,6 +294,11 @@ namespace Friendshub.Infrastructure.Implementations
         {
             user.IsDeleted = true;
             user.IsActive = false;
+        }
+
+        public async Task<User> GetByIdAsNoTracking(Guid id)
+        {
+            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id); 
         }
     }
 }

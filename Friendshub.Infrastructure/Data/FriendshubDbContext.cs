@@ -23,7 +23,7 @@ namespace Friendshub.Infrastructure.Data
         public virtual DbSet<Follow> Follows { get; set; }
         public virtual DbSet<PostLike> PostLikes { get; set; }
         public virtual DbSet<Comment> Comments { get; set; }    
-        public virtual DbSet<CommentLike> CommentsLikes { get; set; }
+        public virtual DbSet<CommentLike> CommentLikes { get; set; }
         public virtual DbSet<FollowRequest> FollowRequests { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
 

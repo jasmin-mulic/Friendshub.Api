@@ -21,6 +21,7 @@ namespace Friendshub.Infrastructure.Implementations
         public IUserRoleRepository UserRoleRepository { get; }
         public IFollowRepository FollowRepository { get; }
         public IPostLikeRepository PostLikeRepository { get; }
+        public ICommentLikeRepository CommentLikeRepository { get; }
         public UnitOfWork(FriendshubDbContext context,
                          IConfiguration configuration, 
                          IWebHostEnvironment webHostEnvironment)
@@ -36,11 +37,10 @@ namespace Friendshub.Infrastructure.Implementations
             UserRoleRepository = new UserRoleRepository(_context);
             FollowRepository = new FollowRepository(_context);
             PostLikeRepository = new PostLikeRepository(_context);
-            CommentRepository = new CommentRepository(_context)
-            
+            CommentRepository = new CommentRepository(_context);
+            CommentLikeRepository = new CommentLikeRepository(_context);
         }
-             
-
+           
         public async Task<bool> ApplyChangesAsync()
         {
             try

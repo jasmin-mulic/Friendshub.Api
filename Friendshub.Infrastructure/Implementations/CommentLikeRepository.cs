@@ -17,9 +17,20 @@ namespace Friendshub.Infrastructure.Implementations
         {
                 _context = context;
         }
+
+        public async Task AddCommentLike(CommentLike commentLike)
+        {
+            await _context.CommentLikes.AddAsync(commentLike);
+        }
+
         public async Task<CommentLike> GetUserLikeAsync(Guid userId, Guid commentId)
         {
-            return await _context.CommentsLikes.FirstOrDefaultAsync(x => x.UserId == userId && x.CommentId == commentId);
+            return await _context.CommentLikes.FirstOrDefaultAsync(x => x.UserId == userId && x.CommentId == commentId);
+        }
+
+        public void RemoveCommentLike(CommentLike comment)
+        {
+            _context.CommentLikes.Remove(comment);
         }
     }
 }

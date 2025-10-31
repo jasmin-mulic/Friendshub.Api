@@ -18,7 +18,8 @@ namespace Friendshub.Application.Repositories
          INotificationRepository NotificationRepository { get;}
          IFollowRepository FollowRepository { get;}
          IPostLikeRepository PostLikeRepository { get;}
-          ICommentRepository CommentRepository { get;}
+         ICommentRepository CommentRepository { get;}
+        ICommentLikeRepository CommentLikeRepository { get;}
          Task<bool> ApplyChangesAsync();
     }
 }

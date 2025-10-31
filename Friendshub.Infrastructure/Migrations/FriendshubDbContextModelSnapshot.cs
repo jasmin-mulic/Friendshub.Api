@@ -67,7 +67,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("CommentId");
 
-                    b.ToTable("CommentsLikes");
+                    b.ToTable("CommentLikes");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.FollowRequest", b =>

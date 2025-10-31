@@ -97,16 +97,9 @@ namespace Friendshub.Application.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
             var followingsIds = await _unitOfWork.FollowRepository.GetFollowingUsersIds(userId);
-            var feedPosts = await _unitOfWork.PostRepository.GetFeedPosts(userId, followingsIds, pageSize);
+            var feedPostsPage = await _unitOfWork.PostRepository.GetFeedPostsPage(userId, followingsIds, pageSize);
 
-            var PageResult = new PageResult<PostClientDto>
-            {
-                Items = feedPosts,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalCount = feedPosts.TotalCount,
-            };
-            return PageResult;
+            return feedPostsPage;
 
         }
 
@@ -117,16 +110,9 @@ namespace Friendshub.Application.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
 
-            var posts = await _unitOfWork.PostRepository.GetPostsByUserIdsync(userId, pageNumber, pageSize);
+            var pageResult = await _unitOfWork.PostRepository.GetPostsByUserIdsync(userId, pageNumber, pageSize);
 
-            var PageResult = new PageResult<PostClientDto>
-            {
-                Items = posts,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalCount = posts.Count,
-            };
-            return PageResult;
+            return pageResult;
         }
 
         public async Task<Post> GetPostByIdAsync(Guid postId)

@@ -106,7 +106,7 @@ namespace Friendshub.Infrastructure.Implementations
             return await _context.Comments.AsNoTracking().FirstOrDefaultAsync(c =>  c.Id == commentId);
         }
 
-        public async Task<PageResult<PostClientDto>> GetFeedPosts(Guid userId,List<Guid> followingUsersIds, int pageNumber = 1)
+        public async Task<PageResult<PostClientDto>> GetFeedPostsPage(Guid userId,List<Guid> followingUsersIds, int pageNumber = 1)
         {
             int pageSize = 10;
             if (pageNumber < 1) pageNumber = 1;
@@ -178,13 +178,13 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<LikeCommentResponseDto> LikePostComment(Guid commentId, Guid userId)
         {
             var response = new LikeCommentResponseDto();
-            var existingLike = await _context.CommentsLikes.FirstOrDefaultAsync((x => x.UserId == userId && x.CommentId == commentId));
+            var existingLike = await _context.CommentLikes.FirstOrDefaultAsync((x => x.UserId == userId && x.CommentId == commentId));
             if(existingLike != null)
             {
                 response.CommentId = commentId;
                 response.Message = "disliked";
                 response.User.UserId = userId;
-                _context.CommentsLikes.Remove(existingLike);
+                _context.CommentLikes.Remove(existingLike);
                 return response;
             }
             var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
@@ -200,7 +200,7 @@ namespace Friendshub.Infrastructure.Implementations
                 UserId = userId,
                 CommentId = commentId,
             };
-            await _context.CommentsLikes.AddAsync(newLike);
+            await _context.CommentLikes.AddAsync(newLike);
             return response;
         }
         public async Task<string> LikePost(Guid userId, Guid postId)
@@ -230,16 +230,7 @@ namespace Friendshub.Infrastructure.Implementations
             return message;
         }
 
-        public async Task<bool> DeleteComment(Guid commentId, Guid userId)
-        {
-            var comment = await _context.Comments.FirstOrDefaultAsync(c => c.UserId == userId && c.Id == commentId);
-            if (comment == null)
-                return false;
-            _context.Comments.Remove(comment);
-            return true;
-        }
-
-        public async Task<List<PostClientDto>> GetPostsByUserIdAsync(Guid userId, int pageNumber, int pageSize)
+        public async Task<PageResult<PostClientDto>> GetPostsByUserIdAsync(Guid userId, int pageNumber, int pageSize)
         {
             var query = _context.Posts
                 .Include(p => p.PostsImages)
@@ -288,7 +279,14 @@ namespace Friendshub.Infrastructure.Implementations
                     }).OrderByDescending(x => x.CommentedAt).ToList()
                 }).ToListAsync();
 
-            return posts;
+            var PageResult = new PageResult<PostClientDto>
+            {
+                Items = posts,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+            return PageResult;
         }
         public async Task<List<PostLike>> GetPostLikes(Guid PostId)
         {

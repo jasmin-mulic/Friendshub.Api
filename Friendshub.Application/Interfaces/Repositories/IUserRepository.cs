@@ -19,5 +19,6 @@ namespace Friendshub.Application.Interfaces.Repositories
         Task<bool> IsEmailAddressTaken(string emailAddress);
         Task AddAsync(User user);
         void DeleteUser(User user);
+        Task<User> GetByIdAsNoTracking(Guid id);
     }
 }
