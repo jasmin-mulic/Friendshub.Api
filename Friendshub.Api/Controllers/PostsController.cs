@@ -1,6 +1,7 @@
 ﻿using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.DTO.PostDto;
+using Friendshub.Application.Implementations;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
@@ -14,10 +15,14 @@ namespace Friendshub.Api.Controllers
     [ApiController]
     public class PostsController : ControllerBase
     {
+        private readonly ILIkeService _likeService;
         private readonly IPostService _postService;
-        public PostsController(IPostService postService)
+        private readonly ICommentService _commentService;
+        public PostsController(IPostService postService, ILIkeService likeService, ICommentService commentService)
         {
             _postService = postService;
+            _likeService = likeService;
+            _commentService = commentService;
         }
         [HttpGet("my-posts/page/{page}")]
         public async Task<IActionResult> GetmyPosts([FromRoute] int page)
@@ -108,7 +113,7 @@ namespace Friendshub.Api.Controllers
                 if (post == null)
                     return BadRequest("Post is deleted.");
 
-                var likeResponse = await _postService.LikePost(userId, postId);
+                var likeResponse = await _likeService.LikePost(userId, postId);
                 return Ok(likeResponse);
             }
             catch (Exception exc)
@@ -123,6 +128,7 @@ namespace Friendshub.Api.Controllers
             try
             {
                 var userIdFromClaIms = User.GetUserId();
+
                 if (userIdFromClaIms == Guid.Empty)
                     return Unauthorized();
 
@@ -131,7 +137,7 @@ namespace Friendshub.Api.Controllers
                 if(post == null)
                     return NotFound("Post is deleted");
 
-                var newComment = await _postService.CommentPost(userIdFromClaIms, post, comment);
+                var newComment = await _commentService.AddCommentToPost(userIdFromClaIms, post, comment);
                 if (newComment == null)
                     return BadRequest("Error adding post.");
                 return Ok(newComment);  
@@ -150,11 +156,7 @@ namespace Friendshub.Api.Controllers
                 var userIdFromClaims = User.GetUserId();
                 if(userIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out.");
-                var comment = await _postService.GetCommentByIdAsync(commentId);
-                if (comment == null)
-                    return NotFound("Comment is deleted.");
-                var likeResponse = await _unitOfWork.PostRepository.LikePostComment(commentId, userIdFromClaims);
-                await _unitOfWork.ApplyChangesAsync();
+                var likeResponse = await _likeService.LikePostComment(commentId, userIdFromClaims);
                 return Ok(likeResponse);
             }
             catch (Exception exc)
@@ -170,10 +172,7 @@ namespace Friendshub.Api.Controllers
                 var userIdFromClaims = User.GetUserId();
                 if (userIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out");
-                var isDeleted = await _unitOfWork.PostRepository.DeleteComment(commentId, userIdFromClaims);
-                if (!isDeleted)
-                    return NotFound("Comment is already deleted.");
-                await _unitOfWork.ApplyChangesAsync();
+                await _commentService.RemoveComment(commentId);
                 return Ok();
             }
             catch (Exception exc)

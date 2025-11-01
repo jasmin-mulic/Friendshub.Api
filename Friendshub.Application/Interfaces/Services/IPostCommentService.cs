@@ -13,5 +13,6 @@ namespace Friendshub.Application.Interfaces.Services
     {
         Task<CommentClientDto> AddCommentPost(Guid userId, Post post, AddCommentDto comment);
 
+
     }
 }

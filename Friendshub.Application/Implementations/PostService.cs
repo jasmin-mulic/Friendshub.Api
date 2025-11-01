@@ -1,6 +1,5 @@
 ﻿using Friendshub.Application.DTO;
 using Friendshub.Application.DTO.DtoPost;
-using Friendshub.Application.DTO.PostDto;
 using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Extensions;
 using Friendshub.Application.Interfaces.Services;
@@ -118,32 +117,6 @@ namespace Friendshub.Application.Implementations
         public async Task<Post> GetPostByIdAsync(Guid postId)
         {
            return await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
-        }
-
-        public async Task<string> LikePost(Guid userId, Guid postId)
-        {
-            var post = await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
-            if (post != null)
-                throw new NullReferenceException("Post not found.");
-            var postLikes = await _unitOfWork.PostRepository.GetPostLikes(postId);
-            var myLike = postLikes.FirstOrDefault(x => x.UserId == userId);
-
-            if (myLike != null)
-            {
-                _unitOfWork.PostLikeRepository.RemoveLike(myLike);
-                return "Disliked";
-            }
-            var newLike = new PostLike
-            {
-                UserId = userId,
-                PostId = postId,
-                LikedAt = DateTime.Now,
-            };
-            await _unitOfWork.PostLikeRepository.AddLike(newLike);
-
-            await _unitOfWork.ApplyChangesAsync();
-
-            return "Liked";
         }
     }
 }

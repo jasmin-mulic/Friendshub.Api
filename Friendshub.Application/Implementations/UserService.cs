@@ -15,6 +15,7 @@ namespace Friendshub.Application.Implementations
         public async Task<User> GetByIdAsync(Guid id)
         {
             var user = await _unitOfWork.UserRepository.GetUserById(id);
+            return user;
         }
     }
 }

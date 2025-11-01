@@ -13,6 +13,11 @@ namespace Friendshub.Infrastructure.Implementations
             _context = context;
         }
 
+        public async Task<Follow> GetByIdAsync(Guid followerId, Guid foloweeId)
+        {
+            return await _context.Follows.FirstOrDefaultAsync(x => x.FollowerId == followerId && x.FolloweeId == foloweeId);
+        }
+
         public async Task<List<Guid>> GetFollowingUsersIds(Guid followerId)
         {
             return await _context.Follows.AsNoTracking().Where(x => x.FollowerId == followerId).Select(x => x.FolloweeId).ToListAsync();
@@ -24,12 +29,12 @@ namespace Friendshub.Infrastructure.Implementations
             return await _context.Follows.AsNoTracking().Where(x => x.FollowerId == userId).ToListAsync();
         }
 
-        public void RemoveFollows(List<Follow> follows)
+        public void DeleteFollow(Follow follow)
         {
-            _context.Follows.RemoveRange(follows);
+            _context.Follows.RemoveRange(follow);
         }
 
-        public void RemoveFollows(List<Guid> follows)
+        public Task<FollowRequest> GetPendingFollowRequest(Guid senderId, Guid recieverId )
         {
             throw new NotImplementedException();
         }

@@ -14,7 +14,6 @@ namespace Friendshub.Application.Interfaces.Repositories
         Task<string> LikePost(Guid UserId, Guid PostId);
         Task<PageResult<PostClientDto>> GetPostsByUserIdsync(Guid userId, int pageNumber, int pageSize);
         Task<List<PostLike>> GetPostLikes(Guid PostId);
-        Task<List<PostClientDto>> GetFeedPosts(Guid userId, int pageNumber, int pageSize);
         Task<CommentClientDto> AddCommentToPost(Guid userId, Post post, AddCommentDto comment);
 
     }
