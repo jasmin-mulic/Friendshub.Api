@@ -1,12 +1,8 @@
-﻿using Friendshub.Application.DTO.UserDto;
+﻿using Friendshub.Application.DTO;
+using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Friendshub.Application.Implementations
 {
@@ -26,50 +22,49 @@ namespace Friendshub.Application.Implementations
                 _unitOfWork.FollowRepository.DeleteFollow(existingFollow);
                 return "unfollowed";
             }
+            var followee = await _unitOfWork.UserRepository.GetByIdAsNoTracking(followeeId) ?? throw new ApplicationException("Followee not found.");
 
-            var pendingRequest = await _unitOfWork.FollowRepository.GetPendingFollowRequest(followerId, followeeId);
-
-            if (pendingRequest != null)
+            if (followee.PrivateAccount)
             {
-                _context.FollowRequests.Remove(pendingRequest);
-                return "Follow request canceled.";
-            }
+                var pendingRequest = await _unitOfWork.FollowRequestRepository.GetPendingRequest(followerId, followeeId);
 
-            var followee = await _context.Users.FirstOrDefaultAsync(x => x.Id == followeeId);
-            if (followee == null)
-                throw new ApplicationException("Followee not found.");
-
-            if (!followee.PrivateAccount)
-            {
-                await _context.Follows.AddAsync(new Follow
+                if (pendingRequest != null)
                 {
-                    FollowerId = followerId,
-                    FolloweeId = followeeId
-                });
-                return "followed";
+                    _unitOfWork.FollowRequestRepository.RemoveFollowRequest(pendingRequest);
+                    return "Follow request canceled.";
+                }
+                var followRequest = new FollowRequest
+                {
+                    SenderId = followerId,
+                    RecieverId = followeeId
+                };
+                await _unitOfWork.FollowRequestRepository.AddFollowRequest(followRequest);
+                return "Follow request sent.";
             }
-
-            await _context.FollowRequests.AddAsync(new FollowRequest
+            var newFollow = new Follow
             {
-                SenderId = followerId,
-                RecieverId = followeeId
-            });
-            return "Follow request sent";
+                FolloweeId = followeeId,
+                FollowerId = followerId,
+            };
+            await _unitOfWork.FollowRepository.AddFollowAsync(newFollow);
+
+            return "followed";
         }
 
-        public Task<List<UserBasicInfo>> GetFollowers(Guid userId)
+        public async Task<List<UserBasicInfo>> GetUserFollowersList(Guid userId)
         {
-            throw new NotImplementedException();
+            return await _unitOfWork.FollowRepository.GetUserFollowersList(userId);
         }
 
-        public Task<List<UserBasicInfo>> GetFollowings(Guid userId)
+        public async Task<List<UserBasicInfo>> GetUserFollowingsList(Guid userId)
         {
-            throw new NotImplementedException();
+            return await _unitOfWork.FollowRepository.GetUserFollowingsList(userId);
         }
 
-        public Task<List<FollowRecommendationDto>> GetFollowRecommendationList(Guid id)
+        public async Task<PageResult<FollowRecommendationDto>> GetFollowRecommendationList(Guid userId, int pageNumber, int pageSize = 10)
         {
-            throw new NotImplementedException();
+            var querry = await _
+            
         }
 
         public void RemoveFollower(Guid followeeId, Guid followerId)

@@ -11,5 +11,6 @@ namespace Friendshub.Application.Interfaces.Repositories
     {
         Task<FollowRequest> GetPendingRequest(Guid senderId, Guid recieverId);
         void RemoveFollowRequest(FollowRequest request);
+        Task AddFollowRequest(FollowRequest request);
     }
 }

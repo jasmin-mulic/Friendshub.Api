@@ -16,6 +16,7 @@ namespace Friendshub.Infrastructure.Implementations
         public ITokenRepository TokenRepository { get; }
         public IUserRepository UserRepository { get; }
         public ICommentRepository CommentRepository { get; }
+        public IFollowRequestRepository FollowRequestRepository { get; }
         public IPostRepository PostRepository { get; }
         public INotificationRepository NotificationRepository { get; }
         public IUserRoleRepository UserRoleRepository { get; }
@@ -39,6 +40,7 @@ namespace Friendshub.Infrastructure.Implementations
             PostLikeRepository = new PostLikeRepository(_context);
             CommentRepository = new CommentRepository(_context);
             CommentLikeRepository = new CommentLikeRepository(_context);
+            FollowRequestRepository = new FollowRequestRepository(_context);
         }
            
         public async Task<bool> ApplyChangesAsync()

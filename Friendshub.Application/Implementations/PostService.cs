@@ -96,7 +96,7 @@ namespace Friendshub.Application.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
             var followingsIds = await _unitOfWork.FollowRepository.GetFollowingUsersIds(userId);
-            var feedPostsPage = await _unitOfWork.PostRepository.GetFeedPostsPage(userId, followingsIds, pageSize);
+            var feedPostsPage = await _unitOfWork.PostRepository.GetFeedPostsPaged(userId, followingsIds, pageSize);
 
             return feedPostsPage;
 
@@ -109,7 +109,7 @@ namespace Friendshub.Application.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
 
-            var pageResult = await _unitOfWork.PostRepository.GetPostsByUserIdsync(userId, pageNumber, pageSize);
+            var pageResult = await _unitOfWork.PostRepository.GetUserPostsByIdPaged(userId, pageNumber, pageSize);
 
             return pageResult;
         }

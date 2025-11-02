@@ -1,4 +1,5 @@
-﻿using Friendshub.Application.DTO.UserDto;
+﻿using Friendshub.Application.DTO;
+using Friendshub.Application.DTO.UserDto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,11 @@ namespace Friendshub.Application.Interfaces.Services
 {
     public interface IFollowService
     {
-        Task<List<UserBasicInfo>> GetFollowers(Guid userId);
-        Task<List<UserBasicInfo>> GetFollowings(Guid userId);
+        Task<List<UserBasicInfo>> GetUserFollowersList(Guid userId);
+        Task<List<UserBasicInfo>> GetUserFollowingsList(Guid userId);
         Task<string> FollowUser(Guid folower, Guid Folowee);
         void RemoveFollower(Guid followeeId, Guid followerId);
-        Task<List<FollowRecommendationDto>> GetFollowRecommendationList(Guid id);
+        Task<PageResult<FollowRecommendationDto>> GetFollowRecommendationList(Guid id);
 
 
 

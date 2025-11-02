@@ -12,6 +12,12 @@ namespace Friendshub.Infrastructure.Implementations
         {
             _context = context;
         }
+
+        public async Task AddFollowRequest(FollowRequest request)
+        {
+            await _context.AddAsync(request);
+        }
+
         public async Task<FollowRequest> GetPendingRequest(Guid senderId, Guid recieverId)
         {
             return await _context.FollowRequests.FirstOrDefaultAsync(x => x.SenderId == senderId && x.RecieverId == recieverId);    
