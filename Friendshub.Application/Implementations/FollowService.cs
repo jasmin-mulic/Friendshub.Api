@@ -17,9 +17,9 @@ namespace Friendshub.Application.Implementations
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<string> FollowUser(Guid folowerId, Guid foloweeId)
+        public async Task<string> FollowUser(Guid followerId, Guid followeeId)
         {
-            var existingFollow = await _unitOfWork.FollowRepository.GetByIdAsync(followerId, foloweeId);
+            var existingFollow = await _unitOfWork.FollowRepository.GetByIdAsync(followerId, followeeId);
 
             if (existingFollow != null)
             {
@@ -27,8 +27,7 @@ namespace Friendshub.Application.Implementations
                 return "unfollowed";
             }
 
-            var pendingRequest = await _context.FollowRequests
-                .FirstOrDefaultAsync(x => x.SenderId == followerId && x.RecieverId == followeeId);
+            var pendingRequest = await _unitOfWork.FollowRepository.GetPendingFollowRequest(followerId, followeeId);
 
             if (pendingRequest != null)
             {

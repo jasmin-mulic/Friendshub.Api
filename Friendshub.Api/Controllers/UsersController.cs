@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO.UserDto;
+using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Infrastructure.Validators;
 using Microsoft.AspNetCore.Authorization;
@@ -12,22 +13,22 @@ namespace Friendshub.Api.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public UsersController(IUnitOfWork unitOfWork)
+        private readonly IUserService _userService;
+    
+        public UsersController(IUserService userService)
         {
-            _unitOfWork = unitOfWork;
+            _userService = userService;
         }
         [Authorize]
 
         [HttpGet("me")]
         public async Task<IActionResult> GetMyProfileData()
         {
-            var userId = User.GetUserId();
-            if (userId == Guid.Empty)
+            var userIdFromClaims = User.GetUserId();
+            if (userIdFromClaims == Guid.Empty)
                 return Unauthorized();
 
-            var user = await _unitOfWork.UserRepository.GetUserById(userId);
+            var user = await _unitOfWork.UserRepository.GetUserById(userIdFromClaims);
             if (user == null)
                 return NotFound("User not found.");
             var userData = await _unitOfWork.UserRepository.GetMyProfileData(user);

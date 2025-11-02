@@ -10,6 +10,6 @@ namespace Friendshub.Application.Interfaces.Repositories
     public interface IFollowRequestRepository
     {
         Task<FollowRequest> GetPendingRequest(Guid senderId, Guid recieverId);
-        void RemoveFollowRequest(Guid senderId, Guid recieverId);
+        void RemoveFollowRequest(FollowRequest request);
     }
 }

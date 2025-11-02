@@ -7,6 +7,9 @@ namespace Friendshub.Application.Interfaces.Repositories
         void DeleteFollow(Follow follow);
         Task<List<Guid>> GetFollowingUsersIds(Guid followerId);
         Task<Follow> GetByIdAsync(Guid followerId, Guid foloweeId);
+        Task<FollowRequest> GetPendingFollowRequest(Guid senderId, Guid recieverId);
+        void RemoveFollows(List<Follow> follows);
+        void CancelFollowRequest(Guid senderId, Guid recieverId);
 
     }
 }

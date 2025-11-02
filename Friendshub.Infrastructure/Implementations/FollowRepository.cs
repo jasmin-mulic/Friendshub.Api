@@ -34,9 +34,14 @@ namespace Friendshub.Infrastructure.Implementations
             _context.Follows.RemoveRange(follow);
         }
 
-        public Task<FollowRequest> GetPendingFollowRequest(Guid senderId, Guid recieverId )
+        public async Task<FollowRequest> GetPendingFollowRequest(Guid senderId, Guid recieverId )
         {
-            throw new NotImplementedException();
+            return await _context.FollowRequests.FirstOrDefaultAsync(x => x.SenderId == senderId && x.RecieverId == recieverId);
+        }
+
+        public void RemoveFollows(List<Follow> follows)
+        {
+            _context.Follows.RemoveRange(follows);
         }
     }
 }
