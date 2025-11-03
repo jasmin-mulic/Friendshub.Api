@@ -106,7 +106,7 @@ namespace Friendshub.Application.Implementations
                     File.Delete(directoryPath);
             }
 
-            var follows = await _unitOfWork.FollowRepository.GetUserFollowingsList(userId);
+            var follows = await _unitOfWork.FollowRepository.GetFollowingUsersList(userId);
             _unitOfWork.FollowRepository.RemoveFollows(follows);
             _unitOfWork.UserRepository.DeleteUser(user);
            await _unitOfWork.ApplyChangesAsync();

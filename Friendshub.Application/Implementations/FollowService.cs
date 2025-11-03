@@ -1,8 +1,10 @@
 ﻿using Friendshub.Application.DTO;
 using Friendshub.Application.DTO.UserDto;
+using Friendshub.Application.Extensions;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
+using System.Threading.Tasks;
 
 namespace Friendshub.Application.Implementations
 {
@@ -13,7 +15,7 @@ namespace Friendshub.Application.Implementations
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<string> FollowUser(Guid followerId, Guid followeeId)
+        public async Task<string> AddFollowAsync(Guid followerId, Guid followeeId)
         {
             var existingFollow = await _unitOfWork.FollowRepository.GetByIdAsync(followerId, followeeId);
 
@@ -53,20 +55,67 @@ namespace Friendshub.Application.Implementations
 
         public async Task<List<UserBasicInfo>> GetUserFollowersList(Guid userId)
         {
-            return await _unitOfWork.FollowRepository.GetUserFollowersList(userId);
+            var followers =  await _unitOfWork.FollowRepository.GetUserFollowersList(userId);
+
+            var followersList = followers.Select(f => new UserBasicInfo
+            {
+                UserId = f.Id,
+                Username = f.Username,
+                ProfileImageUrl = f.ProfileImageUrl?.ToFullImageUrl(),
+            }).ToList();
+            return followersList;
         }
 
         public async Task<List<UserBasicInfo>> GetUserFollowingsList(Guid userId)
         {
-            return await _unitOfWork.FollowRepository.GetUserFollowingsList(userId);
+            var followings = await _unitOfWork.FollowRepository.GetFollowingUsersList(userId);
+
+            var followingsList = followings.Select(f => new UserBasicInfo
+            {
+                UserId = f.Id,
+                Username = f.Username,
+                ProfileImageUrl = f.ProfileImageUrl?.ToFullImageUrl(),
+            }).ToList();
+            return followingsList;
         }
 
-        public async Task<PageResult<FollowRecommendationDto>> GetFollowRecommendationList(Guid userId, int pageNumber, int pageSize = 10)
+        public async Task<PageResult<UserBasicInfo>> GetFollowRecommendationList(Guid userId, int pageNumber, int pageSize = 10)
         {
-            var recommendationsPage = await _unitOfWork.FollowRepository.GetFollowRecommendations(userId, pageNumber, pageSize);
+            if (pageNumber < 1) pageNumber = 1;
+
+            var skip = (pageNumber - 1) * pageSize;
+            var totalCount = await _unitOfWork.FollowRepository.GetFollowRecommendationsCountAsync(userId);
+            var users = await _unitOfWork.FollowRepository.GetFollowRecommendationsAsync(userId, skip, pageSize);
+
+            var recommendations = users.Select(u => new UserBasicInfo
+            {
+                UserId = u.Id,
+                Username = u.Username,
+                ProfileImageUrl = u.ProfileImageUrl?.ToFullImageUrl(),
+            }).ToList();
+
+            var pageResult = new PageResult<UserBasicInfo>
+            {
+                PageNumber = pageNumber,
+                TotalCount = totalCount,
+                Items = recommendations,
+                PageSize = pageSize
+            };
+            return pageResult;
         }
 
-        public void RemoveFollower(Guid followeeId, Guid followerId)
+        public async Task RemoveFromFollows(Guid followerId, Guid followeeId)
+        {
+            var follow = await _unitOfWork.FollowRepository.GetByIdAsync(followerId, followeeId);
+            if (follow == null)
+            {
+                throw new NullReferenceException("You are not following user.");
+            }
+            _unitOfWork.FollowRepository.DeleteFollow(follow);
+            await _unitOfWork.ApplyChangesAsync();
+        }
+
+        public Task RemoveFromFollowers(Guid followerId, Guid followeeId)
         {
             throw new NotImplementedException();
         }

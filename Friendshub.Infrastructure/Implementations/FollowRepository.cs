@@ -1,7 +1,4 @@
-﻿using Friendshub.Application.DTO;
-using Friendshub.Application.DTO.UserDto;
-using Friendshub.Application.Extensions;
-using Friendshub.Application.Interfaces.Repositories;
+﻿using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -28,27 +25,13 @@ namespace Friendshub.Infrastructure.Implementations
         }
         
 
-        public async Task<List<UserBasicInfo>> GetUserFollowingsList(Guid userId)
+        public async Task<List<Follow>> GetFollowersUserList(Guid userId)
         {
-            return await _context.Follows
-                            .AsNoTracking().Where(x => x.FollowerId == userId)
-                            .Select(u => new UserBasicInfo
-                            {
-                                ProfileImageUrl = u.Follower.ProfileImageUrl == null ? null : u.Follower.ProfileImageUrl.ToFullImageUrl(),
-                                Username = u.Follower.Username,
-                                UserId = u.FollowerId,
-                            }).ToListAsync();
+            return await _context.Follows.AsNoTracking().Where(x => x.FollowerId == userId).ToListAsync();
         }
-        public async Task<List<UserBasicInfo>> GetUserFollowersList(Guid userId)
+        public async Task<List<Follow>> GetFollowingsUserList(Guid userId)
         {
-            return await _context.Follows
-                            .AsNoTracking().Where(x => x.FolloweeId == userId)
-                            .Select(u => new UserBasicInfo
-                            {
-                                ProfileImageUrl = u.Followee.ProfileImageUrl == null ? null : u.Follower.ProfileImageUrl.ToFullImageUrl(),
-                                Username = u.Followee.Username,
-                                UserId = u.FolloweeId,
-                            }).ToListAsync();
+            return await _context.Follows.AsNoTracking().Where(x => x.FolloweeId == userId).ToListAsync();
         }
 
         public void DeleteFollow(Follow follow)
@@ -66,7 +49,7 @@ namespace Friendshub.Infrastructure.Implementations
             await _context.Follows.AddAsync(follow);
         }
 
-        public async Task<List<User>> GetFollowRecommendations(Guid userId, int skip, int take)
+        public async Task<List<User>> GetFollowRecommendationsAsync(Guid userId, int skip, int take)
         {
             var query = await _context.Users
                 .AsNoTracking()
@@ -91,6 +74,7 @@ namespace Friendshub.Infrastructure.Implementations
                 .CountAsync();
 
             return count;
+        }
         }
     }
 }
