@@ -63,8 +63,7 @@ namespace Friendshub.Application.Implementations
 
         public async Task<PageResult<FollowRecommendationDto>> GetFollowRecommendationList(Guid userId, int pageNumber, int pageSize = 10)
         {
-            var querry = await _
-            
+            var recommendationsPage = await _unitOfWork.FollowRepository.GetFollowRecommendations(userId, pageNumber, pageSize);
         }
 
         public void RemoveFollower(Guid followeeId, Guid followerId)

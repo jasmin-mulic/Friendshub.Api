@@ -66,41 +66,31 @@ namespace Friendshub.Infrastructure.Implementations
             await _context.Follows.AddAsync(follow);
         }
 
-        public async Task<PageResult<UserBasicInfo>> GetFollowRecommendations(Guid userId, int pageNumber, int pageSize = 10)
+        public async Task<List<User>> GetFollowRecommendations(Guid userId, int skip, int take)
         {
-            if (pageNumber < 1) pageNumber = 1;
-            if (pageSize != 10) pageSize = 10;
-
-            var followingUsersIds = await GetFollowingUsersIds(userId);
-
-            var query =  _context.Users
+            var query = await _context.Users
                 .AsNoTracking()
                 .Where(u => !_context.Follows
                     .Where(f => f.FollowerId == userId)
                     .Select(f => f.FolloweeId)
                     .Contains(u.Id)
-                    && u.Id != userId);
+                    && u.Id != userId).ToListAsync();
 
-            var totalCount = await query.CountAsync();
+            return query;
+        }
+        public async Task<int> GetFollowRecommendationsCountAsync(Guid userId)
+        {
+           
+            var count =  await _context.Users
+                .AsNoTracking()
+                .Where(u => !_context.Follows
+                    .Where(f => f.FollowerId == userId)
+                    .Select(f => f.FolloweeId)
+                    .Contains(u.Id)
+                    && u.Id != userId)
+                .CountAsync();
 
-            var recommendations = query.Skip((pageNumber - 1) * pageSize)
-                                 .Take(pageSize)
-                                 .Select(x => new UserBasicInfo
-                                 {
-                                     UserId = x.Id,
-                                     Username = x.Username,
-                                     ProfileImageUrl = x.ProfileImageUrl == null ? null : x.ProfileImageUrl.ToFullImageUrl()
-                                 })
-                                 .ToList();
-
-            var pageResult = new PageResult<UserBasicInfo>
-            {
-                Items = recommendations,
-                PageNumber = pageNumber,
-                TotalCount = totalCount,
-                PageSize = pageSize
-            };
-            return pageResult;
+            return count;
         }
     }
 }
