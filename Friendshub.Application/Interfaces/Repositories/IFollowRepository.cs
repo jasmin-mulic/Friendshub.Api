@@ -3,9 +3,9 @@ namespace Friendshub.Application.Interfaces.Repositories
 {
     public interface IFollowRepository
     {
-        Task<List<User>> GetFollowingUsersList(Guid userId);
-        Task<List<Follow>> GetFollowersUserList(Guid userId);
-        Task<List<User>> GetUserFollowersList(Guid userId);
+        Task<List<Follow>> GetUserFollowingList(Guid userId);
+        Task<List<Follow>> GetUserFollowersList(Guid userId);
+        Task<List<User>> GetFollowers(Guid userId);
         void DeleteFollow(Follow follow);
         Task<List<Guid>> GetFollowingUsersIds(Guid followerId);
         Task<Follow> GetByIdAsync(Guid followerId, Guid foloweeId);

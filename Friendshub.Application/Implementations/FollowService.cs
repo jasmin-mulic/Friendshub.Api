@@ -55,7 +55,7 @@ namespace Friendshub.Application.Implementations
 
         public async Task<List<UserBasicInfo>> GetUserFollowersList(Guid userId)
         {
-            var followers =  await _unitOfWork.FollowRepository.GetUserFollowersList(userId);
+            var followers =  await _unitOfWork.FollowRepository.GetFollowers(userId);
 
             var followersList = followers.Select(f => new UserBasicInfo
             {
@@ -68,7 +68,7 @@ namespace Friendshub.Application.Implementations
 
         public async Task<List<UserBasicInfo>> GetUserFollowingsList(Guid userId)
         {
-            var followings = await _unitOfWork.FollowRepository.GetFollowingUsersList(userId);
+            var followings = await _unitOfWork.FollowRepository.GetUserFollowingList(userId);
 
             var followingsList = followings.Select(f => new UserBasicInfo
             {
