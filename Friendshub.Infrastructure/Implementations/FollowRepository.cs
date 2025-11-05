@@ -23,12 +23,6 @@ namespace Friendshub.Infrastructure.Implementations
         {
             return await _context.Follows.AsNoTracking().Where(x => x.FollowerId == followerId).Select(x => x.FolloweeId).ToListAsync();
         }
-        
-
-        public async Task<List<Follow>> GetUserFollowersList(Guid userId)
-        {
-            return await _context.Follows.AsNoTracking().Where(x => x.FollowerId == userId).ToListAsync();
-        }
         public async Task<List<Follow>> GetUserFollowingList(Guid userId)
         {
             return await _context.Follows.AsNoTracking().Where(x => x.FolloweeId == userId).ToListAsync();
@@ -75,6 +69,40 @@ namespace Friendshub.Infrastructure.Implementations
 
             return count;
         }
+
+        public async Task<List<User>> GetUserFollowings(Guid userId)
+        {
+            return await _context.Follows
+                .Where(f => f.FollowerId == userId)
+                .Select(f => f.Followee)
+                .AsNoTracking()
+                .ToListAsync();
         }
+
+        public async Task<List<User>> GetUserFollowers(Guid userId)
+        {
+            return await _context.Follows
+                .Where(f => f.FolloweeId == userId)
+                .Select(f => f.Follower)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<int> GetUserFollowersCount(Guid userId)
+        {
+            return await _context.Follows
+                .Where(f => f.FolloweeId == userId)
+                .AsNoTracking()
+                .CountAsync();
+        }
+
+        public async Task<int> GetFollowingCount(Guid userId)
+        {
+            return await _context.Follows
+                .Where(f => f.FolloweeId == userId)
+                .AsNoTracking()
+                .CountAsync();
+        }
+    }
     }
 }

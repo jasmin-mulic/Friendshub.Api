@@ -22,13 +22,13 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<User> GetUserById(Guid id)
             => await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
-        public async Task<MyProfileData> GetMyProfileData(User request)
+        public async Task<LoggedUserData> GetLoggedUserData(Guid userId)
         {
-            var user = await _context.Users.Include(x => x.Posts).ThenInclude(p => p.PostsImages).FirstOrDefaultAsync(x => x.Id == request.Id);
+            var user = await _context.Users.Include(x => x.Posts).ThenInclude(p => p.PostsImages).FirstOrDefaultAsync(x => x.Id == userId);
             if (user == null)
                 return null;
 
-            return new MyProfileData
+            return new LoggedUserData
             {
                 Username = user.Username,
                 ProfileImageUrl = string.IsNullOrWhiteSpace(user.ProfileImageUrl)
@@ -36,63 +36,17 @@ namespace Friendshub.Infrastructure.Implementations
                     : user.ProfileImageUrl.ToFullImageUrl(),
                 FollowersCount = await _context.Follows.CountAsync(x => x.FolloweeId == user.Id),
                 FollowingCount = await _context.Follows.CountAsync(x => x.FollowerId == user.Id),
-                EmailAddress = request.EmailAddress,
+                EmailAddress = user.EmailAddress,
                 PostCount = await _context.Posts.CountAsync(x => x.UserId == user.Id),
                 PrivateAccount = user.PrivateAccount
             };
         }
-        public async Task<UserProfileData> GetUserProfileData(string username)
+        public async Task<User> GetUserProfileDataAsync(Guid userId)
         {
-            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Username == username);
-
-            if (user == null)
-                return null;
-
-            var userData = new UserProfileData();
-            userData.Username = user.Username;
-            userData.UserId = user.Id;
-            userData.PrivateAccount = user.PrivateAccount;
-            userData.ProfileImageUrl = user.ProfileImageUrl == null ? null : user.ProfileImageUrl.ToFullImageUrl();
-
-            if (!user.PrivateAccount)
-            {
-                var postsDto = await _context.Posts.Include(p => p.PostsImages)
-                            .Include(p => p.Comments)
-                            .ThenInclude(c => c.CommentLikes)
-                            .Where(p => p.UserId == user.Id)
-                            .Select(x => new PostClientDto
-                            {
-                                PostId = x.Id,
-                                PostedAt = x.PostedAt,
-                                Username = x.User.Username,
-                                Content = x.Content,
-                                ProfileImgUrl = x.User.ProfileImageUrl,
-                                UserId = x.UserId,
-                                Likes = _context.PostLikes.Include("User").Where(like => like.PostId == x.Id).Select((l => new UserBasicInfo
-                                {
-                                    UserId = l.UserId,
-                                    ProfileImageUrl = l.User.ProfileImageUrl == null ? null : l.User.ProfileImageUrl.ToFullImageUrl(),
-                                    Username = l.User.Username,
-                                })).ToList(),
-                                Comments = _context.Comments.Where(x => x.PostId == x.Id)
-                                .Select(c => new CommentClientDto
-                                {
-                                    CommentedAt = c.CommentedAt,
-                                    UserId = c.UserId,
-                                    CommentImageUrl = c.CommentImageUrl,
-                                    Content = c.Content,
-                                    Username = c.User.Username,
-                                    CommentLikes = _context.CommentLikes.Where(x => x.CommentId == c.Id)
-                                          .Select(x => new UserBasicInfo
-                                          {
-                                              UserId = x.UserId,
-                                              ProfileImageUrl = x.User.ProfileImageUrl == null ? null : x.User.ProfileImageUrl.ToFullImageUrl(),
-                                          }).ToList()
-                                }).ToList(),
-                            }).ToListAsync();
-                userData.Posts = postsDto;
-            }
-            return userData;
+            return await _context.Users
+                .Include(u => u.Posts)
+                    .ThenInclude(p => p.PostsImages)
+                .FirstOrDefaultAsync(u => u.Id == userId);
         }
         public async Task<User> GetUserByEmailOrUsername(string emailOrUsername)
         {

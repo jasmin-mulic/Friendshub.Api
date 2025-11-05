@@ -55,7 +55,7 @@ namespace Friendshub.Application.Implementations
 
         public async Task<List<UserBasicInfo>> GetUserFollowersList(Guid userId)
         {
-            var followers =  await _unitOfWork.FollowRepository.GetFollowers(userId);
+            var followers =  await _unitOfWork.FollowRepository.GetUserFollowers(userId);
 
             var followersList = followers.Select(f => new UserBasicInfo
             {
@@ -68,7 +68,7 @@ namespace Friendshub.Application.Implementations
 
         public async Task<List<UserBasicInfo>> GetUserFollowingsList(Guid userId)
         {
-            var followings = await _unitOfWork.FollowRepository.GetUserFollowingList(userId);
+            var followings = await _unitOfWork.FollowRepository.GetUserFollowings(userId);
 
             var followingsList = followings.Select(f => new UserBasicInfo
             {
@@ -115,9 +115,9 @@ namespace Friendshub.Application.Implementations
             await _unitOfWork.ApplyChangesAsync();
         }
 
-        public Task RemoveFromFollowers(Guid followerId, Guid followeeId)
+        public async Task RemoveFromFollowers(Guid followerId, Guid followeeId)
         {
-            throw new NotImplementedException();
+            var follow = await _unitOfWork.FollowRepository.GetByIdAsync(followerId, followeeId);
         }
     }
 }

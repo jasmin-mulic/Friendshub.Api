@@ -352,5 +352,13 @@ namespace Friendshub.Infrastructure.Implementations
 
             return posts;
         }
+
+        public async Task<int> GetUserPostCount(Guid userId)
+        {
+            return await _context.Posts
+                   .Where(x =>  x.UserId == userId)
+                   .AsNoTracking()
+                   .CountAsync();
+        }
     }
 }

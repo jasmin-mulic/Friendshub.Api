@@ -1,8 +1,10 @@
 ﻿using Friendshub.Application.DTO.UserDto;
+using Friendshub.Application.Extensions;
 using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
+using System.Net.Mail;
 
 namespace Friendshub.Application.Implementations
 {
@@ -13,14 +15,9 @@ namespace Friendshub.Application.Implementations
         {
             _unitOfWork = unitOfWork;
         }
-        public void DeleteUser(User user)
+        public async Task<User> GetByIdAsNoTracking(Guid id)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<User> GetByIdAsNoTracking(Guid id)
-        {
-            throw new NotImplementedException();
+            return await _unitOfWork.UserRepository.GetByIdAsNoTracking(id);
         }
 
         public async Task<User> GetByIdAsync(Guid id)
@@ -29,34 +26,107 @@ namespace Friendshub.Application.Implementations
             return user;
         }
 
-        public Task<MyProfileData> GetMyProfileData(User user)
+        public async Task<LoggedUserData> GetMyProfileData(Guid userId)
         {
-            throw new NotImplementedException();
+            var user = await _unitOfWork.UserRepository.GetLoggedUserData(userId);
+            if (user == null)
+                return null;
+
+            var followersCount = await _unitOfWork.FollowRepository.GetUserFollowersCount(userId);
+            var followingCount = await _unitOfWork.FollowRepository.GetFollowingCount(userId);
+            var postCount = await _unitOfWork.PostRepository.GetUserPostCount(userId);
+
+            return new LoggedUserData
+            {
+                Username = user.Username,
+                ProfileImageUrl = user.ProfileImageUrl?.ToFullImageUrl(),
+                FollowersCount = followersCount,
+                FollowingCount = followingCount,
+                EmailAddress = user.EmailAddress,
+                PostCount = postCount,
+                PrivateAccount = user.PrivateAccount
+            };
         }
 
-        public Task<User> GetUserByEmailOrUsername(string emailOrUsername)
+        public async Task<User> GetUserByEmailOrUsername(string emailOrUsername)
         {
-            throw new NotImplementedException();
+            return await _unitOfWork.UserRepository.GetUserByEmailOrUsername(emailOrUsername);
         }
 
-        public Task<UserProfileData> GetUserProfileData(string username)
+        public async Task<UserProfileData> GetUserProfileData(string username)
         {
-            throw new NotImplementedException();
+            return await _unitOfWork.UserRepository.GetUserProfileData(username);
         }
 
-        public Task<bool> IsEmailAddressTaken(string emailAddress)
+        public async Task<bool> IsEmailAddressTaken(string emailAddress)
         {
-            throw new NotImplementedException();
+            return await _unitOfWork.UserRepository.IsEmailAddressTaken(emailAddress);
         }
 
-        public Task<bool> IsUsernameTaken(string username)
+        public async Task<bool> IsUsernameTaken(string username)
         {
-            throw new NotImplementedException();
+            return await _unitOfWork.UserRepository.IsUsernameTaken(username);
         }
 
-        public Task<Dictionary<string, string>> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo)
+        public async Task<Dictionary<string, string>> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo)
         {
-            throw new NotImplementedException();
+            var errors = new Dictionary<string, string>();
+            var user = await _unitOfWork.UserRepository.GetUserById(id);
+            if (user == null)
+                throw new NullReferenceException("Your account is either deleted or banned.");
+
+            // provjera da li ima promjena
+            if (user.Username == updateUserInfo.Username.ToLower() &&
+                user.EmailAddress == updateUserInfo.EmailAddress.ToLower())
+                return null;
+
+            user.Username = updateUserInfo.Username.ToLower();
+            user.EmailAddress = updateUserInfo.EmailAddress.ToLower();
+
+            // ✅ upload nove slike ako je poslata
+            if (updateUserInfo.ProfileImageUrl != null && updateUserInfo.ProfileImageUrl.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var fileExtension = Path.GetExtension(updateUserInfo.ProfileImageUrl.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    errors.Add("image", "Only JPG, JPEG, PNG or WEBP formats are allowed.");
+                    return errors;
+                }
+
+                // folder za upload
+                var uploadsFolder = Path.Combine("wwwroot", "upload", "users", "profileImages");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                // ✅ obriši staru sliku ako postoji
+                if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
+                {
+                    var oldFilePath = Path.Combine("wwwroot", user.ProfileImageUrl.TrimStart('/'));
+                    if (File.Exists(oldFilePath))
+                        File.Delete(oldFilePath);
+                }
+
+                // novi naziv fajla
+                var fileName = Guid.NewGuid().ToString() + fileExtension;
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                // snimi novu sliku
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await updateUserInfo.ProfileImageUrl.CopyToAsync(stream);
+                }
+
+                // snimi URL (relativnu putanju u bazu)
+                user.ProfileImageUrl = $"/upload/users/{fileName}";
+            }
+
+            _unitOfWork.UserRepository.UpdateUserInfo(user);
+            await _unitOfWork.ApplyChangesAsync();
+
+            return errors;
         }
+
     }
 }

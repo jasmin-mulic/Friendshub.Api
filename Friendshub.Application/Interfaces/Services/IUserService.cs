@@ -5,7 +5,7 @@ namespace Friendshub.Application.Interfaces.Services
 {
     public interface IUserService
     {
-        Task<MyProfileData> GetMyProfileData(User user);
+        Task<LoggedUserData> GetMyProfileData(User user);
         Task<User> GetByIdAsync(Guid id);
         Task<Dictionary<string, string>> UpdateUserData(Guid id, UpdateUserInfoDto updateUserInfo);
         Task<UserProfileData> GetUserProfileData(string username);
