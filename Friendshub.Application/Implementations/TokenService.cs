@@ -74,6 +74,7 @@ namespace Friendshub.Application.Interfaces.Implementations
         {
             var token = await _unitOfWork.TokenRepository.GetRefreshTokenByUserId(userId);
              _unitOfWork.TokenRepository.RemoveRefreshToken(token);
+        await _unitOfWork.ApplyChangesAsync();
         }
 
         public Task<RefreshToken> GetRefreshTokenByValue(string value)

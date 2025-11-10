@@ -93,6 +93,9 @@ namespace Friendshub.Api.Controllers
         {
             try
             {
+                var userIdFromClaims = User.GetUserId();
+                if (userIdFromClaims == Guid.Empty)
+                    return Unauthorized("You are already logged out.");
                 Response.Cookies.Delete("refreshToken", new CookieOptions
                 {
                     HttpOnly = true,
@@ -100,7 +103,6 @@ namespace Friendshub.Api.Controllers
                     SameSite = SameSiteMode.None,
                     Path = "/"
                 });
-                var userIdFromClaims = User.GetUserId();
                 await _tokenService.DeleteRefreshTokenByUserId(userIdFromClaims);
                 return Ok(new { message = "Logged out successfully." });
             }
@@ -152,7 +154,6 @@ namespace Friendshub.Api.Controllers
             if (!isDeletionSuccess)
                 return BadRequest("Error deleting your account.");
 
-            await _context.SaveChangesAsync();
             return Ok(new { Message = "Account deleted successfully. See you again :)" });
 
             }

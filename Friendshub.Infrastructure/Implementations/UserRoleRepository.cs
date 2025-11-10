@@ -20,7 +20,7 @@ namespace Friendshub.Infrastructure.Implementations
 
         public async Task<List<UserRole>> GetRolesByUserId(Guid userId)
         {
-            return await _context.UserRoles.AsNoTracking().Include(x => x.User).Where(x => x.UserId == userId).ToListAsync(); 
+            return await _context.UserRoles.AsNoTracking().Include(x => x.Role).Where(x => x.UserId == userId).ToListAsync(); 
         }
     }
 }

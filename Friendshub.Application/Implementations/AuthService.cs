@@ -72,7 +72,10 @@ namespace Friendshub.Application.Implementations
                 EmailAddress = request.EmailAddress.ToLower(),
                 PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password),
                 DateOfBirth = request.DateOfBirth,
-                ProfileImageUrl = null
+                ProfileImageUrl = null,
+                IsDeleted = false,
+                IsActive = true,
+                
             };
             result.UserId = user.Id;
             result.Success = true;
@@ -82,7 +85,6 @@ namespace Friendshub.Application.Implementations
                 UserId = user.Id,
                 RoleId = 1,
             };
-
             await _unitOfWork.UserRoleRepository.AddASync(userRole);
             await _unitOfWork.UserRepository.AddAsync(user);
             await _unitOfWork.ApplyChangesAsync();
@@ -107,8 +109,8 @@ namespace Friendshub.Application.Implementations
             }
 
             var follows = await _unitOfWork.FollowRepository.GetUserFollowingList(userId);
-            _unitOfWork.FollowRepository.RemoveFollows(follows);
-            _unitOfWork.UserRepository.DeleteUser(user);
+            user.IsDeleted = true;
+            user.IsActive = false;
            await _unitOfWork.ApplyChangesAsync();
             return true;
         }

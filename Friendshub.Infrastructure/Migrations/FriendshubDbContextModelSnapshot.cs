@@ -37,6 +37,12 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<Guid>("PostId")
                         .HasColumnType("uniqueidentifier");
 
@@ -70,6 +76,27 @@ namespace Friendshub.Infrastructure.Migrations
                     b.ToTable("CommentLikes");
                 });
 
+            modelBuilder.Entity("Friendshub.Domain.Models.Follow", b =>
+                {
+                    b.Property<Guid>("FollowerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FolloweeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("FollowerId", "FolloweeId");
+
+                    b.HasIndex("FolloweeId");
+
+                    b.ToTable("Follows");
+                });
+
             modelBuilder.Entity("Friendshub.Domain.Models.FollowRequest", b =>
                 {
                     b.Property<Guid>("SenderId")
@@ -88,21 +115,6 @@ namespace Friendshub.Infrastructure.Migrations
                     b.ToTable("FollowRequests");
                 });
 
-            modelBuilder.Entity("Friendshub.Domain.Models.Follow", b =>
-                {
-                    b.Property<Guid>("FollowerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FolloweeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("FollowerId", "FolloweeId");
-
-                    b.HasIndex("FolloweeId");
-
-                    b.ToTable("Follow");
-                });
-
             modelBuilder.Entity("Friendshub.Domain.Models.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -114,6 +126,12 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.Property<Guid?>("EntityId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
@@ -147,6 +165,12 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("PostedAt")
                         .HasColumnType("datetime2");
@@ -339,25 +363,6 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Friendshub.Domain.Models.FollowRequest", b =>
-                {
-                    b.HasOne("Friendshub.Domain.Models.User", "Reciever")
-                        .WithMany("RecievedFollowRequest")
-                        .HasForeignKey("RecieverId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Friendshub.Domain.Models.User", "Sender")
-                        .WithMany("SentFollowRequests")
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Reciever");
-
-                    b.Navigation("Sender");
-                });
-
             modelBuilder.Entity("Friendshub.Domain.Models.Follow", b =>
                 {
                     b.HasOne("Friendshub.Domain.Models.User", "Followee")
@@ -375,6 +380,25 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Navigation("Followee");
 
                     b.Navigation("Follower");
+                });
+
+            modelBuilder.Entity("Friendshub.Domain.Models.FollowRequest", b =>
+                {
+                    b.HasOne("Friendshub.Domain.Models.User", "Reciever")
+                        .WithMany("RecievedFollowRequest")
+                        .HasForeignKey("RecieverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Friendshub.Domain.Models.User", "Sender")
+                        .WithMany("SentFollowRequests")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Reciever");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Notification", b =>
@@ -421,7 +445,7 @@ namespace Friendshub.Infrastructure.Migrations
             modelBuilder.Entity("Friendshub.Domain.Models.PostLike", b =>
                 {
                     b.HasOne("Friendshub.Domain.Models.Post", "Post")
-                        .WithMany("PostLikes")
+                        .WithMany("Likes")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -476,7 +500,7 @@ namespace Friendshub.Infrastructure.Migrations
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("PostLikes");
+                    b.Navigation("Likes");
 
                     b.Navigation("PostsImages");
                 });

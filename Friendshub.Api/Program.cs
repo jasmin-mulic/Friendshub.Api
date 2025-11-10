@@ -59,7 +59,6 @@ builder.Services.AddValidatorsFromAssemblyContaining<LoginUserDto>();
 
 //Repositories DI
 builder.Services.AddDbContext<FriendshubDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("FriendshubDb")));
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
