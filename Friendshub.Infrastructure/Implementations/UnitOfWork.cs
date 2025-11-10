@@ -12,7 +12,6 @@ namespace Friendshub.Infrastructure.Implementations
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private bool _disposed = false;
-        public IAuthRepository AuthRepository { get; }
         public ITokenRepository TokenRepository { get; }
         public IUserRepository UserRepository { get; }
         public ICommentRepository CommentRepository { get; }
@@ -31,7 +30,6 @@ namespace Friendshub.Infrastructure.Implementations
             _configuration = configuration;
             _webHostEnvironment = webHostEnvironment;
             TokenRepository = new TokenRepository(_context, _configuration);
-            AuthRepository = new AuthRepository(_context, TokenRepository);
             UserRepository = new UserRepository(_context, _webHostEnvironment);
             NotificationRepository = new NotificationRepository(_context);
             PostRepository = new PostRepository(_context, webHostEnvironment,NotificationRepository);

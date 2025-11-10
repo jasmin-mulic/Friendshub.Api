@@ -28,7 +28,7 @@ namespace Friendshub.Application.Implementations
 
         public async Task<LoggedUserData> GetLoggedUserData(Guid userId)
         {
-            var user = await _unitOfWork.UserRepository.GetLoggedUserData(userId);
+            var user = await _unitOfWork.UserRepository.GetByIdAsNoTracking(userId);
             if (user == null)
                 return null;
 
@@ -55,7 +55,24 @@ namespace Friendshub.Application.Implementations
 
         public async Task<UserProfileData> GetUserProfileData(string username)
         {
-            return await _unitOfWork.UserRepository.GetUserProfileData(username);
+            var user = await _unitOfWork.UserRepository.GetUserByUsernameAsNoTracking(username);
+            if (user == null)
+                return null;
+
+            var followersCount = await _unitOfWork.FollowRepository.GetUserFollowersCount(user.Id);
+            var followingCount = await _unitOfWork.FollowRepository.GetFollowingCount(user.Id);
+            var postCount = await _unitOfWork.PostRepository.GetUserPostCount(user.Id);
+
+            return new UserProfileData
+            {
+                Username = user.Username,
+                ProfileImageUrl = user.ProfileImageUrl?.ToFullImageUrl(),
+                FollowersCount = followersCount,
+                FollowingCount = followingCount,
+                PostCount = postCount,
+                PrivateAccount = user.PrivateAccount
+               
+            };
         }
 
         public async Task<bool> IsEmailAddressTaken(string emailAddress)

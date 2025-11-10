@@ -11,5 +11,6 @@ namespace Friendshub.Application.DTO.UserDto
         public List<PostClientDto> Posts { get; set; } = new List<PostClientDto>();
         public int FollowersCount { get; set; }
         public int FollowingCount { get; set; }
+        public int PostCount { get; set; }
     }
 }

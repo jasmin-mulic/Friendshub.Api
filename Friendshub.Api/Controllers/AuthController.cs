@@ -14,10 +14,12 @@ namespace Friendshub.Api.Controllers
     {
         private readonly IAuthService _authService;
         private readonly ITokenService _tokenService;
-        public AuthController(IAuthService authServuce, ITokenService tokenService, IUnitOfWork unitOfWork )
+        private readonly IUserService _userService;
+        public AuthController(IAuthService authServuce, ITokenService tokenService, IUnitOfWork unitOfWork, IUserService userService )
         {
             _authService = authServuce;
             _tokenService = tokenService;
+            _userService = userService;
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login( [FromBody] LoginUserDto request, [FromServices] IValidator<LoginUserDto> validator)
@@ -124,9 +126,9 @@ namespace Friendshub.Api.Controllers
             if (refreshToken.ExpiresOnUtc < DateTime.UtcNow)
                 return Unauthorized("Refresh token expired.");
 
-            var user = await _unitOfWork.UserRepository.GetUserById(refreshToken.UserId);
+            var user = await _userService.GetByIdAsNoTracking(refreshToken.UserId);
 
-            var newAccessToken = await _unitOfWork.TokenRepository.CreateAccessToken(user);
+            var newAccessToken = await _tokenService.CreateAccessToken(user);
             return Ok(newAccessToken);
 
             }
@@ -145,7 +147,7 @@ namespace Friendshub.Api.Controllers
             if (Guid.Empty == useIdFromClaims)
                 return Unauthorized( new{ Message =  "You are logged out"});
 
-            var isDeletionSuccess = await _unitOfWork.AuthRepository.DeleteAccountAsync(useIdFromClaims, password);
+            var isDeletionSuccess = await _authService.DeleteAccountAsync(useIdFromClaims, password);
 
             if (!isDeletionSuccess)
                 return BadRequest("Error deleting your account.");

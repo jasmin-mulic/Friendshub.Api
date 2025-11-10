@@ -12,5 +12,6 @@ namespace Friendshub.Application.Interfaces.Repositories
         Task AddAsync(User user);
         void DeleteUser(User user);
         Task<User> GetByIdAsNoTracking(Guid id);
+        Task<User> GetUserByUsernameAsNoTracking(string username);
     }
 }

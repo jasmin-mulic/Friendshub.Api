@@ -10,7 +10,6 @@ namespace Friendshub.Application.Repositories
 {
     public interface IUnitOfWork : IDisposable
     {
-         IAuthRepository AuthRepository { get;}
          ITokenRepository TokenRepository { get;}
          IUserRepository UserRepository { get;}
          IPostRepository PostRepository { get;}

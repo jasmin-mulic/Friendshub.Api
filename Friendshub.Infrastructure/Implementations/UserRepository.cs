@@ -1,7 +1,4 @@
-﻿using Friendshub.Application.DTO.DtoPost;
-using Friendshub.Application.DTO.UserDto;
-using Friendshub.Application.Extensions;
-using Friendshub.Application.Interfaces.Repositories;
+﻿using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
@@ -22,25 +19,6 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<User> GetUserById(Guid id)
             => await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
-        public async Task<LoggedUserData> GetLoggedUserData(Guid userId)
-        {
-            var user = await _context.Users.Include(x => x.Posts).ThenInclude(p => p.PostsImages).FirstOrDefaultAsync(x => x.Id == userId);
-            if (user == null)
-                return null;
-
-            return new LoggedUserData
-            {
-                Username = user.Username,
-                ProfileImageUrl = string.IsNullOrWhiteSpace(user.ProfileImageUrl)
-                    ? null
-                    : user.ProfileImageUrl.ToFullImageUrl(),
-                FollowersCount = await _context.Follows.CountAsync(x => x.FolloweeId == user.Id),
-                FollowingCount = await _context.Follows.CountAsync(x => x.FollowerId == user.Id),
-                EmailAddress = user.EmailAddress,
-                PostCount = await _context.Posts.CountAsync(x => x.UserId == user.Id),
-                PrivateAccount = user.PrivateAccount
-            };
-        }
         public async Task<User> GetUserProfileDataAsync(Guid userId)
         {
             return await _context.Users
@@ -83,6 +61,11 @@ namespace Friendshub.Infrastructure.Implementations
         public void UpdateUserInfo(User user)
         {
             _context.Update(user);
+        }
+
+        public async Task<User> GetUserByUsernameAsNoTracking(string username)
+        {
+            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Username == username);    
         }
     }
 }

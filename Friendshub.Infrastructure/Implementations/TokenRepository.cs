@@ -1,5 +1,4 @@
 ﻿using Friendshub.Application.Interfaces.Repositories;
-using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -9,38 +8,33 @@ namespace Friendshub.Infrastructure.Implementations
 {
     public class TokenRepository : ITokenRepository
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly FriendshubDbContext _context;
         private readonly IConfiguration _configuration;
-        public TokenRepository(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public TokenRepository(FriendshubDbContext context, IConfiguration configuration)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
             _configuration = configuration;
 
         }
 
         public async Task AddRefreshTokenAsync(RefreshToken token)
         {
-            await _unitOfWork.TokenRepository.AddRefreshTokenAsync(token);
-        }
-
-        public Task<string> CreateAccessToken(User user)
-        {
-            return _unitOfWork.TokenRepository.CreateAccessToken(user);
+            await _context.RefreshTokens.AddAsync(token);
         }
 
         public async Task<RefreshToken> GetRefreshTokenByValue(string value)
         {
-            return await _unitOfWork.TokenRepository.GetRefreshTokenByValue(value);
+            return await _context.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(x => x.Token == value);
         }
 
         public async Task<RefreshToken> GetRefreshTokenByUserId(Guid userId)
         {
-            return await _unitOfWork.TokenRepository.GetRefreshTokenByUserId(userId);
+            return await _context.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == userId);
         }
 
         public void RemoveRefreshToken(RefreshToken token)
         {
-            _unitOfWork.TokenRepository.RemoveRefreshToken(token);
+            _context.RefreshTokens.Remove(token);
         }
     }
 }
