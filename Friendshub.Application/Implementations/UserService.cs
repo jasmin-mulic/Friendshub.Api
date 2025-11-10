@@ -94,7 +94,8 @@ namespace Friendshub.Application.Implementations
 
             // provjera da li ima promjena
             if (user.Username == updateUserInfo.Username.ToLower() &&
-                user.EmailAddress == updateUserInfo.EmailAddress.ToLower())
+                user.EmailAddress == updateUserInfo.EmailAddress.ToLower() &&
+                updateUserInfo.ProfileImageUrl.Length == 0)
                 return null;
 
             user.Username = updateUserInfo.Username.ToLower();
@@ -113,7 +114,7 @@ namespace Friendshub.Application.Implementations
                 }
 
                 // folder za upload
-                var uploadsFolder = Path.Combine("wwwroot", "upload", "users", "profileImages");
+                var uploadsFolder = Path.Combine("wwwroot", "uploads", "users", "profileImages");
                 if (!Directory.Exists(uploadsFolder))
                     Directory.CreateDirectory(uploadsFolder);
 

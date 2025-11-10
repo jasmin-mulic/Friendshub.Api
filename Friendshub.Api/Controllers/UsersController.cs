@@ -108,7 +108,7 @@ namespace Friendshub.Api.Controllers
                 return BadRequest(errors);
 
             var validationErrors = await _userService.UpdateUserData(userId, request);
-            if(validationErrors.Count > 0)
+            if(validationErrors != null && validationErrors.Count > 0)
                 return BadRequest(new {Errors  = validationErrors});
             return Ok(validationErrors);
         }

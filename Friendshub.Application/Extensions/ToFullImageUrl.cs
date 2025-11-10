@@ -4,7 +4,7 @@ namespace Friendshub.Application.Extensions
 {
     public static class StringExtensions
     {
-        private const string BackendBaseUrl = "https://localhost:44326/";
+        private const string BackendBaseUrl = "https://localhost:7291/";
 
         public static string ToFullImageUrl(this string relativePath)
         {
