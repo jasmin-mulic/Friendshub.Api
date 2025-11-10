@@ -79,8 +79,9 @@ namespace Friendshub.Application.Implementations
             return followingsList;
         }
 
-        public async Task<PageResult<UserBasicInfo>> GetFollowRecommendationList(Guid userId, int pageNumber, int pageSize = 10)
+        public async Task<PageResult<UserBasicInfo>> GetFollowRecommendationList(Guid userId, int pageNumber)
         {
+            int pageSize = 10;
             if (pageNumber < 1) pageNumber = 1;
 
             var skip = (pageNumber - 1) * pageSize;

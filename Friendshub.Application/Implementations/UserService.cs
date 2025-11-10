@@ -26,7 +26,7 @@ namespace Friendshub.Application.Implementations
             return user;
         }
 
-        public async Task<LoggedUserData> GetMyProfileData(Guid userId)
+        public async Task<LoggedUserData> GetLoggedUserData(Guid userId)
         {
             var user = await _unitOfWork.UserRepository.GetLoggedUserData(userId);
             if (user == null)

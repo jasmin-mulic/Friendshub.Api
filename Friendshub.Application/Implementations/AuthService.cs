@@ -6,7 +6,7 @@ using Friendshub.Application.Results;
 using Friendshub.Domain.Models;
 namespace Friendshub.Application.Implementations
 {
-    internal class AuthService : IAuthService
+    public class AuthService : IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITokenService _tokenService;

@@ -1,4 +1,6 @@
 ﻿using Friendshub.Application.DTO.PostDto;
+using Friendshub.Application.DTO.UserDto;
+using Friendshub.Application.Extensions;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
@@ -68,6 +70,21 @@ namespace Friendshub.Application.Implementations
             await _unitOfWork.ApplyChangesAsync();
 
             return "Liked";
+        }
+
+        public async Task<List<UserBasicInfo>> GetPostLikes(Guid PostId)
+        {
+            var likes = await _unitOfWork.PostLikeRepository.GetPostLikes(PostId);
+            if (likes == null || likes.Count == 0)
+                return null;
+            var postLikesDto = likes.Select(postLike => new UserBasicInfo
+            {
+                ProfileImageUrl = postLike.User.ProfileImageUrl?.ToFullImageUrl(),
+                UserId = postLike.UserId,
+                Username = postLike.User.Username,
+
+            }).ToList();
+            return postLikesDto;
         }
     }
 }

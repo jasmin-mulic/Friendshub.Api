@@ -10,7 +10,7 @@ namespace Friendshub.Application.Interfaces.Services
         Task<string> AddFollowAsync(Guid folower, Guid Folowee);
         Task RemoveFromFollows(Guid followerId, Guid followeeId);
         Task RemoveFromFollowers(Guid followerId, Guid followeeId);
-        Task<PageResult<UserBasicInfo>> GetFollowRecommendationList(Guid id, int pageNumber, int pageSize);
+        Task<PageResult<UserBasicInfo>> GetFollowRecommendationList(Guid id, int pageNumber);
 
 
 

@@ -1,6 +1,10 @@
 using FluentValidation;
 using Friendshub.Application.DTO.Auth;
+using Friendshub.Application.Implementations;
+using Friendshub.Application.Interfaces;
+using Friendshub.Application.Interfaces.Implementations;
 using Friendshub.Application.Interfaces.Repositories;
+using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Infrastructure;
 using Friendshub.Infrastructure.Data;
@@ -53,14 +57,40 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginUserDto>();
 
+//Repositories DI
 builder.Services.AddDbContext<FriendshubDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("FriendshubDb")));
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-
+builder.Services.AddScoped<IPostLikeRepository, PostLikeRepository>();
+builder.Services.AddScoped<ICommentLikeRepository, CommentLikeRepository>();
+builder.Services.AddScoped<IFollowRepository, FollowRepository>();
+builder.Services.AddScoped<IFollowRequestRepository, FollowRequestRepository>();
+builder.Services.AddScoped<IPostLikeRepository, PostLikeRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+
+//Services DI
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFollowService, FollowService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ILIkeService, LikeService>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+
+
+
+
+
+
+
+
+
+
 
 builder.Services.AddCors(options =>
 {

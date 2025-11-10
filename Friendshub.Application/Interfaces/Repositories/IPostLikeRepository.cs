@@ -11,5 +11,6 @@ namespace Friendshub.Application.Interfaces.Repositories
     {
         void RemoveLike(PostLike like);
         Task AddLike(PostLike like);
+        Task<List<PostLike>> GetPostLikes(Guid postId);
     }
 }

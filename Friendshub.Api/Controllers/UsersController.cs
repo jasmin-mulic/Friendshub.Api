@@ -2,8 +2,6 @@
 using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Interfaces.Services;
-using Friendshub.Application.Repositories;
-using Friendshub.Infrastructure.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,36 +12,34 @@ namespace Friendshub.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-    
-        public UsersController(IUserService userService)
+        private readonly IFollowService _followService;
+        public UsersController(IUserService userService, IFollowService followService)
         {
             _userService = userService;
+            _followService = followService;
         }
         [Authorize]
 
         [HttpGet("me")]
-        public async Task<IActionResult> GetMyProfileData()
+        public async Task<IActionResult> GetLoggedUserProfileData()
         {
             var userIdFromClaims = User.GetUserId();
             if (userIdFromClaims == Guid.Empty)
                 return Unauthorized();
 
-            var user = await _unitOfWork.UserRepository.GetUserById(userIdFromClaims);
-            if (user == null)
-                return NotFound("User not found.");
-            var userData = await _unitOfWork.UserRepository.GetMyProfileData(user);
+            var userData = await _userService.GetLoggedUserData(userIdFromClaims);
             return Ok(userData);
         }
         [Authorize]
 
-        [HttpGet("follow-recommendations")]
-        public async Task<IActionResult> GetFriendRecommendation()
+        [HttpGet("follow-recommendations/{page}")]
+        public async Task<IActionResult> GetFriendRecommendation([FromRoute]int page)
         {
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
                 return Unauthorized();
 
-            var recommendations = await _unitOfWork.UserRepository.GetFollowRecommendationList(userId);
+            var recommendations = await  _followService.GetFollowRecommendationList(userId, page);
             return Ok(recommendations);
         }
         [Authorize]
@@ -57,10 +53,7 @@ namespace Friendshub.Api.Controllers
             if (userId == foloweeId)
                 return BadRequest("You can't follow yourself.");
 
-            var followeeGuid = (foloweeId);
-            var message = await _unitOfWork.UserRepository.FollowUser(userId, followeeGuid);
-
-            await _unitOfWork.ApplyChangesAsync();
+            var message = await _followService.AddFollowAsync(userId, foloweeId);
             return Ok(new { message });
         }
         [Authorize]
@@ -72,9 +65,7 @@ namespace Friendshub.Api.Controllers
             if (userId == Guid.Empty)
                 return Unauthorized("You are logged out.");
 
-            _unitOfWork.UserRepository.RemoveFollower(userId, followeeId);
-            await _unitOfWork.ApplyChangesAsync();
-
+           await _followService.RemoveFromFollowers(userId, followeeId);
             return Ok(new { message = "Follower removed." });
         }
         [Authorize]
@@ -86,7 +77,7 @@ namespace Friendshub.Api.Controllers
             if (userId == Guid.Empty)
                 return Unauthorized("You are logged out.");
 
-            var followers = await _unitOfWork.UserRepository.GetFollowers(userId);
+            var followers = await _followService.GetUserFollowersList(userId);
             return Ok(new { followers });
         }
         [Authorize]
@@ -98,7 +89,7 @@ namespace Friendshub.Api.Controllers
             if (userId == Guid.Empty)
                 return Unauthorized("You are logged out.");
 
-            var followings = await _unitOfWork.UserRepository.GetFollowings(userId);
+            var followings = await _followService.GetUserFollowingsList(userId);
             return Ok(new { followings });
         }
         [Authorize]
@@ -116,17 +107,15 @@ namespace Friendshub.Api.Controllers
             if(!errors.IsValid)
                 return BadRequest(errors);
 
-            var validationErrors = await _unitOfWork.UserRepository.UpdateUserData(id, request);
+            var validationErrors = await _userService.UpdateUserData(userId, request);
             if(validationErrors.Count > 0)
                 return BadRequest(new {Errors  = validationErrors});
-            await _unitOfWork.ApplyChangesAsync();
-
             return Ok(validationErrors);
         }
         [HttpGet("{username}")]
         public async Task<IActionResult> GetUserProfileData([FromRoute] string username)
         {
-            var userInfo = await _unitOfWork.UserRepository.GetUserProfileData(username);
+            var userInfo = await _userService.GetUserProfileData(username);
             if (userInfo == null)
                 return NotFound("User does not exist or is deleted.");
             return Ok(userInfo);

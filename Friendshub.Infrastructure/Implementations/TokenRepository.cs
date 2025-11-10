@@ -1,4 +1,5 @@
 ﻿using Friendshub.Application.Interfaces.Repositories;
+using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -8,37 +9,38 @@ namespace Friendshub.Infrastructure.Implementations
 {
     public class TokenRepository : ITokenRepository
     {
-        private readonly FriendshubDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
-        public TokenRepository(FriendshubDbContext context, IConfiguration configuration)
+        public TokenRepository(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _configuration = configuration;
 
         }
 
         public async Task AddRefreshTokenAsync(RefreshToken token)
         {
-            await _context.RefreshTokens.AddAsync(token);
+            await _unitOfWork.TokenRepository.AddRefreshTokenAsync(token);
         }
 
-        public async Task<RefreshToken> GetByValueAsync(string value)
+        public Task<string> CreateAccessToken(User user)
         {
-            var token = await _context.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(x => x.Token == value);
-
-            return token;
+            return _unitOfWork.TokenRepository.CreateAccessToken(user);
         }
 
-        public async Task<RefreshToken> GetRefteshTokenByUserId(Guid userId)
+        public async Task<RefreshToken> GetRefreshTokenByValue(string value)
         {
-            var token = await _context.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == userId);
-            return token;
+            return await _unitOfWork.TokenRepository.GetRefreshTokenByValue(value);
+        }
+
+        public async Task<RefreshToken> GetRefreshTokenByUserId(Guid userId)
+        {
+            return await _unitOfWork.TokenRepository.GetRefreshTokenByUserId(userId);
         }
 
         public void RemoveRefreshToken(RefreshToken token)
         {
-            _context.RefreshTokens.Remove(token);
-
+            _unitOfWork.TokenRepository.RemoveRefreshToken(token);
         }
     }
 }

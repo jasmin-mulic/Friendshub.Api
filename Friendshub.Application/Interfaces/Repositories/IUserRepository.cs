@@ -4,10 +4,8 @@ namespace Friendshub.Application.Interfaces.Repositories
 {
     public interface IUserRepository
     {
-        Task<User> GetLoggedUserData(Guid userId);
         Task<User> GetUserById(Guid id);
         void UpdateUserInfo(User user);
-        Task<UserProfileData> GetUserProfileData(string username);
         Task<User> GetUserByEmailOrUsername(string emailOrUsername);
         Task<bool> IsUsernameTaken(string username);
         Task<bool> IsEmailAddressTaken(string emailAddress);
