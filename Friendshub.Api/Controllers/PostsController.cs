@@ -32,7 +32,7 @@ namespace Friendshub.Api.Controllers
                 var userIdFromClaims = User.GetUserId();
                 if (Guid.Empty == userIdFromClaims)
                     return Unauthorized("You are logged out.");
-                var posts = await _postService.GetMyPosts(userIdFromClaims, page);
+                var posts = await _postService.GetLoggedUserPosts(userIdFromClaims, page);
                 return Ok(posts);
             }
             catch (Exception exc)

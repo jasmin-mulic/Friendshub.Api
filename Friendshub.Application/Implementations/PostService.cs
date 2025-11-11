@@ -29,6 +29,8 @@ namespace Friendshub.Application.Implementations
                 Id = Guid.NewGuid(),
                 Content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content,
                 UserId = user.Id,
+                IsActive = true,
+                IsDeleted = false,
             };
 
             if (request.ImagePaths != null && request.ImagePaths.Count > 0)
@@ -65,7 +67,7 @@ namespace Friendshub.Application.Implementations
             }
 
             await _unitOfWork.PostRepository.AddPostAsync(newPost);
-
+            await _unitOfWork.ApplyChangesAsync();
             var postDto = new PostClientDto
             {
                 Content = newPost.Content,
@@ -96,13 +98,13 @@ namespace Friendshub.Application.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
             var followingsIds = await _unitOfWork.FollowRepository.GetFollowingUsersIds(userId);
-            var feedPostsPage = await _unitOfWork.PostRepository.GetFeedPostsPaged(userId, followingsIds, pageSize);
+            var feedPostsPage = await _unitOfWork.PostRepository.GetFeedPostsPaged(userId, followingsIds, pageNumber);
 
             return feedPostsPage;
 
         }
 
-        public async Task<PageResult<PostClientDto>> GetMyPosts(Guid userId, int pageNumber)
+        public async Task<PageResult<PostClientDto>> GetLoggedUserPosts(Guid userId, int pageNumber)
         {
             int pageSize = 10;
             if (pageNumber < 1) pageNumber = 1;

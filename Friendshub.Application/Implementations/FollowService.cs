@@ -4,7 +4,6 @@ using Friendshub.Application.Extensions;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
-using System.Threading.Tasks;
 
 namespace Friendshub.Application.Implementations
 {
@@ -22,6 +21,7 @@ namespace Friendshub.Application.Implementations
             if (existingFollow != null)
             {
                 _unitOfWork.FollowRepository.DeleteFollow(existingFollow);
+                await _unitOfWork.ApplyChangesAsync();
                 return "unfollowed";
             }
             var followee = await _unitOfWork.UserRepository.GetByIdAsNoTracking(followeeId) ?? throw new ApplicationException("Followee not found.");
@@ -33,6 +33,8 @@ namespace Friendshub.Application.Implementations
                 if (pendingRequest != null)
                 {
                     _unitOfWork.FollowRequestRepository.RemoveFollowRequest(pendingRequest);
+                    await _unitOfWork.ApplyChangesAsync();
+
                     return "Follow request canceled.";
                 }
                 var followRequest = new FollowRequest
@@ -41,6 +43,8 @@ namespace Friendshub.Application.Implementations
                     RecieverId = followeeId
                 };
                 await _unitOfWork.FollowRequestRepository.AddFollowRequest(followRequest);
+                await _unitOfWork.ApplyChangesAsync();
+
                 return "Follow request sent.";
             }
             var newFollow = new Follow
@@ -49,7 +53,7 @@ namespace Friendshub.Application.Implementations
                 FollowerId = followerId,
             };
             await _unitOfWork.FollowRepository.AddFollowAsync(newFollow);
-
+            await _unitOfWork.ApplyChangesAsync();
             return "followed";
         }
 

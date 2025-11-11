@@ -91,12 +91,13 @@ namespace Friendshub.Application.Implementations
             var user = await _unitOfWork.UserRepository.GetUserById(id);
             if (user == null)
                 throw new NullReferenceException("Your account is either deleted or banned.");
-
-            // provjera da li ima promjena
-            if (user.Username == updateUserInfo.Username.ToLower() &&
-                user.EmailAddress == updateUserInfo.EmailAddress.ToLower() &&
-                updateUserInfo.ProfileImageUrl.Length == 0)
-                return null;
+    
+            if(user.Username != updateUserInfo.Username.ToLower())
+                user.Username = updateUserInfo.Username;
+            if (user.EmailAddress != updateUserInfo.EmailAddress.ToLower())
+                user.EmailAddress = updateUserInfo.EmailAddress.ToLower();
+            if(user.PrivateAccount != updateUserInfo.PrivateAccount)
+                user.PrivateAccount = updateUserInfo.PrivateAccount;
 
             user.Username = updateUserInfo.Username.ToLower();
             user.EmailAddress = updateUserInfo.EmailAddress.ToLower();
@@ -137,7 +138,7 @@ namespace Friendshub.Application.Implementations
                 }
 
                 // snimi URL (relativnu putanju u bazu)
-                user.ProfileImageUrl = $"/upload/users/{fileName}";
+                user.ProfileImageUrl = $"/uploads/users/profileImages/{fileName}";
             }
 
             _unitOfWork.UserRepository.UpdateUserInfo(user);

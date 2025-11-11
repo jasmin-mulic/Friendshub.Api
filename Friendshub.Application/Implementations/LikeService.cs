@@ -49,7 +49,7 @@ namespace Friendshub.Application.Implementations
         public async Task<string> LikePost(Guid userId, Guid postId)
         {
             var post = await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
-            if (post != null)
+            if (post == null)
                 throw new NullReferenceException("Post not found.");
             var postLikes = await _unitOfWork.PostRepository.GetPostLikes(postId);
             var myLike = postLikes.FirstOrDefault(x => x.UserId == userId);
@@ -57,6 +57,7 @@ namespace Friendshub.Application.Implementations
             if (myLike != null)
             {
                 _unitOfWork.PostLikeRepository.RemoveLike(myLike);
+               await _unitOfWork.ApplyChangesAsync();
                 return "Disliked";
             }
             var newLike = new PostLike

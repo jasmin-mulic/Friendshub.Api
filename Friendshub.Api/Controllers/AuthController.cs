@@ -29,7 +29,7 @@ namespace Friendshub.Api.Controllers
 
                 var validationResult = validator.Validate(request);
                 if (!validationResult.IsValid)
-                    return BadRequest(new { Errors = validationResult.Errors });
+                    return BadRequest(new { validationResult.Errors });
 
                 var response = await _authService.LoginAsync(request);
                 if (!response.Success)
