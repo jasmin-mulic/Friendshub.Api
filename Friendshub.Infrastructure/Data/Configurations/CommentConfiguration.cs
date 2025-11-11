@@ -9,6 +9,8 @@ namespace Friendshub.Infrastructure.Data.Configurations
         {
             builder.HasOne(c => c.Post).WithMany(p => p.Comments).HasForeignKey(c => c.PostId).OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(c => c.User).WithMany(u => u.Comments).HasForeignKey((x => x.UserId)).OnDelete(DeleteBehavior.NoAction);
+            builder.Property(x => x.IsDeleted).HasDefaultValue(false);
+            builder.Property(x => x.IsActive).HasDefaultValue(true);
             builder.HasQueryFilter(x => x.IsActive && !x.IsDeleted);
 
         }

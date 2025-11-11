@@ -14,6 +14,8 @@ namespace Friendshub.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.Property(x => x.ProfileImageUrl).HasDefaultValue(null);
+            builder.Property(x => x.IsDeleted).HasDefaultValue(false);
+            builder.Property(x => x.IsActive).HasDefaultValue(true);
             builder.HasQueryFilter(x => !x.IsDeleted && x.IsActive);
             
         }
