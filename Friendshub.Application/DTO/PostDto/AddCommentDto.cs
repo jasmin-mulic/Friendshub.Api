@@ -4,7 +4,7 @@ namespace Friendshub.Application.DTO.PostDto
 {
     public class AddCommentDto
     {
-        public string Content { get; set; } = string.Empty;
+        public string Content { get; set; } 
         public IFormFile Image { get; set; }
     }
 }

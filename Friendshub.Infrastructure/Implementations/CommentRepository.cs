@@ -26,5 +26,9 @@ namespace Friendshub.Infrastructure.Implementations
         {
             return await _context.Comments.FirstOrDefaultAsync(c => c.Id == id);
         }
+        public async Task<Comment> GetPostCommentById(Guid commentId)
+        {
+            return await _context.Comments.AsNoTracking().FirstOrDefaultAsync(c => c.Id == commentId);
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace Friendshub.Application.Interfaces.Repositories
         Task<Comment> GetByIdAsync(Guid id);
         Task AddAsync(Comment comment);
         void Delete(Comment comment);
+        Task<Comment> GetPostCommentById(Guid commentId);
     }
 }

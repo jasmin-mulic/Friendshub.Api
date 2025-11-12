@@ -7,14 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="NewFolder\**" />
-    <Compile Remove="wwwroot\uploads\**" />
-    <Content Remove="NewFolder\**" />
-    <Content Remove="wwwroot\uploads\**" />
-    <EmbeddedResource Remove="NewFolder\**" />
-    <EmbeddedResource Remove="wwwroot\uploads\**" />
-    <None Remove="NewFolder\**" />
-    <None Remove="wwwroot\uploads\**" />
+    <Compile Remove="wwwrooot\**" />
+    <Content Remove="wwwrooot\**" />
+    <EmbeddedResource Remove="wwwrooot\**" />
+    <None Remove="wwwrooot\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,10 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Friendshub.Application\Friendshub.Application.csproj" />
     <ProjectReference Include="..\Friendshub.Infrastructure\Friendshub.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

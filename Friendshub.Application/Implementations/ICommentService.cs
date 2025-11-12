@@ -38,7 +38,7 @@ namespace Friendshub.Application.Implementations
                     throw new ApplicationException("Invalid image format.");
 
                 var fileName = Guid.NewGuid().ToString() + extension;
-                var uploadsFolder = Path.Combine("wwwroot", "uploads", "comments", "images");
+                var uploadsFolder = Path.Combine("wwwroot", "uploads", "comments", "images").Replace("\\","/");
 
                 if (!Directory.Exists(uploadsFolder))
                     Directory.CreateDirectory(uploadsFolder);

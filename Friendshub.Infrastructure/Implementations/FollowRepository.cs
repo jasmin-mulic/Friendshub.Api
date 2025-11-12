@@ -99,7 +99,7 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<int> GetFollowingCount(Guid userId)
         {
             return await _context.Follows
-                .Where(f => f.FolloweeId == userId)
+                .Where(f => f.FollowerId == userId)
                 .AsNoTracking()
                 .CountAsync();
         }

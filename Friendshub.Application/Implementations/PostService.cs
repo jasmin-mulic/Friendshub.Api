@@ -43,7 +43,7 @@ namespace Friendshub.Application.Implementations
 
                         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
 
-                        var uploadsFolder = Path.Combine("wwwrooot", "uploads/posts/images");
+                        var uploadsFolder = Path.Combine("wwwrooot", "uploads", "posts", "images").Replace("\\", "/"); ;
 
                         if (!Directory.Exists(uploadsFolder))
                             Directory.CreateDirectory(uploadsFolder);
@@ -98,10 +98,51 @@ namespace Friendshub.Application.Implementations
             if (pageSize < 10) pageSize = 10;
             if (pageSize > 10) pageSize = 10;
             var followingsIds = await _unitOfWork.FollowRepository.GetFollowingUsersIds(userId);
-            var feedPostsPage = await _unitOfWork.PostRepository.GetFeedPostsPaged(userId, followingsIds, pageNumber);
+            var posts = await _unitOfWork.PostRepository.GetFeedPostsPaged(userId, followingsIds, pageNumber);
+            var totalCOunt = await _unitOfWork.PostRepository.FeedPostsTotalCount(userId, followingsIds);
 
-            return feedPostsPage;
+            var postDtos = posts.Select(p => new PostClientDto
+            {
+                UserId = p.UserId,
+                Username = p.User.Username,
+                PostId = p.Id,
+                Content = p.Content,
+                PostedAt = p.PostedAt,
+                ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
+                PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
+                LikeCount = p.Likes?.Count ?? 0,
+                Likes = p.Likes?.Select(l => new UserBasicInfo
+                {
+                    UserId = l.UserId,
+                    Username = l.User.Username,
+                    ProfileImageUrl = l.User.ProfileImageUrl.ToFullImageUrl()
+                }).ToList(),
+                Comments = p.Comments?.Select(c => new CommentClientDto
+                {
+                    CommentId = c.Id,
+                    UserId = c.UserId,
+                    Username = c.User.Username,
+                    Content = c.Content,
+                    CommentedAt = c.CommentedAt,
+                    CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
+                    UserProfileImageUrl = c.User.ProfileImageUrl.ToFullImageUrl(),
+                    CommentLikes = c.CommentLikes.Select(cl => new UserBasicInfo
+                    {
+                        UserId = cl.UserId,
+                        Username = cl.User.Username,
+                        ProfileImageUrl = cl.User.ProfileImageUrl.ToFullImageUrl()
+                    }).ToList()
+                }).OrderByDescending(x => x.CommentedAt).ToList()
+            }).ToList();
 
+            var pageResult = new PageResult<PostClientDto>
+            {
+                Items = postDtos,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCOunt
+            };
+            return pageResult;  
         }
 
         public async Task<PageResult<PostClientDto>> GetLoggedUserPosts(Guid userId, int pageNumber)

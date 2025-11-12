@@ -8,8 +8,6 @@ namespace Friendshub.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Follow> builder)
         {
-            builder.HasQueryFilter(x => x.IsActive && !x.IsDeleted);
-
             builder.HasKey(f => new { f.FollowerId, f.FolloweeId });
 
             builder.HasOne(f => f.Follower)
