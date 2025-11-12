@@ -15,27 +15,8 @@ namespace Friendshub.Infrastructure.Implementations
             _context = context;
         }
 
-        public async Task CreateNotification(Guid senderId, Guid receiverId, NotificationType type, Guid? entityId = null)
+        public async Task CreateNotification(Notification notification)
         {
-            if (senderId == receiverId)
-                return;
-            var sender = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == senderId);
-            if (sender == null)
-                return;
-            var reciever = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == receiverId);
-            if(reciever == null)
-                return;
-
-            var message = sender.Username.BuildNotificationMessage(type);
-
-            var notification = new Notification
-            {
-                SenderId = senderId,
-                ReceiverId = receiverId,
-                NotificationType = type,
-                EntityId = entityId,
-                Message = message,
-            };
             await _context.Notifications.AddAsync(notification);
         }
 

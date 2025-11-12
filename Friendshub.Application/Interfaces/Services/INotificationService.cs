@@ -1,13 +1,12 @@
 ﻿using Friendshub.Application.DTO;
 using Friendshub.Domain.Models;
 
-namespace Friendshub.Application.Repositories
+namespace Friendshub.Application.Interfaces.Services
 {
-    public interface INotificationRepository
+    public interface INotificationService
     {
         Task<PageResult<ClientNotificationDto>> GetNotificationsAsync(Guid recieverId, int pageNumber = 1);
-        Task CreateNotification(Notification notification);
-
+        Task CreateNotification(Guid senderId, Guid receiverId, NotificationType type, Guid? entityId = null);
         Task MarkAsRead(Guid id);
     }
 }
