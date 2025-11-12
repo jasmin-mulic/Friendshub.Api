@@ -43,7 +43,7 @@ namespace Friendshub.Application.Implementations
 
                         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
 
-                        var uploadsFolder = Path.Combine("wwwrooot", "uploads", "posts", "images").Replace("\\", "/"); ;
+                        var uploadsFolder = Path.Combine("wwwroot", "uploads", "posts", "images").Replace("\\", "/"); ;
 
                         if (!Directory.Exists(uploadsFolder))
                             Directory.CreateDirectory(uploadsFolder);

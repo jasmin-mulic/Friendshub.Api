@@ -204,7 +204,6 @@ namespace Friendshub.Infrastructure.Implementations
             return await _context.PostLikes.AsNoTracking().Where(x => x.PostId == PostId).ToListAsync();
         }
 
-
         public async Task<int> GetUserPostCount(Guid userId)
         {
             return await _context.Posts
@@ -216,11 +215,6 @@ namespace Friendshub.Infrastructure.Implementations
         public async Task<int> FeedPostsTotalCount(Guid userId, List<Guid> followingUsersIds)
         {
             return await _context.Posts.AsNoTracking().Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId)).CountAsync();
-        }
-
-        public async Task<int> LoggedUserPostCount(Guid userId)
-        {
-            return await _context.Posts.AsNoTracking().Where(p => p.UserId == userId).CountAsync();
         }
     }
 }

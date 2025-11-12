@@ -16,7 +16,6 @@ namespace Friendshub.Application.Interfaces.Repositories
         Task<CommentClientDto> AddCommentToPost(Guid userId, Post post, AddCommentDto comment);
         Task<int> GetUserPostCount(Guid userId);
         Task<int> FeedPostsTotalCount(Guid userId, List<Guid> followingUsersIds);
-        Task<int> LoggedUserPostCount(Guid userId);
 
     }
 }
