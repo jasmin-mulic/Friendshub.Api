@@ -1,4 +1,5 @@
 ﻿using Friendshub.Application.DTO;
+using Friendshub.Application.Extensions;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
@@ -16,10 +17,10 @@ namespace Friendshub.Application.Implementations
         {
             if (senderId == receiverId)
                 return;
-            var sender = await _unitOfWork.UserRepository.GetUserById(senderId);
+            var sender = await _unitOfWork.UserRepository.GetUserByIdAsNoTracking(senderId);
             if (sender == null)
                 return;
-            var reciever = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == receiverId);
+            var reciever = await  _unitOfWork.UserRepository.GetUserByIdAsNoTracking(senderId);
             if (reciever == null)
                 return;
 
@@ -33,6 +34,7 @@ namespace Friendshub.Application.Implementations
                 EntityId = entityId,
                 Message = message,
             };
+            await 
         }
 
         public Task<PageResult<ClientNotificationDto>> GetNotificationsAsync(Guid recieverId, int pageNumber = 1)

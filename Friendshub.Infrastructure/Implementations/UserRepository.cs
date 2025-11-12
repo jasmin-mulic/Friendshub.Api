@@ -18,6 +18,8 @@ namespace Friendshub.Infrastructure.Implementations
         }
         public async Task<User> GetUserById(Guid id)
             => await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        public async Task<User> GetUserByIdAsNoTracking(Guid id)
+    => await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
 
         public async Task<User> GetUserProfileDataAsync(Guid userId)
         {
