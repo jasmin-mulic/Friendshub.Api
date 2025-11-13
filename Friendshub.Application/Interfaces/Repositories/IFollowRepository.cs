@@ -6,9 +6,9 @@ namespace Friendshub.Application.Interfaces.Repositories
         Task<List<User>> GetUserFollowings(Guid userId);
         Task<List<Follow>> GetUserFollowingList(Guid userId);
         Task<List<User>> GetUserFollowers(Guid userId);
-        void DeleteFollow(Follow follow);
+        void RemoveFollow(Follow follow);
         Task<List<Guid>> GetFollowingUsersIds(Guid followerId);
-        Task<Follow> GetByIdAsync(Guid followerId, Guid foloweeId);
+        Task<Follow> GetByIdAsync(Guid followeeId, Guid followerId);
         void RemoveFollows(List<Follow> follows);
         Task AddFollowAsync(Follow follow);
         Task<List<User>> GetFollowRecommendationsAsync(Guid userId, int skip, int take);

@@ -23,6 +23,17 @@ namespace Friendshub.Infrastructure.Implementations
             return await _context.FollowRequests.FirstOrDefaultAsync(x => x.SenderId == senderId && x.RecieverId == recieverId);    
         }
 
+        public async Task<List<Guid>> GetUserSentRequest(Guid userId)
+        {
+            return await _context.FollowRequests.AsNoTracking().Where(x =>x.SenderId == userId).Select(x => x.RecieverId).ToListAsync();
+        }
+
+        public async Task<bool> PendingRequestExists(Guid senderId, Guid recieverId)
+        {
+            return await _context.FollowRequests.AnyAsync(x => x.SenderId == senderId && x.RecieverId == recieverId);
+
+        }
+
         public void RemoveFollowRequest(FollowRequest followRequest)
         {
             _context.FollowRequests.Remove(followRequest);
