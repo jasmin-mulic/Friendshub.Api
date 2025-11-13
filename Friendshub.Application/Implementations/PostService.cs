@@ -100,8 +100,46 @@ namespace Friendshub.Application.Implementations
             var followingsIds = await _unitOfWork.FollowRepository.GetFollowingUsersIds(userId);
             var posts = await _unitOfWork.PostRepository.GetFeedPostsPaged(userId, followingsIds, pageNumber);
             var totalCOunt = await _unitOfWork.PostRepository.FeedPostsTotalCount(userId, followingsIds);
+            var postsDtos = MapPostsToDto(posts);
+            var pageResult = new PageResult<PostClientDto>
+            {
+                Items = postsDtos,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCOunt
+            };
+            return pageResult;  
+        }
 
-            var postDtos = posts.Select(p => new PostClientDto
+        public async Task<PageResult<PostClientDto>> GetLoggedUserPosts(Guid userId, int pageNumber)
+        {
+            int pageSize = 10;
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 10) pageSize = 10;
+            if (pageSize > 10) pageSize = 10;
+
+            var posts = await _unitOfWork.PostRepository.GetUserPostsByIdPaged(userId, pageNumber, pageSize);
+            var totalCount = await _unitOfWork.PostRepository.UserPostTotalCount(userId);
+            var postDtos = MapPostsToDto(posts);
+
+            var pageResult = new PageResult<PostClientDto>
+            {
+                Items = postDtos,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+            return pageResult;
+        }
+
+        public async Task<Post> GetPostByIdAsync(Guid postId)
+        {
+           return await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
+        }
+
+        private List<PostClientDto> MapPostsToDto(List<Post> posts)
+        {
+            return posts.Select(p => new PostClientDto
             {
                 UserId = p.UserId,
                 Username = p.User.Username,
@@ -134,32 +172,6 @@ namespace Friendshub.Application.Implementations
                     }).ToList()
                 }).OrderByDescending(x => x.CommentedAt).ToList()
             }).ToList();
-
-            var pageResult = new PageResult<PostClientDto>
-            {
-                Items = postDtos,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalCount = totalCOunt
-            };
-            return pageResult;  
-        }
-
-        public async Task<PageResult<PostClientDto>> GetLoggedUserPosts(Guid userId, int pageNumber)
-        {
-            int pageSize = 10;
-            if (pageNumber < 1) pageNumber = 1;
-            if (pageSize < 10) pageSize = 10;
-            if (pageSize > 10) pageSize = 10;
-
-            var pageResult = await _unitOfWork.PostRepository.GetUserPostsByIdPaged(userId, pageNumber, pageSize);
-
-            return pageResult;
-        }
-
-        public async Task<Post> GetPostByIdAsync(Guid postId)
-        {
-           return await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
         }
     }
 }

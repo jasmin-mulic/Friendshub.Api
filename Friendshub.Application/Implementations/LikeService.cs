@@ -51,7 +51,7 @@ namespace Friendshub.Application.Implementations
             var post = await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
             if (post == null)
                 throw new NullReferenceException("Post not found.");
-            var postLikes = await _unitOfWork.PostRepository.GetPostLikes(postId);
+            var postLikes = await _unitOfWork.PostLikeRepository.GetPostLikes(postId);
             var myLike = postLikes.FirstOrDefault(x => x.UserId == userId);
 
             if (myLike != null)

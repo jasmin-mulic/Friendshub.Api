@@ -34,7 +34,7 @@ namespace Friendshub.Application.Implementations
 
             var followersCount = await _unitOfWork.FollowRepository.GetUserFollowersCount(userId);
             var followingCount = await _unitOfWork.FollowRepository.GetFollowingCount(userId);
-            var postCount = await _unitOfWork.PostRepository.GetUserPostCount(userId);
+            var postCount = await _unitOfWork.PostRepository.UserPostTotalCount(userId);
 
             return new LoggedUserData
             {
@@ -61,7 +61,7 @@ namespace Friendshub.Application.Implementations
 
             var followersCount = await _unitOfWork.FollowRepository.GetUserFollowersCount(user.Id);
             var followingCount = await _unitOfWork.FollowRepository.GetFollowingCount(user.Id);
-            var postCount = await _unitOfWork.PostRepository.GetUserPostCount(user.Id);
+            var postCount = await _unitOfWork.PostRepository.UserPostTotalCount(user.Id);
 
             return new UserProfileData
             {

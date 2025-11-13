@@ -34,7 +34,7 @@ namespace Friendshub.Application.Implementations
                 EntityId = entityId,
                 Message = message,
             };
-            await 
+            await _unitOfWork.NotificationRepository.AddNotificationAsync(notification);
         }
 
         public Task<PageResult<ClientNotificationDto>> GetNotificationsAsync(Guid recieverId, int pageNumber = 1)
@@ -42,9 +42,12 @@ namespace Friendshub.Application.Implementations
             throw new NotImplementedException();
         }
 
-        public Task MarkAsRead(Guid id)
+        public async Task MarkAsRead(Guid notificationId)
         {
-            throw new NotImplementedException();
+            var notification = await _unitOfWork.NotificationRepository.GetNotificationAsync(notificationId);
+            if (notification == null)
+                throw new NullReferenceException("Notification not found");
+            _unitOfWork.NotificationRepository.MarkAsRead(notification);
         }
     }
 }

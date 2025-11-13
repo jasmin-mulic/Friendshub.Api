@@ -1,5 +1,4 @@
 ﻿using Friendshub.Application.DTO;
-using Friendshub.Application.Extensions;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;
@@ -15,7 +14,7 @@ namespace Friendshub.Infrastructure.Implementations
             _context = context;
         }
 
-        public async Task CreateNotification(Notification notification)
+        public async Task AddNotificationAsync(Notification notification)
         {
             await _context.Notifications.AddAsync(notification);
         }
@@ -52,13 +51,20 @@ namespace Friendshub.Infrastructure.Implementations
             return result;
         }
 
-        public async Task MarkAsRead(Guid id)
+        public async Task<Notification> GetNotificationAsync(Guid notificationId)
         {
-            var notification = await _context.Notifications.FirstOrDefaultAsync(x => x.Id == id);
-            if (notification == null)
-                throw new ApplicationException("Notification is deleted.");
+            return await _context.Notifications.FirstOrDefaultAsync(x =>  x.Id == notificationId);
+        }
+
+        public void MarkAsRead(Notification notification)
+        {
             notification.isRead = true;
             _context.Notifications.Update(notification);
+        }
+
+        public async Task<Notification> GetNotificationAsNoTrackingAsync(Guid notificationId)
+        {
+            return await _context.Notifications.AsNoTracking().FirstOrDefaultAsync(x => x.Id == notificationId);
         }
     }
 }

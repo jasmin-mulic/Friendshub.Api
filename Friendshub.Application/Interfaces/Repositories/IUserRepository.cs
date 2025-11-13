@@ -6,7 +6,6 @@ namespace Friendshub.Application.Interfaces.Repositories
     {
         Task<User> GetUserById(Guid id);
         Task<User> GetUserByIdAsNoTracking(Guid id);
-
         void UpdateUserInfo(User user);
         Task<User> GetUserByEmailOrUsername(string emailOrUsername);
         Task<bool> IsUsernameTaken(string username);

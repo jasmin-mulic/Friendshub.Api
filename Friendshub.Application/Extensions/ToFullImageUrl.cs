@@ -11,7 +11,6 @@ namespace Friendshub.Application.Extensions
             if (string.IsNullOrWhiteSpace(relativePath))
                 return null;
 
-            // Ukloni eventualni vodeći /
             relativePath = relativePath.TrimStart('/');
 
             return $"{BackendBaseUrl}{relativePath}";

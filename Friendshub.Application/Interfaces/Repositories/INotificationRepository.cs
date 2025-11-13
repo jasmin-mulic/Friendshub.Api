@@ -6,8 +6,10 @@ namespace Friendshub.Application.Repositories
     public interface INotificationRepository
     {
         Task<PageResult<ClientNotificationDto>> GetNotificationsAsync(Guid recieverId, int pageNumber = 1);
-        Task CreateNotification(Notification notification);
+        Task AddNotificationAsync(Notification notification);
+        void MarkAsRead(Notification notification);
+        Task<Notification> GetNotificationAsync(Guid notificationId);
+        Task<Notification> GetNotificationAsNoTrackingAsync(Guid notificationId);
 
-        Task MarkAsRead(Guid id);
     }
 }
