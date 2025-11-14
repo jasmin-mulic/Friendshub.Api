@@ -1,4 +1,7 @@
 using FluentValidation;
+using Friendshub.Api;
+using Friendshub.Api.Hubs;
+using Friendshub.Api.SignalrRProviders;
 using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Implementations;
 using Friendshub.Application.Interfaces;
@@ -12,6 +15,7 @@ using Friendshub.Infrastructure.Implementations;
 using Friendshub.Infrastructure.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -56,6 +60,12 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginUserDto>();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, UserProvider>();
+builder.Services.AddScoped<INotificationDispatcher, SignalRNotificationDispatcher>();
+
+
 
 //Repositories DI
 builder.Services.AddDbContext<FriendshubDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("FriendshubDb")));
@@ -121,8 +131,9 @@ builder.Services.AddAuthentication(options =>
     var app = builder.Build();
     app.UseStaticFiles();
     app.UseCors("ReactAppPolicy");
+    app.MapHub<NotificationHub>("/hubs/notifications");
 
-    if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
         app.UseSwaggerUI();

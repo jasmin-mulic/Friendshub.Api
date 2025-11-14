@@ -33,7 +33,7 @@ namespace Friendshub.Api.Controllers
         [Authorize]
 
         [HttpGet("follow-recommendations/{page}")]
-        public async Task<IActionResult> GetFriendRecommendation([FromRoute]int page)
+        public async Task<IActionResult> GetFollowRecommendations([FromRoute]int page)
         {
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
@@ -54,6 +54,7 @@ namespace Friendshub.Api.Controllers
                 return BadRequest("You can't follow yourself.");
 
             var message = await _followService.AddFollowAsync(userId, foloweeId);
+            
             return Ok(new { message });
         }
         [Authorize]
