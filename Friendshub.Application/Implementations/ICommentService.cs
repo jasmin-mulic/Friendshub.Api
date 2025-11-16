@@ -14,7 +14,7 @@ namespace Friendshub.Application.Implementations
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<CommentClientDto> AddCommentToPost(Guid userId, Post post, AddCommentDto commentRequest)
+        public async Task<CommentClientDto> AddComment(Guid userId, Post post, AddCommentDto commentRequest)
         {
             if (string.IsNullOrWhiteSpace(commentRequest.Content) && commentRequest.Image.Length == 0)
                 throw new ApplicationException("Please add a comment or an image.");

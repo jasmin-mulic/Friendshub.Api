@@ -137,7 +137,7 @@ namespace Friendshub.Api.Controllers
                 if(post == null)
                     return NotFound("Post is deleted");
 
-                var newComment = await _commentService.AddCommentToPost(userIdFromClaIms, post, comment);
+                var newComment = await _commentService.AddComment(userIdFromClaIms, post, comment);
                 if (newComment == null)
                     return BadRequest("Error adding post.");
                 return Ok(newComment);  

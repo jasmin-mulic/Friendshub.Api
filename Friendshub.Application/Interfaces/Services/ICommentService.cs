@@ -6,7 +6,7 @@ namespace Friendshub.Application.Interfaces.Services
 {
     public interface ICommentService
     {
-        Task<CommentClientDto> AddCommentToPost(Guid userId, Post post, AddCommentDto commentRequest);
+        Task<CommentClientDto> AddComment(Guid userId, Post post, AddCommentDto commentRequest);
         Task RemoveComment(Guid commentId);
     }
 }
