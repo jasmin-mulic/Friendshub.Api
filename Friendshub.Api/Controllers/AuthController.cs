@@ -22,7 +22,7 @@ namespace Friendshub.Api.Controllers
             _userService = userService;
         }
         [HttpPost("login")]
-        public async Task<IActionResult> Login( [FromBody] LoginUserDto request, [FromServices] IValidator<LoginUserDto> validator)
+        public async Task<IActionResult> LoginAsync( [FromBody] LoginUserDto request, [FromServices] IValidator<LoginUserDto> validator)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace Friendshub.Api.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody]RegisterUserDto registerUser, [FromServices]IValidator<RegisterUserDto> validator)
+        public async Task<IActionResult> RegisterAsync([FromBody]RegisterUserDto registerUser, [FromServices]IValidator<RegisterUserDto> validator)
         {
             try
             {
@@ -113,7 +113,7 @@ namespace Friendshub.Api.Controllers
         }
         
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> GetNewAccessToken()
+        public async Task<IActionResult> CreateAccessToken()
         {
             try
             {
