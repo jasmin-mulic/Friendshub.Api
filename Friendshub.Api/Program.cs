@@ -1,6 +1,7 @@
 using FluentValidation;
 using Friendshub.Api;
 using Friendshub.Api.Hubs;
+using Friendshub.Api.Services;
 using Friendshub.Api.SignalrRProviders;
 using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Implementations;
@@ -12,6 +13,7 @@ using Friendshub.Application.Repositories;
 using Friendshub.Infrastructure;
 using Friendshub.Infrastructure.Data;
 using Friendshub.Infrastructure.Implementations;
+using Friendshub.Infrastructure.SignalR;
 using Friendshub.Infrastructure.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -62,10 +64,6 @@ builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>()
 builder.Services.AddValidatorsFromAssemblyContaining<LoginUserDto>();
 
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<IUserIdProvider, UserProvider>();
-builder.Services.AddScoped<INotificationDispatcher, SignalRNotificationDispatcher>();
-
-
 
 //Repositories DI
 builder.Services.AddDbContext<FriendshubDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("FriendshubDb")));
@@ -89,6 +87,7 @@ builder.Services.AddScoped<ILIkeService, LikeService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INotificationHubService, NotificationHubService>();
 
 
 builder.Services.AddCors(options =>

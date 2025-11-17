@@ -9,11 +9,10 @@ namespace Friendshub.Application.Implementations
     internal class NotificationService : INotificationService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly INotificationDispatcher _dispatcher;
-        public NotificationService(IUnitOfWork unitOfWork, INotificationDispatcher dispatcher)
+        private readonly INotificationHubService
+        public NotificationService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _dispatcher = dispatcher;
         }
         public async Task CreateNotification(Guid senderId, Guid receiverId, NotificationType type, Guid? entityId = null)
         {
