@@ -39,7 +39,7 @@ namespace Friendshub.Application.Implementations
             return new LoggedUserData
             {
                 Username = user.Username,
-                ProfileImageUrl = user.ProfileImageUrl?.ToFullImageUrl(),
+                ProfileImageUrl = user.ProfileImageUrl?.ToFullImagePath(),
                 FollowersCount = followersCount,
                 FollowingCount = followingCount,
                 EmailAddress = user.EmailAddress,
@@ -66,7 +66,7 @@ namespace Friendshub.Application.Implementations
             return new UserProfileData
             {
                 Username = user.Username,
-                ProfileImageUrl = user.ProfileImageUrl?.ToFullImageUrl(),
+                ProfileImageUrl = user.ProfileImageUrl?.ToFullImagePath(),
                 FollowersCount = followersCount,
                 FollowingCount = followingCount,
                 PostCount = postCount,

@@ -1,4 +1,5 @@
 using FluentValidation;
+using Friendshub.Api.Hubs;
 using Friendshub.Api.Services;
 using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Implementations;
@@ -125,7 +126,7 @@ builder.Services.AddAuthentication(options =>
     var app = builder.Build();
     app.UseStaticFiles();
     app.UseCors("ReactAppPolicy");
-    app.MapHub<NotificationHub>("/hubs/notifications");
+    app.MapHub<NotificationsHub>("/hubs/notifications");
 
 if (app.Environment.IsDevelopment())
     {

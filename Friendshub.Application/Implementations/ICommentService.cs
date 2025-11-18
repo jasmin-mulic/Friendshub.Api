@@ -65,7 +65,7 @@ namespace Friendshub.Application.Implementations
                 CommentedAt = DateTime.Now,
                 Content = comment.Content,
                 Username = user.Username,
-                UserProfileImageUrl = user.ProfileImageUrl == null ? null : user.ProfileImageUrl.ToFullImageUrl(),
+                UserProfileImageUrl = user.ProfileImageUrl == null ? null : user.ProfileImageUrl.ToFullImagePath(),
                 UserId = user.Id,
             };
             return commentClient;

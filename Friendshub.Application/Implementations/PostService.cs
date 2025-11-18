@@ -73,7 +73,7 @@ namespace Friendshub.Application.Implementations
                 Content = newPost.Content,
                 Username = newPost.User.Username,
                 PostId = newPost.Id,
-                PostImagesUrl = newPost.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
+                PostImagesUrl = newPost.PostsImages.Select(x => x.ImgUrl.ToFullImagePath()).ToList(),
                 PostedAt = newPost.PostedAt,
                 Likes = new List<UserBasicInfo>(),
                 UserId = user.Id,
@@ -146,14 +146,14 @@ namespace Friendshub.Application.Implementations
                 PostId = p.Id,
                 Content = p.Content,
                 PostedAt = p.PostedAt,
-                ProfileImgUrl = p.User.ProfileImageUrl.ToFullImageUrl(),
-                PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl.ToFullImageUrl()).ToList(),
+                ProfileImgUrl = p.User.ProfileImageUrl.ToFullImagePath(),
+                PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl.ToFullImagePath()).ToList(),
                 LikeCount = p.Likes?.Count ?? 0,
                 Likes = p.Likes?.Select(l => new UserBasicInfo
                 {
                     UserId = l.UserId,
                     Username = l.User.Username,
-                    ProfileImageUrl = l.User.ProfileImageUrl.ToFullImageUrl()
+                    ProfileImageUrl = l.User.ProfileImageUrl.ToFullImagePath()
                 }).ToList(),
                 Comments = p.Comments?.Select(c => new CommentClientDto
                 {
@@ -162,13 +162,13 @@ namespace Friendshub.Application.Implementations
                     Username = c.User.Username,
                     Content = c.Content,
                     CommentedAt = c.CommentedAt,
-                    CommentImageUrl = c.CommentImageUrl.ToFullImageUrl(),
-                    UserProfileImageUrl = c.User.ProfileImageUrl.ToFullImageUrl(),
+                    CommentImageUrl = c.CommentImageUrl.ToFullImagePath(),
+                    UserProfileImageUrl = c.User.ProfileImageUrl.ToFullImagePath(),
                     CommentLikes = c.CommentLikes.Select(cl => new UserBasicInfo
                     {
                         UserId = cl.UserId,
                         Username = cl.User.Username,
-                        ProfileImageUrl = cl.User.ProfileImageUrl.ToFullImageUrl()
+                        ProfileImageUrl = cl.User.ProfileImageUrl.ToFullImagePath()
                     }).ToList()
                 }).OrderByDescending(x => x.CommentedAt).ToList()
             }).ToList();

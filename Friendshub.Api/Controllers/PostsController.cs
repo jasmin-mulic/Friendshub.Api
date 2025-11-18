@@ -1,9 +1,7 @@
 ﻿using Friendshub.Api.Extensions;
 using Friendshub.Application.DTO.DtoPost;
 using Friendshub.Application.DTO.PostDto;
-using Friendshub.Application.Implementations;
 using Friendshub.Application.Interfaces.Services;
-using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +16,13 @@ namespace Friendshub.Api.Controllers
         private readonly ILIkeService _likeService;
         private readonly IPostService _postService;
         private readonly ICommentService _commentService;
-        public PostsController(IPostService postService, ILIkeService likeService, ICommentService commentService)
+        private readonly INotificationService _notificationService;
+        public PostsController(IPostService postService, ILIkeService likeService, ICommentService commentService, INotificationService notificationService)
         {
             _postService = postService;
             _likeService = likeService;
             _commentService = commentService;
+            _notificationService = notificationService;
         }
         [HttpGet("my-posts/page/{page}")]
         public async Task<IActionResult> GetmyPosts([FromRoute] int page)
@@ -114,6 +114,7 @@ namespace Friendshub.Api.Controllers
                     return BadRequest("Post is deleted.");
 
                 var likeResponse = await _likeService.LikePost(userId, postId);
+                await _notificationService.CreateNotification(userId, post.UserId, NotificationType.Like, postId);
                 return Ok(likeResponse);
             }
             catch (Exception exc)

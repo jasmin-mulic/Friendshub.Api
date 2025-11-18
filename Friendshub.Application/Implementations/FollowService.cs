@@ -65,7 +65,7 @@ namespace Friendshub.Application.Implementations
             {
                 UserId = f.Id,
                 Username = f.Username,
-                ProfileImageUrl = f.ProfileImageUrl?.ToFullImageUrl(),
+                ProfileImageUrl = f.ProfileImageUrl?.ToFullImagePath(),
             }).ToList();
             return followersList;
         }
@@ -78,7 +78,7 @@ namespace Friendshub.Application.Implementations
             {
                 UserId = f.Id,
                 Username = f.Username,
-                ProfileImageUrl = f.ProfileImageUrl?.ToFullImageUrl(),
+                ProfileImageUrl = f.ProfileImageUrl?.ToFullImagePath(),
             }).ToList();
             return followingsList;
         }
@@ -100,7 +100,7 @@ namespace Friendshub.Application.Implementations
             {
                 UserId = u.Id,
                 Username = u.Username,
-                ProfileImageUrl = u.ProfileImageUrl?.ToFullImageUrl(),
+                ProfileImageUrl = u.ProfileImageUrl?.ToFullImagePath(),
                 PendingRequest = pendingRequests.Contains(u.Id)
             }).ToList();
 

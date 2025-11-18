@@ -6,7 +6,7 @@ namespace Friendshub.Application.Extensions
     {
         private const string BackendBaseUrl = "https://localhost:7291/";
 
-        public static string ToFullImageUrl(this string relativePath)
+        public static string ToFullImagePath(this string relativePath)
         {
             if (string.IsNullOrWhiteSpace(relativePath))
                 return null;

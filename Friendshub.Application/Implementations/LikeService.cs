@@ -80,7 +80,7 @@ namespace Friendshub.Application.Implementations
                 return null;
             var postLikesDto = likes.Select(postLike => new UserBasicInfo
             {
-                ProfileImageUrl = postLike.User.ProfileImageUrl?.ToFullImageUrl(),
+                ProfileImageUrl = postLike.User.ProfileImageUrl?.ToFullImagePath(),
                 UserId = postLike.UserId,
                 Username = postLike.User.Username,
 
