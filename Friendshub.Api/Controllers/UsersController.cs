@@ -23,11 +23,11 @@ namespace Friendshub.Api.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetLoggedUserProfileData()
         {
-            var userIdFromClaims = User.GetUserId();
-            if (userIdFromClaims == Guid.Empty)
+            var idFromClaims = User.GetUserId();
+            if (idFromClaims == Guid.Empty)
                 return Unauthorized();
 
-            var userData = await _userService.GetLoggedUserData(userIdFromClaims);
+            var userData = await _userService.GetLoggedUserData(idFromClaims);
             return Ok(userData);
         }
         [Authorize]

@@ -29,10 +29,10 @@ namespace Friendshub.Api.Controllers
         {
             try
             {
-                var userIdFromClaims = User.GetUserId();
-                if (Guid.Empty == userIdFromClaims)
+                var idFromClaims = User.GetUserId();
+                if (Guid.Empty == idFromClaims)
                     return Unauthorized("You are logged out.");
-                var posts = await _postService.GetLoggedUserPosts(userIdFromClaims, page);
+                var posts = await _postService.GetLoggedUserPosts(idFromClaims, page);
                 return Ok(posts);
             }
             catch (Exception exc)
