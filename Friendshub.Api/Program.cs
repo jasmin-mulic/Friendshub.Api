@@ -83,7 +83,6 @@ builder.Services.AddScoped<ILIkeService, LikeService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<INotificationHub, NotificationHubService>();
 
 
 builder.Services.AddCors(options =>
