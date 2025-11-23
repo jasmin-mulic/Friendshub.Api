@@ -14,16 +14,18 @@ namespace Friendshub.Application.Implementations
             _unitOfWork = unitOfWork;
             
         }
-        public async Task CreateNotification(Guid senderId, Guid receiverId, NotificationType type, Guid? entityId = null)
+        public async Task<string> AddNotification(Guid senderId, Guid receiverId, NotificationType type, Guid? entityId = null)
         {
             if (senderId == receiverId)
-                return;
+                return null;
             var sender = await _unitOfWork.UserRepository.GetUserByIdAsNoTracking(senderId);
+
             if (sender == null)
-                return;
+                return null;
             var reciever = await _unitOfWork.UserRepository.GetUserByIdAsNoTracking(senderId);
+
             if (reciever == null)
-                return;
+                return null;
 
             var message = sender.Username.BuildNotificationMessage(type);
 
@@ -36,6 +38,8 @@ namespace Friendshub.Application.Implementations
                 Message = message,
             };
             await _unitOfWork.NotificationRepository.AddNotificationAsync(notification);
+            await _unitOfWork.ApplyChangesAsync();
+            return message;
         }
 
         public Task<PageResult<ClientNotificationDto>> GetNotificationsAsync(Guid recieverId, int pageNumber = 1)
