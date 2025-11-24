@@ -1,6 +1,4 @@
 using FluentValidation;
-using Friendshub.Api.Hubs;
-using Friendshub.Api.Services;
 using Friendshub.Api.SignalR;
 using Friendshub.Application.DTO.Auth;
 using Friendshub.Application.Implementations;
@@ -8,7 +6,6 @@ using Friendshub.Application.Interfaces;
 using Friendshub.Application.Interfaces.Implementations;
 using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Application.Interfaces.Services;
-using Friendshub.Application.Interfaces.SignalR;
 using Friendshub.Application.Repositories;
 using Friendshub.Infrastructure.Data;
 using Friendshub.Infrastructure.Implementations;
