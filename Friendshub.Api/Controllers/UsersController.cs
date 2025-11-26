@@ -78,7 +78,7 @@ namespace Friendshub.Api.Controllers
             if (userId == Guid.Empty)
                 return Unauthorized("You are logged out.");
 
-            var followers = await _followService.GetUserFollowersList(userId);
+            var followers = await _followService.GetFollowers(userId);
             return Ok(new { followers });
         }
         [Authorize]

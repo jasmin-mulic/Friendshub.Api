@@ -5,7 +5,7 @@ namespace Friendshub.Application.Interfaces.Services
 {
     public interface IFollowService
     {
-        Task<List<UserBasicInfo>> GetUserFollowersList(Guid userId);
+        Task<List<UserBasicInfo>> GetFollowers(Guid userId);
         Task<List<UserBasicInfo>> GetUserFollowingsList(Guid userId);
         Task<string> AddFollowAsync(Guid folower, Guid Folowee);
         Task RemoveFromFollows(Guid followerId, Guid followeeId);

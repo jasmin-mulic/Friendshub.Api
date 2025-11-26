@@ -124,7 +124,7 @@ namespace Friendshub.Api.Controllers
         }
         
         [HttpPost("add-comment/{postId}")]
-        public async Task<IActionResult> AddComment([FromRoute] Guid postId, AddCommentDto comment)
+        public async Task<IActionResult> AddCommentToPost([FromRoute] Guid postId, AddCommentDto comment)
         {
             try
             {

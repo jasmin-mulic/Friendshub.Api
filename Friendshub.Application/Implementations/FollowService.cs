@@ -57,7 +57,7 @@ namespace Friendshub.Application.Implementations
             return "Followed";
         }
 
-        public async Task<List<UserBasicInfo>> GetUserFollowersList(Guid userId)
+        public async Task<List<UserBasicInfo>> GetFollowers(Guid userId)
         {
             var followers =  await _unitOfWork.FollowRepository.GetUserFollowers(userId);
 
