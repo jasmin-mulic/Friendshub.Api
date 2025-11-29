@@ -1,5 +1,4 @@
-﻿using Friendshub.Application.DTO.UserDto;
-using Friendshub.Domain.Models;
+﻿using Friendshub.Domain.Models;
 namespace Friendshub.Application.Interfaces.Repositories
 {
     public interface IUserRepository

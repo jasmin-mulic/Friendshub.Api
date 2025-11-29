@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace Friendshub.Application.DTO.UserDto
+namespace Friendshub.Application.Features.Users.DTO
 {
     public class UpdateUserInfoDto
     {

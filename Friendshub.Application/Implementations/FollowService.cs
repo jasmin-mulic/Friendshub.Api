@@ -1,6 +1,6 @@
 ﻿using Friendshub.Application.DTO;
-using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Extensions;
+using Friendshub.Application.Features.Users.DTO;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
@@ -16,9 +16,10 @@ namespace Friendshub.Application.Implementations
         }
         public async Task<string> AddFollowAsync(Guid followerId, Guid followeeId)
         {
+            // TODO: Missing transactions
             var existingFollow = await _unitOfWork.FollowRepository.GetByIdAsync(followerId, followeeId);
 
-            if (existingFollow != null)
+            if (existingFollow is not null)
             {
                 _unitOfWork.FollowRepository.RemoveFollow(existingFollow);
                 await _unitOfWork.ApplyChangesAsync();

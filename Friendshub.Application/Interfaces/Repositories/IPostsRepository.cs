@@ -1,7 +1,4 @@
-﻿using Friendshub.Application.DTO;
-using Friendshub.Application.DTO.DtoPost;
-using Friendshub.Application.DTO.PostDto;
-using Friendshub.Domain.Models;
+﻿using Friendshub.Domain.Models;
 namespace Friendshub.Application.Interfaces.Repositories
 {
     public interface IPostRepository

@@ -1,9 +1,4 @@
-﻿using Friendshub.Application.DTO;
-using Friendshub.Application.DTO.DtoPost;
-using Friendshub.Application.DTO.PostDto;
-using Friendshub.Application.DTO.UserDto;
-using Friendshub.Application.Extensions;
-using Friendshub.Application.Interfaces.Repositories;
+﻿using Friendshub.Application.Interfaces.Repositories;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using Friendshub.Infrastructure.Data;

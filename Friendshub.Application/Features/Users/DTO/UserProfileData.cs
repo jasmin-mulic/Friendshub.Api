@@ -1,6 +1,6 @@
-﻿using Friendshub.Application.DTO.DtoPost;
+﻿using Friendshub.Application.Features.Posts.DTO;
 
-namespace Friendshub.Application.DTO.UserDto
+namespace Friendshub.Application.Features.Users.DTO
 {
     public class UserProfileData
     {

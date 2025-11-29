@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Friendshub.Api.Extensions;
-using Friendshub.Application.DTO.Auth;
+using Friendshub.Application.Features.Auth;
+using Friendshub.Application.Features.Auth.DTO;
+using Friendshub.Application.Features.Users;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Application.Results;
@@ -22,7 +24,7 @@ namespace Friendshub.Api.Controllers
             _userService = userService;
         }
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync( [FromBody] LoginUserDto request, [FromServices] IValidator<LoginUserDto> validator)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginUserDto request, [FromServices] IValidator<LoginUserDto> validator)
         {
             try
             {

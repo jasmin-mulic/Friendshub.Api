@@ -1,9 +1,7 @@
-﻿using Friendshub.Application.DTO.DtoPost;
-using Friendshub.Application.DTO.UserDto;
-using Friendshub.Domain.Models;
+﻿using Friendshub.Application.Features.Users.DTO;
 
 
-namespace Friendshub.Application.DTO.PostDto
+namespace Friendshub.Application.Features.Posts.DTO
 {
     public class LikeCommentResponseDto
     {

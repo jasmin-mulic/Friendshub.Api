@@ -1,6 +1,8 @@
 using FluentValidation;
-using Friendshub.Api.SignalR;
-using Friendshub.Application.DTO.Auth;
+using Friendshub.Application.Features.Auth;
+using Friendshub.Application.Features.Auth.DTO;
+using Friendshub.Application.Features.Posts;
+using Friendshub.Application.Features.Users;
 using Friendshub.Application.Implementations;
 using Friendshub.Application.Interfaces;
 using Friendshub.Application.Interfaces.Implementations;
@@ -20,10 +22,17 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-}); ;
+builder
+    .Services
+    .AddControllers()
+    .AddJsonOptions
+    (
+        options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        }
+    );
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -72,6 +81,9 @@ builder.Services.AddScoped<IFollowRequestRepository, FollowRequestRepository>();
 builder.Services.AddScoped<IPostLikeRepository, PostLikeRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+builder
+    .Services
+    .AddScoped<INotificationService, NotificationService>();
 
 //Services DI
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -87,7 +99,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("ReactAppPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") 
+        policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); // 
@@ -120,19 +132,19 @@ builder.Services.AddAuthentication(options =>
 }
     );
 
-    var app = builder.Build();
-    app.UseStaticFiles();
-    app.UseCors("ReactAppPolicy");
-    app.MapHub<NotificationHub>("/hubs/notifications");
+var app = builder.Build();
+app.UseStaticFiles();
+app.UseCors("ReactAppPolicy");
+//app.MapHub<NotificationHub>("/hubs/notifications");
 
 if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-    app.UseHttpsRedirection();
-    app.UseAuthentication();
-    app.UseAuthorization();
-    app.MapControllers();
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
 
-    app.Run();
+app.Run();

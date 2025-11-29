@@ -1,8 +1,7 @@
-﻿
-using Friendshub.Domain.Models;
+﻿using Friendshub.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Friendshub.Application.DTO.Auth
+namespace Friendshub.Application.Features.Auth.DTO
 {
     public class LoginUserDto
     {

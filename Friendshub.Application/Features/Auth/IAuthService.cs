@@ -1,8 +1,7 @@
-﻿
-using Friendshub.Application.DTO.Auth;
+﻿using Friendshub.Application.Features.Auth.DTO;
 using Friendshub.Application.Results;
 
-namespace Friendshub.Application.Interfaces.Services
+namespace Friendshub.Application.Features.Auth
 {
     public interface IAuthService
     {

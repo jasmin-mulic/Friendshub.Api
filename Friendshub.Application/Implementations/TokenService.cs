@@ -35,6 +35,7 @@ namespace Friendshub.Application.Interfaces.Implementations
 
         public async Task<string> CreateAccessToken(User user)
         {
+            // TODO: Use options pattern for JwtSettings then you will remove half of these castings
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
             var expiryInMinutes = Convert.ToInt32(jwtSettings["ExpiryInMinutes"]);
@@ -73,8 +74,8 @@ namespace Friendshub.Application.Interfaces.Implementations
         public async Task DeleteRefreshTokenByUserId(Guid userId)
         {
             var token = await _unitOfWork.TokenRepository.GetRefreshTokenByUserId(userId);
-             _unitOfWork.TokenRepository.RemoveRefreshToken(token);
-        await _unitOfWork.ApplyChangesAsync();
+            _unitOfWork.TokenRepository.RemoveRefreshToken(token);
+            await _unitOfWork.ApplyChangesAsync();
         }
 
         public Task<RefreshToken> GetRefreshTokenByValue(string value)

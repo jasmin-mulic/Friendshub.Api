@@ -23,7 +23,7 @@ namespace Friendshub.Infrastructure.Implementations
         public IPostLikeRepository PostLikeRepository { get; }
         public ICommentLikeRepository CommentLikeRepository { get; }
         public UnitOfWork(FriendshubDbContext context,
-                         IConfiguration configuration, 
+                         IConfiguration configuration,
                          IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
@@ -32,7 +32,7 @@ namespace Friendshub.Infrastructure.Implementations
             TokenRepository = new TokenRepository(_context, _configuration);
             UserRepository = new UserRepository(_context, _webHostEnvironment);
             NotificationRepository = new NotificationRepository(_context);
-            PostRepository = new PostRepository(_context, webHostEnvironment,NotificationRepository);
+            PostRepository = new PostRepository(_context, webHostEnvironment, NotificationRepository);
             UserRoleRepository = new UserRoleRepository(_context);
             FollowRepository = new FollowRepository(_context);
             PostLikeRepository = new PostLikeRepository(_context);
@@ -40,12 +40,12 @@ namespace Friendshub.Infrastructure.Implementations
             CommentLikeRepository = new CommentLikeRepository(_context);
             FollowRequestRepository = new FollowRequestRepository(_context);
         }
-           
+
         public async Task<bool> ApplyChangesAsync()
         {
             try
             {
-                    return await _context.SaveChangesAsync() > 0;
+                return await _context.SaveChangesAsync() > 0;
 
             }
             catch (Exception exc)
@@ -60,8 +60,8 @@ namespace Friendshub.Infrastructure.Implementations
         }
         protected virtual void Dispose(bool disposing)
         {
-            if(!_disposed)
-                if(disposing)
+            if (!_disposed)
+                if (disposing)
                 {
                     _context?.Dispose();
                 }

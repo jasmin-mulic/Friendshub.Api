@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Friendshub.Domain\Friendshub.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Repository\" />
+  </ItemGroup>
+
 </Project>

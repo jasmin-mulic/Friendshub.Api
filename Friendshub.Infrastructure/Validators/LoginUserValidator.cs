@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Friendshub.Application.DTO.Auth;
+using Friendshub.Application.Features.Auth.DTO;
 
 namespace Friendshub.Infrastructure.Validators
 {

@@ -1,5 +1,5 @@
 ﻿using Friendshub.Application.DTO;
-using Friendshub.Application.DTO.UserDto;
+using Friendshub.Application.Features.Users.DTO;
 
 namespace Friendshub.Application.Interfaces.Services
 {

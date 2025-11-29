@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Friendshub.Application.DTO.Auth;
+using Friendshub.Application.Features.Auth.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +13,7 @@ namespace Friendshub.Infrastructure.Validators
         public RegisterUserDtoValidator()
         {
             RuleFor(x => x.Username)
-            .NotEmpty()
-            .WithMessage("Username can't be empty.")
+            .NotEmpty().WithMessage("Username can't be empty.")
             .MinimumLength(3)
             .WithMessage("Username must be at least 3 characters long")
             .MaximumLength(15)

@@ -1,6 +1,6 @@
 ﻿using Friendshub.Domain.Models;
 
-namespace Friendshub.Application.DTO.Auth
+namespace Friendshub.Application.Features.Auth.DTO
 {
     public class LoginResult
     {

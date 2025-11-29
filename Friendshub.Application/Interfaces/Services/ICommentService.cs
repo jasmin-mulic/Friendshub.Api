@@ -1,5 +1,4 @@
-﻿using Friendshub.Application.DTO.DtoPost;
-using Friendshub.Application.DTO.PostDto;
+﻿using Friendshub.Application.Features.Posts.DTO;
 using Friendshub.Domain.Models;
 
 namespace Friendshub.Application.Interfaces.Services

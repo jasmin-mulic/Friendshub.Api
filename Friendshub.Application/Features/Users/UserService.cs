@@ -1,12 +1,11 @@
-﻿using Friendshub.Application.DTO.UserDto;
-using Friendshub.Application.Extensions;
+﻿using Friendshub.Application.Extensions;
+using Friendshub.Application.Features.Users.DTO;
 using Friendshub.Application.Interfaces.Repositories;
-using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 using System.Net.Mail;
 
-namespace Friendshub.Application.Implementations
+namespace Friendshub.Application.Features.Users
 {
     public class UserService : IUserService
     {

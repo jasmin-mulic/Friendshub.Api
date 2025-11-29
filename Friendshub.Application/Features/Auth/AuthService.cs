@@ -1,10 +1,9 @@
-﻿using BCrypt.Net;
-using Friendshub.Application.DTO.Auth;
+﻿using Friendshub.Application.Features.Auth.DTO;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Application.Results;
 using Friendshub.Domain.Models;
-namespace Friendshub.Application.Implementations
+namespace Friendshub.Application.Features.Auth
 {
     public class AuthService : IAuthService
     {
@@ -21,6 +20,7 @@ namespace Friendshub.Application.Implementations
             var result = new LoginResult();
             var user = await _unitOfWork.UserRepository.GetUserByEmailOrUsername(querryNormalized);
 
+            // TODO: Dodati salt
             if (user == null || BCrypt.Net.BCrypt.EnhancedVerify(request.Password, user.PasswordHash) == false)
             {
                 result.Success = false;

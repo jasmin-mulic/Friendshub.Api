@@ -1,7 +1,7 @@
-﻿using Friendshub.Application.DTO.UserDto;
+﻿using Friendshub.Application.Features.Users.DTO;
 using Friendshub.Domain.Models;
 
-namespace Friendshub.Application.DTO.DtoPost
+namespace Friendshub.Application.Features.Posts.DTO
 {
     public class PostClientDto
     {

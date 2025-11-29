@@ -1,7 +1,7 @@
-﻿using Friendshub.Application.DTO.UserDto;
+﻿using Friendshub.Application.Features.Users.DTO;
 using Friendshub.Domain.Models;
 
-namespace Friendshub.Application.Interfaces.Services
+namespace Friendshub.Application.Features.Users
 {
     public interface IUserService
     {

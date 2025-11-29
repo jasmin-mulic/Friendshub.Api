@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Friendshub.Application.DTO.PostDto
+namespace Friendshub.Application.Features.Posts.DTO
 {
     public class AddCommentDto
     {

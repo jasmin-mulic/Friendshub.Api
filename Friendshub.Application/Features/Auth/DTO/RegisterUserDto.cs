@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Friendshub.Application.DTO.Auth
+namespace Friendshub.Application.Features.Auth.DTO
 {
     public class RegisterUserDto
     {

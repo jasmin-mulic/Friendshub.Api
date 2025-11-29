@@ -1,4 +1,4 @@
-﻿namespace Friendshub.Application.DTO.UserDto
+﻿namespace Friendshub.Application.Features.Users.DTO
 {
     public class LoggedUserData
     {

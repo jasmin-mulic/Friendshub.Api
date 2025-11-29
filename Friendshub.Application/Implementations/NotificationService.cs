@@ -6,7 +6,7 @@ using Friendshub.Domain.Models;
 
 namespace Friendshub.Application.Implementations
 {
-    internal class NotificationService : INotificationService
+    public class NotificationService : INotificationService
     {
         private readonly IUnitOfWork _unitOfWork;
         public NotificationService(IUnitOfWork unitOfWork)

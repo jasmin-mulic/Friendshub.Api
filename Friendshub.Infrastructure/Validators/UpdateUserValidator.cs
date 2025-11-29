@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Friendshub.Application.DTO.UserDto;
+using Friendshub.Application.Features.Users.DTO;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 

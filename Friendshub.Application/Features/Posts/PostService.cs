@@ -1,12 +1,11 @@
 ﻿using Friendshub.Application.DTO;
-using Friendshub.Application.DTO.DtoPost;
-using Friendshub.Application.DTO.UserDto;
 using Friendshub.Application.Extensions;
-using Friendshub.Application.Interfaces.Services;
+using Friendshub.Application.Features.Posts.DTO;
+using Friendshub.Application.Features.Users.DTO;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
 
-namespace Friendshub.Application.Implementations
+namespace Friendshub.Application.Features.Posts
 {
     public class PostService : IPostService
     {

@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-namespace Friendshub.Domain.Models
+﻿namespace Friendshub.Domain.Models
 {
     public class Post : BaseEntity
     {

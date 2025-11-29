@@ -29,7 +29,7 @@ namespace Friendshub.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(FriendshubDbContext).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(AssemblyReference.Assembly);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Friendshub.Api.Extensions;
-using Friendshub.Application.DTO.DtoPost;
-using Friendshub.Application.DTO.PostDto;
+using Friendshub.Application.Features.Posts;
+using Friendshub.Application.Features.Posts.DTO;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +24,7 @@ namespace Friendshub.Api.Controllers
             _commentService = commentService;
             _notificationService = notificationService;
         }
+        
         [HttpGet("my-posts/page/{page}")]
         public async Task<IActionResult> GetmyPosts([FromRoute] int page)
         {
@@ -40,7 +41,8 @@ namespace Friendshub.Api.Controllers
                 throw new ApplicationException(exc.Message);
             }
         }
-        [HttpPost("add-post")]
+        
+        [HttpPost("/posts")]
         public async Task<IActionResult> AddPost(AddPostDto request)
         {
             try
@@ -60,7 +62,8 @@ namespace Friendshub.Api.Controllers
                 throw new ApplicationException(exc.Message);
             }
         }
-        [HttpGet("get-feed-posts/page/{page}")]
+
+        [HttpGet("/posts/{page}")]
         public async Task<IActionResult> GetFeedPosts([FromRoute] int page)
         {
             try
@@ -80,6 +83,7 @@ namespace Friendshub.Api.Controllers
 
             }
         }
+        
         [HttpDelete("delete-post")]
         public async Task<IActionResult> DeletePost(Guid postId)
         {
@@ -99,6 +103,7 @@ namespace Friendshub.Api.Controllers
                 return BadRequest(exc.Message);
             }
         }
+        
         [HttpPost("like")]
         public async Task<IActionResult> LikePost(Guid postId)
         {
@@ -149,6 +154,7 @@ namespace Friendshub.Api.Controllers
                 return BadRequest(exc.Message);
             }
         }
+        
         [HttpPost("like-comment/{commentId}")]
         public async Task<IActionResult> LikeComment([FromRoute] Guid commentId)
         {
@@ -165,6 +171,7 @@ namespace Friendshub.Api.Controllers
                 return BadRequest(exc.Message);
             }
         }
+        
         [HttpDelete("comment/{commentId}")]
         public async Task<IActionResult> DeleteComment([FromRoute] Guid commentId)
         {
