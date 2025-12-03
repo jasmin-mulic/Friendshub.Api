@@ -59,7 +59,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.CommentLike", b =>
@@ -77,7 +77,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("CommentId");
 
-                    b.ToTable("CommentLikes", (string)null);
+                    b.ToTable("CommentLikes");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Follow", b =>
@@ -92,7 +92,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("FolloweeId");
 
-                    b.ToTable("Follows", (string)null);
+                    b.ToTable("Follows");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.FollowRequest", b =>
@@ -110,7 +110,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("RecieverId");
 
-                    b.ToTable("FollowRequests", (string)null);
+                    b.ToTable("FollowRequests");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Notification", b =>
@@ -152,7 +152,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Post", b =>
@@ -184,7 +184,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.PostImage", b =>
@@ -203,7 +203,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostImages", (string)null);
+                    b.ToTable("PostImages");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.PostLike", b =>
@@ -221,7 +221,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostLikes", (string)null);
+                    b.ToTable("PostLikes");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.RefreshToken", b =>
@@ -243,7 +243,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Role", b =>
@@ -259,7 +259,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
@@ -313,7 +313,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.UserRole", b =>
@@ -328,7 +328,7 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("Friendshub.Domain.Models.Comment", b =>
