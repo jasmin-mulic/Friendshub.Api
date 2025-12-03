@@ -24,25 +24,19 @@ namespace Friendshub.Api.Controllers
             _commentService = commentService;
             _notificationService = notificationService;
         }
-        
-        [HttpGet("my-posts/page/{page}")]
-        public async Task<IActionResult> GetmyPosts([FromRoute] int page)
+
+        [HttpGet()]
+        public async Task<IActionResult> GetMyPosts([FromQuery] int page = 1)
         {
-            try
-            {
-                var idFromClaims = User.GetUserId();
-                if (Guid.Empty == idFromClaims)
-                    return Unauthorized("You are logged out.");
-                var posts = await _postService.GetLoggedUserPosts(idFromClaims, page);
-                return Ok(posts);
-            }
-            catch (Exception exc)
-            {
-                throw new ApplicationException(exc.Message);
-            }
-        }
-        
-        [HttpPost("/posts")]
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+                return Unauthorized("You are logged out.");
+
+            var posts = await _postService.GetLoggedUserPosts(userId, page);
+            return Ok(posts);
+        }   
+
+        [HttpPost()]
         public async Task<IActionResult> AddPost(AddPostDto request)
         {
             try
