@@ -87,6 +87,7 @@ namespace Friendshub.Application.Features.Posts
             if (post == null)
                 return false;
             _unitOfWork.PostRepository.DeletePost(post);
+            await _unitOfWork.ApplyChangesAsync();
             return true;
         }
 
@@ -147,7 +148,7 @@ namespace Friendshub.Application.Features.Posts
                 PostedAt = p.PostedAt,
                 ProfileImgUrl = p.User.ProfileImageUrl.ToFullImagePath(),
                 PostImagesUrl = p.PostsImages.Select(x => x.ImgUrl.ToFullImagePath()).ToList(),
-                LikeCount = p.Likes?.Count ?? 0,
+                LikeCount = p.Likes.Count,
                 Likes = p.Likes?.Select(l => new UserBasicInfo
                 {
                     UserId = l.UserId,
@@ -163,7 +164,7 @@ namespace Friendshub.Application.Features.Posts
                     CommentedAt = c.CommentedAt,
                     CommentImageUrl = c.CommentImageUrl.ToFullImagePath(),
                     UserProfileImageUrl = c.User.ProfileImageUrl.ToFullImagePath(),
-                    CommentLikes = c.CommentLikes.Select(cl => new UserBasicInfo
+                    CommentLikes = c.CommentLikes?.Select(cl => new UserBasicInfo
                     {
                         UserId = cl.UserId,
                         Username = cl.User.Username,

@@ -56,7 +56,15 @@ namespace Friendshub.Infrastructure.Implementations
             var query = _context.Posts
                 .Include(p => p.PostsImages)
                 .Include(p => p.User)
-                .Include(p => p.Comments).ThenInclude(c => c.CommentLikes)
+
+                .Include(p => p.Comments)
+                    .ThenInclude(c => c.User)
+
+                .Include(p => p.Comments)
+                    .ThenInclude(c => c.CommentLikes)
+                        .ThenInclude(cl => cl.User)
+                .Include(p => p.Likes)
+                .ThenInclude(pl => pl.User)
                 .Where(p => p.UserId == userId || followingUsersIds.Contains(p.UserId))
                 .AsNoTracking();
 

@@ -37,8 +37,8 @@ namespace Friendshub.Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("follow-recommendations/{page}")]
-        public async Task<IActionResult> GetFollowRecommendations([FromRoute] int page)
+        [HttpGet("me/follow-recommendations")]
+        public async Task<IActionResult> GetFollowRecommendations([FromQuery]int page = 1)
         {
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
@@ -49,34 +49,37 @@ namespace Friendshub.Api.Controllers
         }
 
         [Authorize]
-        [HttpPost("follow-user")]
-        public async Task<IActionResult> FollowUser(Guid foloweeId)
+        [HttpPost("{followeeId}/follow")]
+        public async Task<IActionResult> FollowUser([FromRoute]Guid followeeId)
         {
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
                 return Unauthorized();
-            if (userId == foloweeId)
+            if (userId == followeeId)
                 return BadRequest("You can't follow yourself.");
 
-            var message = await _followService.AddFollowAsync(userId, foloweeId);
+            var message = await _followService.AddFollowAsync(userId, followeeId);
 
             return Ok(new { message });
         }
         
         [Authorize]
-        [HttpPost("remove-follower/{followeeId}")]
-        public async Task<IActionResult> RemoveFollower([FromRoute] Guid followeeId)
+        [HttpDelete("{followeeId}/follow")]
+        public async Task<IActionResult> UnfollowUser([FromRoute] Guid followeeId)
         {
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
                 return Unauthorized("You are logged out.");
 
-            await _followService.RemoveFromFollowers(userId, followeeId);
-            return Ok(new { message = "Follower removed." });
+            var isDeleted = await _followService.RemoveFollowAsync(userId, followeeId);
+            if (isDeleted)
+            return Ok(new { Message = "User unfollowed." });
+
+            return BadRequest(new { Message = "Error unfollowing user" });
         }
         
         [Authorize]
-        [HttpGet("followers-list")]
+        [HttpGet("me/followers")]
         public async Task<IActionResult> GetFollowersList()
         {
             var userId = User.GetUserId();
@@ -88,7 +91,7 @@ namespace Friendshub.Api.Controllers
         }
         
         [Authorize]
-        [HttpGet("following-list")]
+        [HttpGet("me/followings")]
         public async Task<IActionResult> GetFollowingList()
         {
             var userId = User.GetUserId();
@@ -101,13 +104,25 @@ namespace Friendshub.Api.Controllers
         
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUserInfo([FromRoute] Guid id, [FromForm] UpdateUserInfoDto request, [FromServices] IValidator<UpdateUserInfoDto> validator)
+
+        [Authorize]
+        [HttpDelete("{followerId}/follows")]
+        public async Task<IActionResult> RemoveFollower(Guid followerId)
+        {
+            var loggedUserId = User.GetUserId();
+            if (loggedUserId == Guid.Empty)
+                return Unauthorized("You are logged out.");
+
+            var removingFollowerResponse = await _followService.RemoveFollowAsync(followerId, loggedUserId);
+            return Ok(removingFollowerResponse);
+        }
+        [Authorize]
+        [HttpPut("me")]
+        public async Task<IActionResult> UpdateUserInfo([FromForm] UpdateUserInfoDto request, [FromServices] IValidator<UpdateUserInfoDto> validator)
         {
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
                 return Unauthorized("You are logged out.");
-            if (userId != id)
-                return Unauthorized("You don't have permissions.");
 
             var errors = validator.Validate(request);
             if (!errors.IsValid)

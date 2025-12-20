@@ -18,24 +18,24 @@ namespace Friendshub.Application.Implementations
         public async Task<LikeCommentResponseDto> LikePostComment(Guid commentId, Guid userId)
         {
             var response = new LikeCommentResponseDto();
-            var existingLike = await _unitOfWork.CommentLikeRepository.GetUserLikeAsync(userId,commentId);
-            if (existingLike != null)
+            var alreadyLiked = await _unitOfWork.CommentLikeRepository.GetUserLikeAsync(userId,commentId);
+            if (alreadyLiked != null)
             {
                 response.CommentId = commentId;
-                response.Message = "disliked";
                 response.User.UserId = userId;
-                _unitOfWork.CommentLikeRepository.RemoveCommentLike(existingLike);
+                response.IsLiked = true;
+                _unitOfWork.CommentLikeRepository.RemoveCommentLike(alreadyLiked);
                 await _unitOfWork.ApplyChangesAsync();
                 return response;
             }
             var user = await _unitOfWork.UserRepository.GetByIdAsNoTracking(userId);
 
-            response.Message = "liked";
             response.CommentId = commentId;
             response.User.ProfileImageUrl = user.ProfileImageUrl;
             response.User.Username = user.Username;
             response.User.ProfileImageUrl = user.ProfileImageUrl ?? null;
             response.User.UserId = userId;
+            response.IsLiked = true;
 
             var newLike = new CommentLike()
             {
@@ -46,7 +46,7 @@ namespace Friendshub.Application.Implementations
             await _unitOfWork.ApplyChangesAsync();
             return response;  
         }
-        public async Task<string> LikePost(Guid userId, Guid postId)
+        public async Task<bool> LikePost(Guid userId, Guid postId)
         {
             var post = await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
             if (post == null)
@@ -58,7 +58,7 @@ namespace Friendshub.Application.Implementations
             {
                 _unitOfWork.PostLikeRepository.RemoveLike(myLike);
                await _unitOfWork.ApplyChangesAsync();
-                return "Disliked";
+                return true;
             }
             var newLike = new PostLike
             {
@@ -70,7 +70,7 @@ namespace Friendshub.Application.Implementations
 
             await _unitOfWork.ApplyChangesAsync();
 
-            return "Liked";
+            return false;
         }
 
         public async Task<List<UserBasicInfo>> GetPostLikes(Guid PostId)

@@ -24,18 +24,6 @@ namespace Friendshub.Api.Controllers
             _commentService = commentService;
             _notificationService = notificationService;
         }
-
-        [HttpGet()]
-        public async Task<IActionResult> GetMyPosts([FromQuery] int page = 1)
-        {
-            var userId = User.GetUserId();
-            if (userId == Guid.Empty)
-                return Unauthorized("You are logged out.");
-
-            var posts = await _postService.GetLoggedUserPosts(userId, page);
-            return Ok(posts);
-        }   
-
         [HttpPost()]
         public async Task<IActionResult> AddPost(AddPostDto request)
         {
@@ -57,8 +45,22 @@ namespace Friendshub.Api.Controllers
             }
         }
 
-        [HttpGet("/posts/{page}")]
-        public async Task<IActionResult> GetFeedPosts([FromRoute] int page)
+        [HttpGet()]
+        public async Task<IActionResult> GetMyPosts([FromQuery] int page = 1)
+        {
+            var userId = User.GetUserId();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized("You are logged out.");
+            }
+
+            var posts = await _postService.GetLoggedUserPosts(userId, page);
+            return Ok(posts);
+        }
+
+
+        [HttpGet("feed")]
+        public async Task<IActionResult> GetFeedPosts([FromQuery] int page = 1)
         {
             try
             {
@@ -67,9 +69,9 @@ namespace Friendshub.Api.Controllers
                     return Unauthorized("You are logged out.");
 
                 var feed = await _postService.GetFeedPosts(userIdFromClaims, page);
-                 
+
                 return Ok(feed);
-                
+
             }
             catch (Exception exc)
             {
@@ -77,9 +79,8 @@ namespace Friendshub.Api.Controllers
 
             }
         }
-        
-        [HttpDelete("delete-post")]
-        public async Task<IActionResult> DeletePost(Guid postId)
+        [HttpDelete("{postId}")]
+        public async Task<IActionResult> DeletePost([FromRoute]Guid postId)
         {
             try
             {
@@ -98,23 +99,23 @@ namespace Friendshub.Api.Controllers
             }
         }
         
-        [HttpPost("like")]
-        public async Task<IActionResult> LikePost(Guid postId)
+        [HttpPost("{postId}/likes")]
+        public async Task<IActionResult> LikePost([FromRoute]Guid postId)
         {
             try
             {
                 var userId = User.GetUserId();
 
                  if (userId == Guid.Empty)
-                return Unauthorized("Session expired. Please log in.");
+                return Unauthorized("You are not logged in.");
 
                 var post = await _postService.GetPostByIdAsync(postId);
                 if (post == null)
                     return BadRequest("Post is deleted.");
 
-                var likeResponse = await _likeService.LikePost(userId, postId);
+                var isLiked = await _likeService.LikePost(userId, postId);
                 await _notificationService.CreateNotification(userId, post.UserId, NotificationType.Like, postId);
-                return Ok(likeResponse);
+                return Ok(new {IsLiked = isLiked});
             }
             catch (Exception exc)
             {
@@ -122,7 +123,7 @@ namespace Friendshub.Api.Controllers
             }
         }
         
-        [HttpPost("add-comment/{postId}")]
+        [HttpPost("{postId}/comments")]
         public async Task<IActionResult> AddCommentToPost([FromRoute] Guid postId, AddCommentDto comment)
         {
             try
@@ -149,7 +150,7 @@ namespace Friendshub.Api.Controllers
             }
         }
         
-        [HttpPost("like-comment/{commentId}")]
+        [HttpPost("comments/{commentId}/likes")]
         public async Task<IActionResult> LikeComment([FromRoute] Guid commentId)
         {
             try
@@ -158,7 +159,7 @@ namespace Friendshub.Api.Controllers
                 if(userIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out.");
                 var likeResponse = await _likeService.LikePostComment(commentId, userIdFromClaims);
-                return Ok(likeResponse);
+                return Ok(new { likeResponse});
             }
             catch (Exception exc)
             {

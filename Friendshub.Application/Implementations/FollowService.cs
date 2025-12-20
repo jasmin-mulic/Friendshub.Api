@@ -132,5 +132,17 @@ namespace Friendshub.Application.Implementations
             _unitOfWork.FollowRepository.RemoveFollow(follow);
             await _unitOfWork.ApplyChangesAsync();
         }
+
+        public async Task<bool> RemoveFollowAsync(Guid followerId, Guid followeeId)
+        {
+            var existingFollow = await _unitOfWork.FollowRepository.GetByIdAsync(followeeId, followerId);
+            if(existingFollow is not null)
+            {
+                _unitOfWork.FollowRepository.RemoveFollow(existingFollow);
+                await _unitOfWork.ApplyChangesAsync();
+                return true;
+            }
+            return false;
+        }
     }
 }
