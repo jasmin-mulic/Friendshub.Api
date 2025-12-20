@@ -414,3 +414,4 @@ Thumbs.db
 *.sublime-project
 /Friendshub.Api/wwwroot/uploads/posts/images
 /Friendshub.Api/wwwroot/uploads
+wwwroot/
