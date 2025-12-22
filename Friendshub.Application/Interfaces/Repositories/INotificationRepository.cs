@@ -10,6 +10,8 @@ namespace Friendshub.Application.Repositories
         void MarkAsRead(Notification notification);
         Task<Notification> GetNotificationAsync(Guid notificationId);
         Task<Notification> GetNotificationAsNoTrackingAsync(Guid notificationId);
+        Task<Notification> GetNotificationByPostId(Guid postId);
+        void DeleteNotification(Notification notification);
 
     }
 }

@@ -1,4 +1,6 @@
-using FluentValidation;
+﻿using FluentValidation;
+using Friendshub.Api.SIgnalR;
+using Friendshub.Api.SIgnalR.Hubs;
 using Friendshub.Application.Features.Auth;
 using Friendshub.Application.Features.Auth.DTO;
 using Friendshub.Application.Features.Posts;
@@ -14,6 +16,7 @@ using Friendshub.Infrastructure.Implementations;
 using Friendshub.Infrastructure.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -84,6 +87,7 @@ builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder
     .Services
     .AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationSender, SignalRNotificationSender>();
 
 //Services DI
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -93,6 +97,7 @@ builder.Services.AddScoped<ILIkeService, LikeService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
 
 
 builder.Services.AddCors(options =>
@@ -126,25 +131,49 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
         ValidAudience = builder.Configuration["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes((builder.Configuration["JwtSettings:SecretKey"]))),
-        ClockSkew = TimeSpan.Zero
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
     };
-}
-    );
+
+    // Ovo omogućava da SignalR koristi token iz query stringa
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            // Ako request ide na hub
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationsHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
+
 
 var app = builder.Build();
+
 app.UseStaticFiles();
-app.UseCors("ReactAppPolicy");
-//app.MapHub<NotificationHub>("/hubs/notifications");
+
+app.UseRouting();               
+
+app.UseCors("ReactAppPolicy"); 
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationsHub");
 
 app.Run();
+

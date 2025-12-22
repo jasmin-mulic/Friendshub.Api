@@ -1,6 +1,7 @@
 ﻿using Friendshub.Application.Extensions;
 using Friendshub.Application.Features.Posts.DTO;
 using Friendshub.Application.Features.Users.DTO;
+using Friendshub.Application.Interfaces;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
@@ -10,9 +11,12 @@ namespace Friendshub.Application.Implementations
     public class LikeService : ILIkeService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public LikeService(IUnitOfWork unitOfWork)
+        private readonly INotificationSender _notificationSender;
+
+        public LikeService(IUnitOfWork unitOfWork, INotificationSender notificationSender )
         {
             _unitOfWork = unitOfWork;
+            _notificationSender = notificationSender;
         }
 
         public async Task<LikeCommentResponseDto> LikePostComment(Guid commentId, Guid userId)
@@ -57,8 +61,11 @@ namespace Friendshub.Application.Implementations
             if (myLike != null)
             {
                 _unitOfWork.PostLikeRepository.RemoveLike(myLike);
+                var existingNotification = await _unitOfWork.NotificationRepository.GetNotificationByPostId(postId);
+                if (existingNotification != null)
+                    _unitOfWork.NotificationRepository.DeleteNotification(existingNotification);
                await _unitOfWork.ApplyChangesAsync();
-                return true;
+                return false;
             }
             var newLike = new PostLike
             {
@@ -68,9 +75,25 @@ namespace Friendshub.Application.Implementations
             };
             await _unitOfWork.PostLikeRepository.AddLike(newLike);
 
+            var userLiked = await _unitOfWork.UserRepository.GetByIdAsNoTracking(userId);
+            var notification = new Notification()
+            {
+                Id = Guid.NewGuid(),
+                NotificationType = NotificationType.Like,
+                CreatedAt = DateTime.Now,
+                ReceiverId = post.UserId,
+                SenderId = userId,
+                Message = userLiked.Username + " liked your post",
+                EntityId = post.Id,
+                isRead = false,
+            };
+            await _unitOfWork.NotificationRepository.AddNotificationAsync(notification);
             await _unitOfWork.ApplyChangesAsync();
 
-            return false;
+            if(post.UserId != userId)
+            await _notificationSender.SendAsync(post.UserId, notification);
+
+            return true;
         }
 
         public async Task<List<UserBasicInfo>> GetPostLikes(Guid PostId)

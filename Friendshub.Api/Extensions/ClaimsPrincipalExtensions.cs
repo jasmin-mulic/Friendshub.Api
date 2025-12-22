@@ -9,5 +9,6 @@ namespace Friendshub.Api.Extensions
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId != null ? Guid.Parse(userId) : Guid.Empty;
         }
+
     }
 }

@@ -66,5 +66,15 @@ namespace Friendshub.Infrastructure.Implementations
         {
             return await _context.Notifications.AsNoTracking().FirstOrDefaultAsync(x => x.Id == notificationId);
         }
+
+        public async Task<Notification> GetNotificationByPostId(Guid postId)
+        {
+           return await _context.Notifications.FirstOrDefaultAsync(x => x.EntityId == postId);
+        }
+
+        public void DeleteNotification(Notification notification)
+        {
+            _context.Notifications.Remove(notification);
+        }
     }
 }

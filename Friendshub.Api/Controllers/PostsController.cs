@@ -114,7 +114,6 @@ namespace Friendshub.Api.Controllers
                     return BadRequest("Post is deleted.");
 
                 var isLiked = await _likeService.LikePost(userId, postId);
-                await _notificationService.CreateNotification(userId, post.UserId, NotificationType.Like, postId);
                 return Ok(new {IsLiked = isLiked});
             }
             catch (Exception exc)
