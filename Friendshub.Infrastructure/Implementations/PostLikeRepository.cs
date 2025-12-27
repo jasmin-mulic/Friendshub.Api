@@ -22,6 +22,11 @@ namespace Friendshub.Infrastructure.Implementations
             return await _context.PostLikes.AsNoTracking().Where(x => x.PostId == postId).ToListAsync();
         }
 
+        public async Task<PostLike> GetPostLikeForUser(Guid postId, Guid userId)
+        {
+            return await _context.PostLikes.Include(x => x.Post).FirstOrDefaultAsync(x => x.PostId == postId && x.UserId == userId);
+        }
+
         public void RemoveLike(PostLike postLike) 
         {
             _context.PostLikes.Remove(postLike);

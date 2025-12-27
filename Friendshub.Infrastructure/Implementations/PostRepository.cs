@@ -77,9 +77,10 @@ namespace Friendshub.Infrastructure.Implementations
 
         public async Task<Post> GetPostByIdAsync(Guid postId)
         {
-            var post = await _context.Posts.FirstOrDefaultAsync(x => x.Id == postId);
+            var post = await _context.Posts.Include(x => x.Likes).FirstOrDefaultAsync(x => x.Id == postId);
             return post;
         }
+
         public async Task<List<Post>> GetUserPostsByIdPaged(Guid userId, int pageNumber, int pageSize)
         {
             if (pageNumber < 1) pageNumber = 1;
@@ -87,7 +88,8 @@ namespace Friendshub.Infrastructure.Implementations
             var query = _context.Posts
                 .Include(p => p.PostsImages)
                 .Include(p => p.User)
-                .Include(p => p.Comments).ThenInclude(c => c.CommentLikes)
+                .Include(p => p.Comments).ThenInclude(cl => cl.User)
+                .Include(p => p.Comments).ThenInclude(c => c.CommentLikes).ThenInclude(cl => cl.User)
                 .Where(p => p.UserId == userId)
                 .AsNoTracking();
 

@@ -12,6 +12,7 @@ namespace Friendshub.Application.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly INotificationSender _notificationSender;
+        
 
         public LikeService(IUnitOfWork unitOfWork, INotificationSender notificationSender )
         {
@@ -52,19 +53,15 @@ namespace Friendshub.Application.Implementations
         }
         public async Task<bool> LikePost(Guid userId, Guid postId)
         {
-            var post = await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
-            if (post == null)
-                throw new NullReferenceException("Post not found.");
-            var postLikes = await _unitOfWork.PostLikeRepository.GetPostLikes(postId);
-            var myLike = postLikes.FirstOrDefault(x => x.UserId == userId);
+            var usersPostLike = await _unitOfWork.PostLikeRepository.GetPostLikeForUser(postId, userId);
 
-            if (myLike != null)
+            if (usersPostLike != null)
             {
-                _unitOfWork.PostLikeRepository.RemoveLike(myLike);
+                _unitOfWork.PostLikeRepository.RemoveLike(usersPostLike);
                 var existingNotification = await _unitOfWork.NotificationRepository.GetNotificationByPostId(postId);
                 if (existingNotification != null)
                     _unitOfWork.NotificationRepository.DeleteNotification(existingNotification);
-               await _unitOfWork.ApplyChangesAsync();
+                await _unitOfWork.ApplyChangesAsync();
                 return false;
             }
             var newLike = new PostLike
@@ -76,6 +73,7 @@ namespace Friendshub.Application.Implementations
             await _unitOfWork.PostLikeRepository.AddLike(newLike);
 
             var userLiked = await _unitOfWork.UserRepository.GetByIdAsNoTracking(userId);
+            var post = await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
             var notification = new Notification()
             {
                 Id = Guid.NewGuid(),
@@ -89,10 +87,8 @@ namespace Friendshub.Application.Implementations
             };
             await _unitOfWork.NotificationRepository.AddNotificationAsync(notification);
             await _unitOfWork.ApplyChangesAsync();
-
             if(post.UserId != userId)
-            await _notificationSender.SendAsync(post.UserId, notification);
-
+                await _notificationSender.SendAsync(post.UserId, notification);
             return true;
         }
 

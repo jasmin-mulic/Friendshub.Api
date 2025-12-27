@@ -15,5 +15,4 @@ namespace Friendshub.Api.SIgnalR.Hubs
             return base.OnConnectedAsync();
         }
     }
-
 }

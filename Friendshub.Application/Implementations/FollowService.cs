@@ -1,61 +1,89 @@
 ﻿using Friendshub.Application.DTO;
 using Friendshub.Application.Extensions;
 using Friendshub.Application.Features.Users.DTO;
+using Friendshub.Application.Interfaces;
 using Friendshub.Application.Interfaces.Services;
 using Friendshub.Application.Repositories;
 using Friendshub.Domain.Models;
+using System.Threading;
 
 namespace Friendshub.Application.Implementations
 {
     public class FollowService : IFollowService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public FollowService(IUnitOfWork unitOfWork)
+        private readonly INotificationService _notificationService;
+        private readonly INotificationSender _notificationSender;
+        public FollowService(IUnitOfWork unitOfWork, INotificationService notificationService,INotificationSender notificationSender)
         {
             _unitOfWork = unitOfWork;
+            _notificationService = notificationService;
+            _notificationSender = notificationSender;
         }
         public async Task<string> AddFollowAsync(Guid followerId, Guid followeeId)
         {
             // TODO: Missing transactions
-            var existingFollow = await _unitOfWork.FollowRepository.GetByIdAsync(followerId, followeeId);
-
-            if (existingFollow is not null)
+            try
             {
-                _unitOfWork.FollowRepository.RemoveFollow(existingFollow);
-                await _unitOfWork.ApplyChangesAsync();
-                return "Unfollowed";
-            }
-            var followee = await _unitOfWork.UserRepository.GetByIdAsNoTracking(followeeId) ?? throw new ApplicationException("Followee not found.");
+                var existingFollow = await _unitOfWork.FollowRepository.GetByIdAsync(followerId, followeeId);
 
-            if (followee.PrivateAccount)
-            {
-                var pendingRequest = await _unitOfWork.FollowRequestRepository.GetPendingRequest(followerId, followeeId);
-
-                if (pendingRequest != null)
+                if (existingFollow is not null)
                 {
-                    _unitOfWork.FollowRequestRepository.RemoveFollowRequest(pendingRequest);
+                    _unitOfWork.FollowRepository.RemoveFollow(existingFollow);
+                    await _unitOfWork.ApplyChangesAsync();
+                    return "Unfollowed";
+                }
+                var followee = await _unitOfWork.UserRepository.GetByIdAsNoTracking(followeeId) ?? throw new ApplicationException("Followee not found.");
+                var follower = await _unitOfWork.UserRepository.GetByIdAsNoTracking(followerId) ?? throw new ApplicationException("Followee not found.");
+
+
+                if (followee.PrivateAccount)
+                {
+                    var pendingRequest = await _unitOfWork.FollowRequestRepository.GetPendingRequest(followerId, followeeId);
+
+                    if (pendingRequest != null)
+                    {
+                        _unitOfWork.FollowRequestRepository.RemoveFollowRequest(pendingRequest);
+                        await _unitOfWork.ApplyChangesAsync();
+                        return "Follow request canceled";
+                    }
+                    var followRequest = new FollowRequest
+                    {
+                        SenderId = followerId,
+                        RecieverId = followeeId
+                    };
+                    var notification = new Notification()
+                    {
+                        Id = Guid.NewGuid(),
+                        NotificationType = NotificationType.Like,
+                        CreatedAt = DateTime.Now,
+                        ReceiverId = followeeId,
+                        SenderId = followerId,
+                        Message = follower.Username + " sent you follow request",
+                        EntityId = null,
+                        isRead = false,
+                    };
+                    await _unitOfWork.NotificationRepository.AddNotificationAsync(notification);
+                    await _unitOfWork.FollowRequestRepository.AddFollowRequest(followRequest);
+                    await _notificationSender.SendAsync(followeeId, notification);
                     await _unitOfWork.ApplyChangesAsync();
 
-                    return "Follow request canceled";
+                    return "Follow request sent";
                 }
-                var followRequest = new FollowRequest
+                var newFollow = new Follow
                 {
-                    SenderId = followerId,
-                    RecieverId = followeeId
+                    FolloweeId = followeeId,
+                    FollowerId = followerId,
                 };
-                await _unitOfWork.FollowRequestRepository.AddFollowRequest(followRequest);
+                await _unitOfWork.FollowRepository.AddFollowAsync(newFollow);
                 await _unitOfWork.ApplyChangesAsync();
-
-                return "Follow request sent";
+                return "Followed";
             }
-            var newFollow = new Follow
+            catch (Exception ex)
             {
-                FolloweeId = followeeId,
-                FollowerId = followerId,
-            };
-            await _unitOfWork.FollowRepository.AddFollowAsync(newFollow);
-            await _unitOfWork.ApplyChangesAsync();
-            return "Followed";
+
+                throw;
+            }
         }
 
         public async Task<List<UserBasicInfo>> GetFollowers(Guid userId)

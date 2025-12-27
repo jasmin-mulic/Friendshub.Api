@@ -2,7 +2,6 @@
 using Friendshub.Application.Features.Posts;
 using Friendshub.Application.Features.Posts.DTO;
 using Friendshub.Application.Interfaces.Services;
-using Friendshub.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,15 +15,13 @@ namespace Friendshub.Api.Controllers
         private readonly ILIkeService _likeService;
         private readonly IPostService _postService;
         private readonly ICommentService _commentService;
-        private readonly INotificationService _notificationService;
-        public PostsController(IPostService postService, ILIkeService likeService, ICommentService commentService, INotificationService notificationService)
+        public PostsController(IPostService postService, ILIkeService likeService, ICommentService commentService)
         {
             _postService = postService;
             _likeService = likeService;
             _commentService = commentService;
-            _notificationService = notificationService;
         }
-        [HttpPost()]
+        [HttpPost]
         public async Task<IActionResult> AddPost(AddPostDto request)
         {
             try
@@ -37,7 +34,6 @@ namespace Friendshub.Api.Controllers
                     return BadRequest(new { message = "You have to add at least one image or post content." });
                 var newPost = await _postService.AddPost(request, UserIdFromClaims);
                 return Ok(newPost);
-
             }
             catch (Exception exc)
             {
@@ -45,7 +41,7 @@ namespace Friendshub.Api.Controllers
             }
         }
 
-        [HttpGet()]
+        [HttpGet("me")]
         public async Task<IActionResult> GetMyPosts([FromQuery] int page = 1)
         {
             var userId = User.GetUserId();
@@ -171,6 +167,9 @@ namespace Friendshub.Api.Controllers
         {
             try
             {
+
+                // disallow other users to delete comments that 
+                // do not belong to them
                 var userIdFromClaims = User.GetUserId();
                 if (userIdFromClaims == Guid.Empty)
                     return Unauthorized("You are logged out");
