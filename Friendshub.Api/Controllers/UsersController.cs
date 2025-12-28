@@ -14,14 +14,17 @@ namespace Friendshub.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IFollowService _followService;
+        private readonly INotificationService _notificationService;
         public UsersController
         (
             IUserService userService,
-            IFollowService followService
+            IFollowService followService,
+            INotificationService notificationService
         )
         {
             _userService = userService;
             _followService = followService;
+            _notificationService = notificationService;
         }
 
         [Authorize]
@@ -141,6 +144,23 @@ namespace Friendshub.Api.Controllers
             if (userInfo == null)
                 return NotFound("User does not exist or is deleted.");
             return Ok(userInfo);
+        }
+
+        [Authorize]
+        [HttpGet("me/notifications")]
+        public async Task<IActionResult> GetUserNotifications([FromQuery] int page = 1)
+        {
+            var userId = User.GetUserId();
+            try
+            {
+            var notificationsPaged = _notificationService.GetNotificationsAsync(userId, page);
+            return Ok(notificationsPaged);
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+
         }
     }
 }

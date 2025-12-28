@@ -21,7 +21,7 @@
         public virtual List<FollowRequest> RecievedFollowRequest { get; set; } = new();
         public virtual List<Comment> Comments { get; set; } = new();
         public ICollection<Notification> SentNotifications { get; set; }
-        public virtual ICollection<Notification> ReceivedNotifications { get; set; } = new List<Notification>();    
+        public virtual List<Notification> Notifications { get; set; } = new List<Notification>();    
 
     }
 

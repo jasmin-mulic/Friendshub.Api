@@ -2,7 +2,7 @@
 using Friendshub.Application.Interfaces.Repositories;
 namespace Friendshub.Application.Repositories
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork
     {
          ITokenRepository TokenRepository { get;}
          IUserRepository UserRepository { get;}

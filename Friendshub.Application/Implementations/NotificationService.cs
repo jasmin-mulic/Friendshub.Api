@@ -42,9 +42,27 @@ namespace Friendshub.Application.Implementations
             return notification;
         }
 
-        public Task<PageResult<ClientNotificationDto>> GetNotificationsAsync(Guid recieverId, int pageNumber = 1)
+        public async Task<PageResult<ClientNotificationDto>> GetNotificationsAsync(Guid recieverId, int pageNumber = 1, int pageSize = 10)
         {
-            throw new NotImplementedException();
+
+            var notifications = await _unitOfWork.NotificationRepository.GetNotificationsAsync(recieverId,pageNumber);
+            var totalCount = 10;
+            var notificationsMapped = notifications.Select(notif => new ClientNotificationDto 
+            {
+                CreatedAt = DateTime.UtcNow,
+                Id = notif.Id,
+                Message = notif.Message,
+                SenderProfileImageUrl =notif.Sender.ProfileImageUrl.ToFullImagePath(),
+                SenderUsername =notif.Sender.Username,
+            }).ToList();
+            var result = new PageResult<ClientNotificationDto>
+            {
+                Items = notificationsMapped,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+            return result;
         }
 
         public async Task MarkAsRead(Guid notificationId)

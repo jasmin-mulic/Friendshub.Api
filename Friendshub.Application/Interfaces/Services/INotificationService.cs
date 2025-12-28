@@ -5,7 +5,7 @@ namespace Friendshub.Application.Interfaces.Services
 {
     public interface INotificationService
     {
-        Task<PageResult<ClientNotificationDto>> GetNotificationsAsync(Guid recieverId, int pageNumber = 1);
+        Task<PageResult<ClientNotificationDto>> GetNotificationsAsync(Guid recieverId, int pageNumber = 1, int pageSize = 10);
         Task<Notification> CreateNotification(Guid senderId, Guid receiverId, NotificationType type, Guid? entityId = null);
         Task MarkAsRead (Guid notificationId);
     }

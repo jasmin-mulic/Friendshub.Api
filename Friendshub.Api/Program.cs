@@ -84,9 +84,6 @@ builder.Services.AddScoped<IFollowRequestRepository, FollowRequestRepository>();
 builder.Services.AddScoped<IPostLikeRepository, PostLikeRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-builder
-    .Services
-    .AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INotificationSender, SignalRNotificationSender>();
 
 //Services DI
@@ -98,6 +95,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
 builder.Services.AddCors(options =>

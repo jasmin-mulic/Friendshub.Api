@@ -9,6 +9,7 @@ namespace Friendshub.Application.Interfaces.Services
         Task<LikeCommentResponseDto> LikePostComment(Guid commentId, Guid userId);
         Task<List<UserBasicInfo>> GetPostLikes(Guid PostId);
         Task<bool> LikePost(Guid userId, Guid postId);
+        Task<List<UserBasicInfo>> GetUserLikesAsync();
 
     }
 }

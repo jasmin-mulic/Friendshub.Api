@@ -4,6 +4,7 @@ using Friendshub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Friendshub.Infrastructure.Migrations
 {
     [DbContext(typeof(FriendshubDbContext))]
-    partial class FriendshubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251228011339_Notification_Update")]
+    partial class Notification_Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -131,12 +134,6 @@ namespace Friendshub.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsOpened")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
@@ -148,6 +145,12 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("isOpened")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isRead")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -412,8 +415,8 @@ namespace Friendshub.Infrastructure.Migrations
 
             modelBuilder.Entity("Friendshub.Domain.Models.Notification", b =>
                 {
-                    b.HasOne("Friendshub.Domain.Models.User", "Receiver")
-                        .WithMany("Notifications")
+                    b.HasOne("Friendshub.Domain.Models.User", "Reciever")
+                        .WithMany("ReceivedNotifications")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -424,7 +427,7 @@ namespace Friendshub.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Receiver");
+                    b.Navigation("Reciever");
 
                     b.Navigation("Sender");
                 });
@@ -529,11 +532,11 @@ namespace Friendshub.Infrastructure.Migrations
 
                     b.Navigation("Followings");
 
-                    b.Navigation("Notifications");
-
                     b.Navigation("PostLikes");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("ReceivedNotifications");
 
                     b.Navigation("RecievedFollowRequest");
 

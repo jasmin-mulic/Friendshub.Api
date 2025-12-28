@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Friendshub.Domain.Models
+﻿namespace Friendshub.Domain.Models
 {
     public class Notification : BaseEntity
     {
@@ -13,13 +7,12 @@ namespace Friendshub.Domain.Models
         public Guid ReceiverId { get; set; }
         public NotificationType NotificationType { get; set; }
         public Guid? EntityId { get; set; }
-        public bool isRead { get; set; } = false;
+        public bool IsOpened { get; set; } = false;
+        public bool IsRead { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string Message { get; set; }
         public User Sender { get; set; }
-        public User Reciever { get; set; }
-
-
+        public User Receiver { get; set; }
     }
     public enum NotificationType
     {

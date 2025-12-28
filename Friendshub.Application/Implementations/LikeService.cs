@@ -12,12 +12,14 @@ namespace Friendshub.Application.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly INotificationSender _notificationSender;
+        private readonly INotificationService _notificationService;
         
 
-        public LikeService(IUnitOfWork unitOfWork, INotificationSender notificationSender )
+        public LikeService(IUnitOfWork unitOfWork, INotificationSender notificationSender,INotificationService notificationService )
         {
             _unitOfWork = unitOfWork;
             _notificationSender = notificationSender;
+            _notificationService = notificationService; 
         }
 
         public async Task<LikeCommentResponseDto> LikePostComment(Guid commentId, Guid userId)
@@ -72,19 +74,8 @@ namespace Friendshub.Application.Implementations
             };
             await _unitOfWork.PostLikeRepository.AddLike(newLike);
 
-            var userLiked = await _unitOfWork.UserRepository.GetByIdAsNoTracking(userId);
             var post = await _unitOfWork.PostRepository.GetPostByIdAsync(postId);
-            var notification = new Notification()
-            {
-                Id = Guid.NewGuid(),
-                NotificationType = NotificationType.Like,
-                CreatedAt = DateTime.Now,
-                ReceiverId = post.UserId,
-                SenderId = userId,
-                Message = userLiked.Username + " liked your post",
-                EntityId = post.Id,
-                isRead = false,
-            };
+            var notification = await _notificationService.CreateNotification(userId, post.UserId, NotificationType.Like, postId);
             await _unitOfWork.NotificationRepository.AddNotificationAsync(notification);
             await _unitOfWork.ApplyChangesAsync();
             if(post.UserId != userId)
@@ -105,6 +96,11 @@ namespace Friendshub.Application.Implementations
 
             }).ToList();
             return postLikesDto;
+        }
+
+        public async Task<List<UserBasicInfo>> GetUserLikesAsync()
+        {
+            return await _unitOfWork.PostLikeRepository.GetUserLikesAsync();
         }
     }
 }

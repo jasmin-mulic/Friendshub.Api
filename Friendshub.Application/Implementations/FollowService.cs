@@ -61,7 +61,7 @@ namespace Friendshub.Application.Implementations
                         SenderId = followerId,
                         Message = follower.Username + " sent you follow request",
                         EntityId = null,
-                        isRead = false,
+                        IsOpened = false,
                     };
                     await _unitOfWork.NotificationRepository.AddNotificationAsync(notification);
                     await _unitOfWork.FollowRequestRepository.AddFollowRequest(followRequest);

@@ -6,12 +6,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 namespace Friendshub.Infrastructure.Implementations
 {
-    public class UnitOfWork : IUnitOfWork, IDisposable
+    public class UnitOfWork : IUnitOfWork
     {
         private readonly FriendshubDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private bool _disposed = false;
         public ITokenRepository TokenRepository { get; }
         public IUserRepository UserRepository { get; }
         public ICommentRepository CommentRepository { get; }
@@ -40,7 +39,6 @@ namespace Friendshub.Infrastructure.Implementations
             CommentLikeRepository = new CommentLikeRepository(_context);
             FollowRequestRepository = new FollowRequestRepository(_context);
         }
-
         public async Task<bool> ApplyChangesAsync()
         {
             try
@@ -53,19 +51,6 @@ namespace Friendshub.Infrastructure.Implementations
 
                 throw new ApplicationException("Error saving changes to database", exc);
             }
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-                if (disposing)
-                {
-                    _context?.Dispose();
-                }
-            _disposed = true;
         }
     }
 }

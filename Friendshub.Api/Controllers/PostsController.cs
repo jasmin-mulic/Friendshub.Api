@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Friendshub.Api.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PostsController : ControllerBase
@@ -175,6 +174,20 @@ namespace Friendshub.Api.Controllers
                     return Unauthorized("You are logged out");
                 await _commentService.RemoveComment(commentId);
                 return Ok();
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc.Message);
+            }
+        }
+
+        [HttpGet("GetAllPostLikes")]
+        public async Task<IActionResult> GetAllPostLikes()
+        {
+            try
+            {
+                var result = await _likeService.GetUserLikesAsync();
+                return Ok(result);
             }
             catch (Exception exc)
             {

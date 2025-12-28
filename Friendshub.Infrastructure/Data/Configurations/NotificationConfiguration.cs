@@ -13,8 +13,8 @@ namespace Friendshub.Infrastructure.Data.Configurations
                 .HasForeignKey(s => s.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(x => x.Reciever)
-                .WithMany(s => s.ReceivedNotifications)
+            builder.HasOne(x => x.Receiver)
+                .WithMany(s => s.Notifications)
                 .HasForeignKey(s => s.ReceiverId)
                 .OnDelete(DeleteBehavior.Cascade);
 
